@@ -17,8 +17,8 @@ export function getAllTimeOptions(): string[] {
 }
 
 export function minutesBetween(start: string, end: string): number {
-  const [sh, sm] = start.split(":").map(Number);
-  const [eh, em] = end.split(":").map(Number);
+  const [sh = 0, sm = 0] = start.split(":").map(Number);
+  const [eh = 0, em = 0] = end.split(":").map(Number);
   let diff = eh * 60 + em - (sh * 60 + sm);
   if (diff <= 0) diff += 24 * 60;
   return diff;
@@ -50,7 +50,7 @@ export function nowStamp(): string {
 
 export function downloadCsv(rows: Record<string, unknown>[], filename: string) {
   if (!rows.length) return;
-  const headers = Object.keys(rows[0]);
+  const headers = Object.keys(rows[0] ?? {});
   const escape = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const csv = [
     headers.join(","),
