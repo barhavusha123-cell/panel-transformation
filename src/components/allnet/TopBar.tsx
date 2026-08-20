@@ -30,16 +30,28 @@ export function TopBar() {
 
   const changePassword = (e: React.FormEvent) => {
     e.preventDefault();
-    if (next !== confirmPwd) return toast.error("הסיסמאות החדשות אינן תואמות.");
-    if (next.trim().length < 3) return toast.error("הסיסמה קצרה מדי.");
+    if (next !== confirmPwd) {
+      toast.error("הסיסמאות החדשות אינן תואמות.");
+      return;
+    }
+    if (next.trim().length < 3) {
+      toast.error("הסיסמה קצרה מדי.");
+      return;
+    }
 
     if (isAdmin) {
-      if (curr !== state.adminPassword) return toast.error("סיסמה נוכחית שגויה.");
+      if (curr !== state.adminPassword) {
+        toast.error("סיסמה נוכחית שגויה.");
+        return;
+      }
       setState((prev) => ({ ...prev, adminPassword: next.trim() }));
       toast.success("סיסמת המנהל עודכנה בהצלחה.");
     } else if (session?.user) {
       const u = state.users.find((x) => x.username === session.user!.username);
-      if (!u || String(u.password) !== curr) return toast.error("סיסמה נוכחית שגויה.");
+      if (!u || String(u.password) !== curr) {
+        toast.error("סיסמה נוכחית שגויה.");
+        return;
+      }
       setState((prev) => ({
         ...prev,
         users: prev.users.map((x) =>
