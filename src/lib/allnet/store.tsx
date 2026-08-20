@@ -1,0 +1,89 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import { defaultState, type AllNetState, type User } from "./types";
+
+const STORAGE_KEY = "allnet_ops_state_v1";
+const SESSION_KEY = "allnet_ops_session_v1";
+
+interface Session {
+  kind: "admin" | "employee";
+  user: User | null;
+}
+
+interface StoreValue {
+  state: AllNetState;
+  setState: (updater: (prev: AllNetState) => AllNetState) => void;
+  session: Session | null;
+  setSession: (s: Session | null) => void;
+  hydrated: boolean;
+  resetAll: () => void;
+}
+
+const StoreContext = createContext<StoreValue | null>(null);
+
+export function AllNetProvider({ children }: { children: ReactNode }) {
+  const [state, setRaw] = useState<AllNetState>(defaultState);
+  const [session, setSessionRaw] = useState<Session | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) setRaw({ ...defaultState(), ...JSON.parse(stored) });
+      const sess = sessionStorage.getItem(SESSION_KEY);
+      if (sess) setSessionRaw(JSON.parse(sess));
+    } catch {
+      /* ignore corrupted storage */
+    }
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      /* quota */
+    }
+  }, [state, hydrated]);
+
+  const setState = useCallback(
+    (updater: (prev: AllNetState) => AllNetState) => setRaw(updater),
+    [],
+  );
+
+  const setSession = useCallback((s: Session | null) => {
+    setSessionRaw(s);
+    try {
+      if (s) sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
+      else sessionStorage.removeItem(SESSION_KEY);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const resetAll = useCallback(() => {
+    setRaw(defaultState());
+    setSession(null);
+  }, [setSession]);
+
+  const value = useMemo(
+    () => ({ state, setState, session, setSession, hydrated, resetAll }),
+    [state, setState, session, setSession, hydrated, resetAll],
+  );
+
+  return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
+}
+
+export function useAllNet() {
+  const ctx = useContext(StoreContext);
+  if (!ctx) throw new Error("useAllNet must be used inside AllNetProvider");
+  return ctx;
+}
