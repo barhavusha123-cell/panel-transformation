@@ -53,7 +53,7 @@ export function LoginScreen() {
       <div className="animate-rise relative z-10 w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
           <img
-            src={logo}
+            src={logo.url}
             alt="לוגו AllNet"
             width={816}
             height={816}
