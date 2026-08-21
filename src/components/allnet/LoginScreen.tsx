@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { KeyRound, LogIn, ShieldCheck, User2 } from "lucide-react";
-import logo from "@/assets/allnet-logo.png";
+import logo from "@/assets/allnet-logo.png.asset.json";
 import { useAllNet } from "@/lib/allnet/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
