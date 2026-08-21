@@ -57,7 +57,7 @@ export function LoginScreen() {
             alt="לוגו AllNet"
             width={816}
             height={816}
-            className="mb-4 size-28 object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.45)]"
+            className="mb-6 size-80 object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.15)]"
           />
           <h1 className="text-gradient text-4xl font-extrabold tracking-tight">ברוך הבא</h1>
           <p className="mt-2 text-sm text-muted-foreground">
