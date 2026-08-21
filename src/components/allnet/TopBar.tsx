@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AlertTriangle, LogOut, Settings } from "lucide-react";
 import { toast } from "sonner";
-import logo from "@/assets/allnet-logo.png.asset.json";
+import logo from "@/assets/allnet-logo-t.png.asset.json";
 import { useAllNet } from "@/lib/allnet/store";
 import { MASTER_PASSWORD } from "@/lib/allnet/types";
 import { Button } from "@/components/ui/button";
