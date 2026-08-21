@@ -89,7 +89,7 @@ export function TopBar() {
               alt="לוגו AllNet"
               width={816}
               height={816}
-              className="size-12 object-contain"
+              className="size-20 object-contain"
             />
             <div>
               <h1 className="text-lg font-bold tracking-tight sm:text-xl">
