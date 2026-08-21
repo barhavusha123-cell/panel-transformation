@@ -1,24 +1,56 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { AllNetProvider, useAllNet } from "@/lib/allnet/store";
+import { LoginScreen } from "@/components/allnet/LoginScreen";
+import { TopBar } from "@/components/allnet/TopBar";
+import { EmployeePortal } from "@/components/allnet/EmployeePortal";
+import { AdminConsole } from "@/components/allnet/AdminConsole";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "AllNet — מערכת ניהול פרויקטים ותפעול" },
+      {
+        name: "description",
+        content:
+          "מערכת AllNet לניהול פרויקטים, דיווח שעות, ניהול קבלני משנה ומסמכים ארגוניים בממשק מתקדם.",
+      },
+      { property: "og:title", content: "AllNet — מערכת ניהול פרויקטים ותפעול" },
+      {
+        property: "og:description",
+        content: "ניהול פרויקטים, דיווח שעות ומסמכים בממשק מתקדם ומאובטח.",
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+function Shell() {
+  const { session, hydrated } = useAllNet();
+
+  if (!hydrated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="shimmer-line size-14 rounded-2xl bg-surface-2" />
+      </div>
+    );
+  }
+
+  if (!session) return <LoginScreen />;
+
+  return (
+    <div className="min-h-screen">
+      <TopBar />
+      <div className="animate-fade mx-auto w-full max-w-7xl px-4 pb-16 pt-6">
+        {session.kind === "admin" ? <AdminConsole /> : <EmployeePortal />}
+      </div>
+    </div>
+  );
+}
+
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <AllNetProvider>
+      <Shell />
+    </AllNetProvider>
   );
 }
