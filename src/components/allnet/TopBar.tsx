@@ -85,7 +85,7 @@ export function TopBar() {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4">
           <div className="flex items-center gap-3">
             <img
-              src={logo}
+              src={logo.url}
               alt="לוגו AllNet"
               width={816}
               height={816}
