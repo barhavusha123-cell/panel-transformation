@@ -83,14 +83,18 @@ export function TopBar() {
     <>
       <header className="surface-panel animate-fade sticky top-0 z-40 mb-6 rounded-b-2xl border-x-0 border-t-0">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4">
-          <div className="flex items-center gap-3">
-            <img
-              src={logo.url}
-              alt="לוגו AllNet"
-              width={816}
-              height={816}
-              className="size-20 object-contain"
-            />
+          <div className="flex items-center gap-4">
+            <div className="relative flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full bg-primary/10 blur-lg" />
+              <div className="absolute inset-1 rounded-full border border-primary/10 bg-white/60 shadow-lg backdrop-blur-sm" />
+              <img
+                src={logo.url}
+                alt="לוגו AllNet"
+                width={816}
+                height={816}
+                className="relative size-28 object-contain drop-shadow-[0_6px_18px_rgba(0,0,0,0.12)]"
+              />
+            </div>
             <div>
               <h1 className="text-lg font-bold tracking-tight sm:text-xl">
                 פלטפורמת ניהול תפעול ארגוני — <span className="text-gradient">AllNet</span>
