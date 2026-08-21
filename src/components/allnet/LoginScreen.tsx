@@ -52,13 +52,17 @@ export function LoginScreen() {
 
       <div className="animate-rise relative z-10 w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
-          <img
-            src={logo.url}
-            alt="לוגו AllNet"
-            width={816}
-            height={816}
-            className="mb-6 size-80 object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.15)]"
-          />
+          <div className="relative mb-8">
+            <div className="absolute inset-0 -m-8 rounded-full bg-gradient-to-br from-primary/20 via-accent/10 to-transparent blur-2xl" />
+            <div className="absolute inset-0 -m-3 rounded-full border border-primary/10 bg-white/40 shadow-2xl backdrop-blur-sm" />
+            <img
+              src={logo.url}
+              alt="לוגו AllNet"
+              width={816}
+              height={816}
+              className="relative size-96 object-contain drop-shadow-[0_14px_40px_rgba(0,0,0,0.12)]"
+            />
+          </div>
           <h1 className="text-gradient text-4xl font-extrabold tracking-tight">ברוך הבא</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             התחבר למערכת ניהול תפעול ארגוני — AllNet
