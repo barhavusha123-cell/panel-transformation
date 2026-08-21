@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { KeyRound, LogIn, ShieldCheck, User2 } from "lucide-react";
-import logo from "@/assets/allnet-logo.png.asset.json";
+import logo from "@/assets/allnet-logo-t.png.asset.json";
 import { useAllNet } from "@/lib/allnet/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,15 +52,17 @@ export function LoginScreen() {
 
       <div className="animate-rise relative z-10 w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="relative mb-8">
-            <div className="absolute inset-0 -m-8 rounded-full bg-gradient-to-br from-primary/20 via-accent/10 to-transparent blur-2xl" />
-            <div className="absolute inset-0 -m-3 rounded-full border border-primary/10 bg-white/40 shadow-2xl backdrop-blur-sm" />
+          <div className="relative mb-6 w-full max-w-[18rem]">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 -m-6 rounded-full bg-gradient-to-br from-primary/12 via-accent/8 to-transparent blur-2xl"
+            />
             <img
               src={logo.url}
               alt="לוגו AllNet"
-              width={816}
-              height={816}
-              className="relative size-96 object-contain drop-shadow-[0_14px_40px_rgba(0,0,0,0.12)]"
+              width={1307}
+              height={578}
+              className="relative h-auto w-full object-contain drop-shadow-[0_10px_28px_rgba(0,0,0,0.10)]"
             />
           </div>
           <h1 className="text-gradient text-4xl font-extrabold tracking-tight">ברוך הבא</h1>
