@@ -33,8 +33,8 @@ export function EmployeePortal() {
 
   const [project, setProject] = useState("");
   const [reportDate, setReportDate] = useState(todayISO());
-  const [from, setFrom] = useState("07:00");
-  const [to, setTo] = useState("17:00");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
   const [extras, setExtras] = useState("");
   const [notes, setNotes] = useState("");
   const [docFilter, setDocFilter] = useState("all");
@@ -139,41 +139,38 @@ export function EmployeePortal() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label>חריגים / תוספות שינויים (אופציונלי)</Label>
-                <Input value={extras} onChange={(e) => setExtras(e.target.value)} />
-              </div>
+              <div className="grid gap-5 sm:grid-cols-2 md:col-span-2">
+                <div className="space-y-2">
+                  <Label>משעה</Label>
+                  <Select value={from} onValueChange={setFrom}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="בחר שעה" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-64">
+                      {TIME_OPTIONS.map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {t}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-2">
-                <Label>משעה</Label>
-                <Select value={from} onValueChange={setFrom}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="בחר שעה" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-64">
-                    {TIME_OPTIONS.map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>עד שעה</Label>
-                <Select value={to} onValueChange={setTo}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="בחר שעה" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-64">
-                    {TIME_OPTIONS.map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                  <Label>עד שעה</Label>
+                  <Select value={to} onValueChange={setTo}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="בחר שעה" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-64">
+                      {TIME_OPTIONS.map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {t}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="space-y-2 md:col-span-2">
@@ -183,6 +180,11 @@ export function EmployeePortal() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                 />
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label>חריגים / תוספות שינויים (אופציונלי)</Label>
+                <Input value={extras} onChange={(e) => setExtras(e.target.value)} />
               </div>
             </div>
 

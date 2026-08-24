@@ -9,8 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function LoginScreen() {
   const { state, setSession } = useAllNet();
-  const [uname, setUname] = useState("user");
-  const [pwd, setPwd] = useState("user123");
+  const [uname, setUname] = useState("");
+  const [pwd, setPwd] = useState("");
   const [adminPwd, setAdminPwd] = useState("");
   const [error, setError] = useState("");
 
