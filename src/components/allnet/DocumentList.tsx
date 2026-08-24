@@ -1,8 +1,16 @@
-import { Download, FileText, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Download, Eye, FileText, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import type { FileRecord } from "@/lib/allnet/types";
 
 export function DocumentList({
   projectFilter,
@@ -12,6 +20,7 @@ export function DocumentList({
   isAdmin?: boolean;
 }) {
   const { state, setState } = useAllNet();
+  const [preview, setPreview] = useState<FileRecord | null>(null);
 
   const files = state.files.filter((f) =>
     projectFilter ? f.project === projectFilter || f.project === "כללי" : true,
@@ -59,6 +68,10 @@ export function DocumentList({
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => setPreview(file)}>
+              <Eye className="size-4" />
+              צפייה
+            </Button>
             <Button asChild size="sm" variant="secondary">
               <a href={file.dataUrl} download={file.name}>
                 <Download className="size-4" />
@@ -79,6 +92,28 @@ export function DocumentList({
           </div>
         </div>
       ))}
+
+      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="text-right">{preview?.name}</DialogTitle>
+          </DialogHeader>
+          {preview &&
+            (preview.dataUrl.startsWith("data:image") ? (
+              <img
+                src={preview.dataUrl}
+                alt={preview.name}
+                className="max-h-[70vh] w-full rounded-lg object-contain"
+              />
+            ) : (
+              <iframe
+                src={preview.dataUrl}
+                title={preview.name}
+                className="h-[70vh] w-full rounded-lg border border-border bg-surface"
+              />
+            ))}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

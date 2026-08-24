@@ -173,6 +173,25 @@ export function ProjectHoursDetail({
         </div>
       </div>
 
+      <div className="surface-panel grid gap-4 rounded-2xl p-5 sm:grid-cols-3">
+        <div className="rounded-xl border border-border bg-surface/70 p-4">
+          <p className="text-xs text-muted-foreground">סה״כ שעות עובדי החברה</p>
+          <p className="text-xl font-bold text-primary">
+            {formatHoursMinutes(employees.reduce((a, h) => a + h.minutes, 0))}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-surface/70 p-4">
+          <p className="text-xs text-muted-foreground">סה״כ שעות קבלני משנה</p>
+          <p className="text-xl font-bold text-primary">
+            {formatHoursMinutes(subs.reduce((a, h) => a + h.minutes, 0))}
+          </p>
+        </div>
+        <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
+          <p className="text-xs text-muted-foreground">סה״כ שעות בפרויקט</p>
+          <p className="text-xl font-bold text-primary">{formatHoursMinutes(totalMinutes)}</p>
+        </div>
+      </div>
+
       <HoursGroup title="עובדי החברה" icon={<Users className="size-5 text-primary" />} rows={employees} />
       <HoursGroup title="קבלני משנה" icon={<HardHat className="size-5 text-primary" />} rows={subs} />
     </div>
