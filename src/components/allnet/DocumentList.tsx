@@ -1,8 +1,16 @@
-import { Download, FileText, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Download, Eye, FileText, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import type { FileRecord } from "@/lib/allnet/types";
 
 export function DocumentList({
   projectFilter,
@@ -12,6 +20,7 @@ export function DocumentList({
   isAdmin?: boolean;
 }) {
   const { state, setState } = useAllNet();
+  const [preview, setPreview] = useState<FileRecord | null>(null);
 
   const files = state.files.filter((f) =>
     projectFilter ? f.project === projectFilter || f.project === "כללי" : true,
