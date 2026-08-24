@@ -174,6 +174,7 @@ export function AdminConsole() {
             dayMs,
         ),
       }))
+      .filter((p) => p.daysLeft <= 14)
       .sort((a, b) => a.daysLeft - b.daysLeft);
   }, [activeProjects]);
 
