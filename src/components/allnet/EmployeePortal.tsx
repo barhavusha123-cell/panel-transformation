@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -86,6 +87,7 @@ export function EmployeePortal() {
   const [extras, setExtras] = useState("");
   const [notes, setNotes] = useState("");
   const [docFilter, setDocFilter] = useState("all");
+  const [workers, setWorkers] = useState(1);
 
   const myHours = useMemo(
     () => state.hours.filter((h) => h.username === user?.username).slice().reverse(),
@@ -137,6 +139,7 @@ export function EmployeePortal() {
       date: reportDate,
       notes,
       extras,
+      workers: user.role === "קבלן משנה" ? workers : 1,
     };
     setState((prev) => ({ ...prev, hours: [...prev.hours, entry] }));
     toast.success("הדיווח נקלט בהצלחה.");
@@ -240,6 +243,23 @@ export function EmployeePortal() {
                 </div>
               </div>
 
+
+              {user?.role === "קבלן משנה" && (
+                <div className="space-y-2 md:col-span-2">
+                  <Label>כמה עובדים היו באותו היום?</Label>
+                  <div className="flex flex-wrap gap-4 rounded-xl border border-border bg-surface/60 p-3">
+                    {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                      <label key={n} className="flex cursor-pointer items-center gap-2 text-sm">
+                        <Checkbox
+                          checked={workers === n}
+                          onCheckedChange={(c) => setWorkers(c ? n : 1)}
+                        />
+                        {n}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-2 md:col-span-2">
                 <Label>תיאור העבודה והערות</Label>

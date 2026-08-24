@@ -1,11 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ArrowRight, Download, HardHat, Users } from "lucide-react";
 import { useAllNet } from "@/lib/allnet/store";
 import { downloadCsv, formatHoursMinutes } from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import {
   Table,
@@ -15,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { HoursEntry } from "@/lib/allnet/types";
+import { MIN_FULL_DAY_MINUTES, type HoursEntry } from "@/lib/allnet/types";
 
 function HoursGroup({
   title,
@@ -85,20 +83,18 @@ export function ProjectHoursDetail({
 }) {
   const { state } = useAllNet();
   const project = state.projects.find((p) => p.name === projectName);
-  const [range, setRange] = useState({ from: "", to: "" });
 
   const rows = useMemo(
-    () =>
-      state.hours
-        .filter((h) => h.project === projectName)
-        .filter((h) => (!range.from || h.date >= range.from) && (!range.to || h.date <= range.to))
-        .slice()
-        .reverse(),
-    [state.hours, projectName, range],
+    () => state.hours.filter((h) => h.project === projectName).slice().reverse(),
+    [state.hours, projectName],
   );
 
   const employees = rows.filter((h) => h.role !== "קבלן משנה");
   const subs = rows.filter((h) => h.role === "קבלן משנה");
+  const subDays = subs.reduce(
+    (a, h) => a + (h.minutes >= MIN_FULL_DAY_MINUTES ? Math.max(1, h.workers ?? 1) : 0),
+    0,
+  );
   const totalMinutes = rows.reduce((a, h) => a + h.minutes, 0);
   const reported = Math.round((totalMinutes / 60) * 100) / 100;
   const budget = project?.budget ?? 0;
@@ -147,29 +143,15 @@ export function ProjectHoursDetail({
           </div>
         </div>
 
-        <Progress value={Math.min(pct, 100)} className="h-2" />
-        <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-          <span>ניצול תקציב</span>
-          <Badge variant={pct >= 80 ? "destructive" : "secondary"}>{pct}%</Badge>
-        </div>
-
-        <div className="mt-5 grid max-w-md gap-3 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label>מתאריך</Label>
-            <Input
-              type="date"
-              value={range.from}
-              onChange={(e) => setRange({ ...range, from: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>עד תאריך</Label>
-            <Input
-              type="date"
-              value={range.to}
-              onChange={(e) => setRange({ ...range, to: e.target.value })}
-            />
-          </div>
+        <Progress value={Math.min(pct, 100)} className="h-3" />
+        <div className="mt-3 flex items-center justify-between">
+          <span className="text-lg font-semibold">ניצול תקציב</span>
+          <Badge
+            variant={pct >= 80 ? "destructive" : "secondary"}
+            className="px-4 py-1 text-xl font-bold"
+          >
+            {pct}%
+          </Badge>
         </div>
       </div>
 
@@ -181,10 +163,8 @@ export function ProjectHoursDetail({
           </p>
         </div>
         <div className="rounded-xl border border-border bg-surface/70 p-4">
-          <p className="text-xs text-muted-foreground">סה״כ שעות קבלני משנה</p>
-          <p className="text-xl font-bold text-primary">
-            {formatHoursMinutes(subs.reduce((a, h) => a + h.minutes, 0))}
-          </p>
+          <p className="text-xs text-muted-foreground">סה״כ ימי עבודה לקבלני משנה</p>
+          <p className="text-xl font-bold text-primary">{subDays} ימי עבודה</p>
         </div>
         <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
           <p className="text-xs text-muted-foreground">סה״כ שעות בפרויקט</p>

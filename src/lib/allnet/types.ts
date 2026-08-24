@@ -41,7 +41,10 @@ export interface HoursEntry {
   date: string;
   notes: string;
   extras: string;
+  workers?: number;
 }
+
+export const MIN_FULL_DAY_MINUTES = 180;
 
 export interface FileRecord {
   id: string;
