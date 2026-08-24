@@ -689,7 +689,7 @@ export function AdminConsole() {
                           {dashRows.map((r, i) => (
                             <Cell
                               key={r.name}
-                              fill={r.pct >= 80 ? "var(--destructive)" : CHART_COLORS[i % 6]}
+                              fill={r.pct >= 80 ? "oklch(0.86 0.09 25)" : CHART_COLORS[i % 6]}
                               stroke="var(--background)"
                               strokeWidth={2}
                               className="cursor-pointer"
