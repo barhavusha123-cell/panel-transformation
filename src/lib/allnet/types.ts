@@ -16,16 +16,19 @@ export interface User {
 
 export interface Project {
   name: string;
-  subs: string[];
   manager: string;
   budget: number;
+  team: string[];
+  archived: boolean;
 }
+
+export const MIN_BUDGET = 1;
+export const MAX_BUDGET = 1000;
 
 export interface HoursEntry {
   id: number;
   username: string;
   project: string;
-  sub: string;
   reporter: string;
   role: string;
   from: string;
