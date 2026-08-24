@@ -42,9 +42,9 @@ export const SUB_DAY_RATES: Record<Region, Record<number, number>> = {
   דרום: { 1: 1200, 2: 2200, 3: 2700, 4: 4000 },
   מרכז: { 1: 1000, 2: 1800, 3: 2400, 4: 3200 },
 };
-export const subDayRate = (region: Region, workers: number) => {
+export const subDayRate = (region: Region, workers: number): number => {
   const w = Math.min(Math.max(Math.round(workers) || 1, 1), MAX_SUB_WORKERS);
-  return SUB_DAY_RATES[region][w];
+  return SUB_DAY_RATES[region][w] ?? 0;
 };
 /** עלות עובד חברה ליום עבודה */
 export const EMPLOYEE_DAY_RATE = 1200;
