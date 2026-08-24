@@ -351,6 +351,7 @@ export function AdminConsole() {
               manager: editForm.manager,
               budget,
               deliveryDate: editForm.deliveryDate,
+              region: editForm.region,
               team: editForm.team,
             }
           : p,
