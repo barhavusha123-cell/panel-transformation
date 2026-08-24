@@ -19,10 +19,12 @@ function HoursGroup({
   title,
   icon,
   rows,
+  markPartialDays = false,
 }: {
   title: string;
   icon: React.ReactNode;
   rows: HoursEntry[];
+  markPartialDays?: boolean;
 }) {
   const minutes = rows.reduce((a, h) => a + h.minutes, 0);
   return (
@@ -57,7 +59,14 @@ function HoursGroup({
                   <TableCell>{h.date}</TableCell>
                   <TableCell>{h.from}</TableCell>
                   <TableCell>{h.to}</TableCell>
-                  <TableCell className="text-primary">{h.worked}</TableCell>
+                  <TableCell className="text-primary">
+                    <span>{h.worked}</span>
+                    {markPartialDays && h.minutes < MIN_FULL_DAY_MINUTES && (
+                      <Badge variant="outline" className="mr-2 text-[10px] font-normal">
+                        לא נספר כיום עבודה
+                      </Badge>
+                    )}
+                  </TableCell>
                   <TableCell>{h.extras || "—"}</TableCell>
                   <TableCell className="max-w-48 truncate">{h.notes || "—"}</TableCell>
                 </TableRow>
@@ -91,6 +100,7 @@ export function ProjectHoursDetail({
 
   const employees = rows.filter((h) => h.role !== "קבלן משנה");
   const subs = rows.filter((h) => h.role === "קבלן משנה");
+  const partialSubs = subs.filter((h) => h.minutes < MIN_FULL_DAY_MINUTES).length;
   const subDays = subs.reduce(
     (a, h) => a + (h.minutes >= MIN_FULL_DAY_MINUTES ? Math.max(1, h.workers ?? 1) : 0),
     0,
@@ -165,6 +175,10 @@ export function ProjectHoursDetail({
         <div className="rounded-xl border border-border bg-surface/70 p-4">
           <p className="text-xs text-muted-foreground">סה״כ ימי עבודה לקבלני משנה</p>
           <p className="text-xl font-bold text-primary">{subDays} ימי עבודה</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            נספרים רק דיווחים של 3 שעות ומעלה
+            {partialSubs > 0 && ` · ${partialSubs} דיווחים קצרים לא נספרו`}
+          </p>
         </div>
         <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
           <p className="text-xs text-muted-foreground">סה״כ שעות בפרויקט</p>
@@ -173,7 +187,12 @@ export function ProjectHoursDetail({
       </div>
 
       <HoursGroup title="עובדי החברה" icon={<Users className="size-5 text-primary" />} rows={employees} />
-      <HoursGroup title="קבלני משנה" icon={<HardHat className="size-5 text-primary" />} rows={subs} />
+      <HoursGroup
+        title="קבלני משנה"
+        icon={<HardHat className="size-5 text-primary" />}
+        rows={subs}
+        markPartialDays
+      />
     </div>
   );
 }
