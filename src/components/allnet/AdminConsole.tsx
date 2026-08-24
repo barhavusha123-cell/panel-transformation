@@ -319,7 +319,8 @@ export function AdminConsole() {
     budget: number;
     team: string[];
     deliveryDate: string;
-  }>({ name: "", manager: "", budget: 100, team: [], deliveryDate: "" });
+    region: Region;
+  }>({ name: "", manager: "", budget: 100, team: [], deliveryDate: "", region: "מרכז" });
 
   const startEdit = (p: Project) => {
     setEditTarget(p.name);
@@ -329,6 +330,7 @@ export function AdminConsole() {
       budget: p.budget,
       team: p.team ?? [],
       deliveryDate: p.deliveryDate ?? "",
+      region: p.region ?? "מרכז",
     });
   };
 
