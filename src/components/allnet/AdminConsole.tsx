@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Archive,
   ArchiveRestore,
@@ -135,6 +135,17 @@ export function AdminConsole() {
   const { state, setState } = useAllNet();
   const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive">("console");
   const [detailProject, setDetailProject] = useState<string | null>(null);
+
+  useEffect(() => {
+    const goHome = () => {
+      setDetailProject(null);
+      setView("console");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    window.addEventListener("allnet:home", goHome);
+    return () => window.removeEventListener("allnet:home", goHome);
+  }, []);
+
 
 
   // report filters
