@@ -1171,6 +1171,26 @@ export function AdminConsole() {
                                 }
                               />
                             </div>
+                            <div className="space-y-2">
+                              <Label>איזור</Label>
+                              <Select
+                                value={editForm.region}
+                                onValueChange={(v) =>
+                                  setEditForm({ ...editForm, region: v as Region })
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="בחר איזור" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {REGIONS.map((r) => (
+                                    <SelectItem key={r} value={r}>
+                                      {r}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
                             <div className="space-y-2 md:col-span-2">
                               <Label>צוות משויך לפרויקט (ניתן לבחור כמה עובדים)</Label>
                               <div className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-2 md:grid-cols-3">
