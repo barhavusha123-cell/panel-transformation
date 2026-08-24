@@ -40,18 +40,22 @@ function TimeSelect({
   value,
   onChange,
   placeholder,
+  anchorTime = "07:00",
 }: {
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
+  anchorTime?: string;
 }) {
   const handleOpen = (open: boolean) => {
     if (!open) return;
-    // גלילה אוטומטית לטווח שעות העבודה (07:00–16:00)
+    // גלילה אוטומטית לשעת העוגן (התחלה 07:00 / סיום 16:00)
     setTimeout(() => {
-      const anchor = document.querySelector<HTMLElement>('[data-time-option="07:00"]');
+      const anchor = document.querySelector<HTMLElement>(
+        `[data-time-option="${anchorTime}"]`,
+      );
       anchor?.scrollIntoView({ block: "start" });
-    }, 10);
+    }, 30);
   };
 
   return (
