@@ -35,6 +35,17 @@ export const SUB_CREW_DAY_RATE: Record<Region, number> = {
   מרכז: 1800,
 };
 export const SUB_CREW_SIZE = 2;
+export const MAX_SUB_WORKERS = 4;
+/** מחירון יום עבודה קבלני לפי מספר עובדים ואיזור */
+export const SUB_DAY_RATES: Record<Region, Record<number, number>> = {
+  צפון: { 1: 1200, 2: 2200, 3: 2700, 4: 4000 },
+  דרום: { 1: 1200, 2: 2200, 3: 2700, 4: 4000 },
+  מרכז: { 1: 1000, 2: 1800, 3: 2400, 4: 3200 },
+};
+export const subDayRate = (region: Region, workers: number) => {
+  const w = Math.min(Math.max(Math.round(workers) || 1, 1), MAX_SUB_WORKERS);
+  return SUB_DAY_RATES[region][w];
+};
 /** עלות עובד חברה ליום עבודה */
 export const EMPLOYEE_DAY_RATE = 1200;
 
