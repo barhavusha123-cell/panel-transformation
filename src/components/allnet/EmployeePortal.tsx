@@ -1,12 +1,15 @@
 import { useMemo, useState } from "react";
-import { CalendarClock, FolderOpen, Send, Timer } from "lucide-react";
+import { CalendarClock, CalendarIcon, FolderOpen, Send, Timer } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { formatHoursMinutes, getAllTimeOptions, minutesBetween, todayISO } from "@/lib/allnet/utils";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -27,12 +30,53 @@ import { DocumentList } from "./DocumentList";
 
 const TIME_OPTIONS = getAllTimeOptions();
 
+function toISO(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate(),
+  ).padStart(2, "0")}`;
+}
+
+function TimeSelect({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+}) {
+  const handleOpen = (open: boolean) => {
+    if (!open) return;
+    // גלילה אוטומטית לטווח שעות העבודה (07:00–16:00)
+    setTimeout(() => {
+      const anchor = document.querySelector<HTMLElement>('[data-time-option="07:00"]');
+      anchor?.scrollIntoView({ block: "start" });
+    }, 10);
+  };
+
+  return (
+    <Select value={value} onValueChange={onChange} onOpenChange={handleOpen}>
+      <SelectTrigger>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent className="max-h-64">
+        {TIME_OPTIONS.map((t) => (
+          <SelectItem key={t} value={t} data-time-option={t}>
+            {t}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
 export function EmployeePortal() {
   const { state, setState, session } = useAllNet();
   const user = session?.user;
 
   const [project, setProject] = useState("");
   const [reportDate, setReportDate] = useState(todayISO());
+  const [dateOpen, setDateOpen] = useState(false);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [extras, setExtras] = useState("");
@@ -46,6 +90,7 @@ export function EmployeePortal() {
 
   const livePreview = from && to ? formatHoursMinutes(minutesBetween(from, to)) : "—";
 
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -53,11 +98,27 @@ export function EmployeePortal() {
       toast.error("אנא בחר פרויקט תקין.");
       return;
     }
+    if (!reportDate) {
+      toast.error("אנא בחר תאריך דיווח.");
+      return;
+    }
+    if (reportDate > todayISO()) {
+      toast.error("לא ניתן להזין דיווח שעות עבור תאריך עתידי.");
+      return;
+    }
     if (!from || !to) {
       toast.error("אנא בחר שעות התחלה וסיום תקינות.");
       return;
     }
+    const duplicate = state.hours.some(
+      (h) => h.username === user.username && h.date === reportDate,
+    );
+    if (duplicate) {
+      toast.error("קיים כבר דיווח שעות עבור תאריך זה. לא ניתן לדווח פעמיים באותו היום.");
+      return;
+    }
     const minutes = minutesBetween(from, to);
+
     const entry = {
       id: (state.hours.at(-1)?.id ?? 0) + 1,
       username: user.username,
@@ -132,46 +193,49 @@ export function EmployeePortal() {
 
               <div className="space-y-2">
                 <Label>תאריך הדיווח</Label>
-                <Input
-                  type="date"
-                  value={reportDate}
-                  onChange={(e) => setReportDate(e.target.value)}
-                />
+                <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-right font-normal",
+                        !reportDate && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarIcon className="size-4" />
+                      {reportDate || "בחר תאריך"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={reportDate ? new Date(`${reportDate}T00:00:00`) : undefined}
+                      onSelect={(d) => {
+                        if (!d) return;
+                        setReportDate(toISO(d));
+                        setDateOpen(false);
+                      }}
+                      disabled={(d) => d > new Date()}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="grid gap-5 sm:grid-cols-2 md:col-span-2">
                 <div className="space-y-2">
                   <Label>משעה</Label>
-                  <Select value={from} onValueChange={setFrom}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="בחר שעה" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-64">
-                      {TIME_OPTIONS.map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <TimeSelect value={from} onChange={setFrom} placeholder="בחר שעה" />
                 </div>
 
                 <div className="space-y-2">
                   <Label>עד שעה</Label>
-                  <Select value={to} onValueChange={setTo}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="בחר שעה" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-64">
-                      {TIME_OPTIONS.map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <TimeSelect value={to} onChange={setTo} placeholder="בחר שעה" />
                 </div>
               </div>
+
 
               <div className="space-y-2 md:col-span-2">
                 <Label>תיאור העבודה והערות</Label>
