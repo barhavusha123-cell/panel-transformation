@@ -114,7 +114,7 @@ export function EmployeePortal() {
       (h) => h.username === user.username && h.date === reportDate,
     );
     if (duplicate) {
-      toast.error("קיים כבר דיווch שעות עבור תאריך זה. לא ניתן לדווח פעמיים באותו היום.");
+      toast.error("קיים כבר דיווח שעות עבור תאריך זה. לא ניתן לדווח פעמיים באותו היום.");
       return;
     }
     const minutes = minutesBetween(from, to);
