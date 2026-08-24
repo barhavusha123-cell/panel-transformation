@@ -92,6 +92,28 @@ export function DocumentList({
           </div>
         </div>
       ))}
+
+      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="text-right">{preview?.name}</DialogTitle>
+          </DialogHeader>
+          {preview &&
+            (preview.dataUrl.startsWith("data:image") ? (
+              <img
+                src={preview.dataUrl}
+                alt={preview.name}
+                className="max-h-[70vh] w-full rounded-lg object-contain"
+              />
+            ) : (
+              <iframe
+                src={preview.dataUrl}
+                title={preview.name}
+                className="h-[70vh] w-full rounded-lg border border-border bg-surface"
+              />
+            ))}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
