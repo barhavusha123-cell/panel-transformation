@@ -499,7 +499,7 @@ export function AdminConsole() {
         <KpiCard title="פרויקטים לפני מסירה" icon={<CalendarClock className="size-4" />} delay={80}>
           <div className="text-2xl font-bold">{upcoming.length}</div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {upcoming.length ? `הקרוב: ${upcoming[0]!.name} · ${upcoming[0]!.deliveryDate}` : "לא הוגדרו מועדי מסירה"}
+            {upcoming.length ? `הקרוב: ${upcoming[0]!.name} · ${upcoming[0]!.deliveryDate}` : "אין מסירות ב-14 הימים הקרובים"}
           </p>
           <Button
             variant="soft"
@@ -511,7 +511,7 @@ export function AdminConsole() {
           </Button>
         </KpiCard>
 
-        <KpiCard title="פרויקטים בחריגה" icon={<AlertTriangle className="size-4" />} delay={160}>
+        <KpiCard title="פרויקטים לפני חריגת שעות" icon={<AlertTriangle className="size-4" />} delay={160}>
           <div className="flex items-center gap-2">
             <span className={`text-2xl font-bold ${alerts.length ? "text-destructive" : ""}`}>
               {alerts.length}
@@ -531,7 +531,7 @@ export function AdminConsole() {
             className="mt-3 w-full"
             onClick={() => setShowOverruns((s) => !s)}
           >
-            {showOverruns ? "סגור רשימה" : "הצג פרויקטים בחריגה"}
+            {showOverruns ? "סגור רשימה" : "הצג פרויקטים לפני חריגת שעות"}
           </Button>
         </KpiCard>
 
@@ -580,7 +580,7 @@ export function AdminConsole() {
             </div>
           ) : (
             <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-              לא הוגדרו מועדי מסירה לפרויקטים פעילים.
+              אין פרויקטים שמועד המסירה שלהם בתוך 14 הימים הקרובים.
             </p>
           )}
         </div>
@@ -590,7 +590,7 @@ export function AdminConsole() {
         <div className="animate-fade surface-panel mb-8 rounded-2xl p-6">
           <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
             <AlertTriangle className="size-5 text-destructive" />
-            פרויקטים בחריגת תקציב
+            פרויקטים לפני חריגת שעות
           </h3>
           <div className="mb-4 grid gap-3 sm:grid-cols-2">
             <div className="space-y-2">
