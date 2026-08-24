@@ -187,7 +187,12 @@ export function ProjectHoursDetail({
       </div>
 
       <HoursGroup title="עובדי החברה" icon={<Users className="size-5 text-primary" />} rows={employees} />
-      <HoursGroup title="קבלני משנה" icon={<HardHat className="size-5 text-primary" />} rows={subs} />
+      <HoursGroup
+        title="קבלני משנה"
+        icon={<HardHat className="size-5 text-primary" />}
+        rows={subs}
+        markPartialDays
+      />
     </div>
   );
 }
