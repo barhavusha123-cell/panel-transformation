@@ -236,7 +236,7 @@ export function EmployeePortal() {
 
                 <div className="space-y-2">
                   <Label>עד שעה</Label>
-                  <TimeSelect value={to} onChange={setTo} placeholder="בחר שעה" />
+                  <TimeSelect value={to} onChange={setTo} placeholder="בחר שעה" anchorTime="16:00" />
                 </div>
               </div>
 
