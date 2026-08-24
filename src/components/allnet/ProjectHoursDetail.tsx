@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { HoursEntry } from "@/lib/allnet/types";
+import { MIN_FULL_DAY_MINUTES, type HoursEntry } from "@/lib/allnet/types";
 
 function HoursGroup({
   title,
