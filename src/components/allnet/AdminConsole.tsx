@@ -1032,6 +1032,27 @@ export function AdminConsole() {
                     onChange={(e) => setNp({ ...np, deliveryDate: e.target.value })}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label>איזור</Label>
+                  <Select
+                    value={np.region}
+                    onValueChange={(v) => setNp({ ...np, region: v as Region })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="בחר איזור" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {REGIONS.map((r) => (
+                        <SelectItem key={r} value={r}>
+                          {r}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-muted-foreground">
+                    צפון/דרום: 2,200 ₪ לצוות קבלן (2 עובדים) · מרכז: 1,800 ₪
+                  </p>
+                </div>
               </div>
               <Button type="submit" variant="brand" className="mt-5">
                 שמור ואתחל פרויקט
