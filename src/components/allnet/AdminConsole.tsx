@@ -118,7 +118,7 @@ function SliceLabel(props: {
       textAnchor="middle"
       dominantBaseline="central"
       className="pointer-events-none"
-      fill="var(--primary-foreground)"
+      fill="var(--foreground)"
       style={{ fontSize: 12, fontWeight: 700 }}
     >
       <tspan x={x} dy="-0.4em">
