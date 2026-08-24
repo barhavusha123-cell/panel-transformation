@@ -59,6 +59,10 @@ export function DocumentList({
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => setPreview(file)}>
+              <Eye className="size-4" />
+              צפייה
+            </Button>
             <Button asChild size="sm" variant="secondary">
               <a href={file.dataUrl} download={file.name}>
                 <Download className="size-4" />
