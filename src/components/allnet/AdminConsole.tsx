@@ -5,22 +5,21 @@ import {
   AlertTriangle,
   ArrowRight,
   BarChart3,
+  CalendarClock,
   Briefcase,
   Download,
   FolderKanban,
-  HardHat,
   ListChecks,
   Pencil,
   Plus,
   Trash2,
   Upload,
-  Users,
 } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { MAX_BUDGET, MIN_BUDGET, ROLES, type Project, type Role } from "@/lib/allnet/types";
-import { daysAgoISO, downloadCsv, formatHoursMinutes, nowStamp, todayISO } from "@/lib/allnet/utils";
+import { downloadCsv, nowStamp, todayISO } from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -137,9 +136,6 @@ export function AdminConsole() {
   const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive">("console");
   const [detailProject, setDetailProject] = useState<string | null>(null);
 
-  // KPI date ranges
-  const [empRange, setEmpRange] = useState({ from: daysAgoISO(30), to: todayISO() });
-  const [subRange, setSubRange] = useState({ from: daysAgoISO(30), to: todayISO() });
 
   // report filters
   const [projFilter, setProjFilter] = useState<string[]>([]);
@@ -162,15 +158,25 @@ export function AdminConsole() {
   const [showOverruns, setShowOverruns] = useState(false);
   const [threshold, setThreshold] = useState("80");
   const [overrunManager, setOverrunManager] = useState("all");
+  const [showDelivery, setShowDelivery] = useState(false);
 
-  const inRange = (d: string, r: { from: string; to: string }) => d >= r.from && d <= r.to;
+  const upcoming = useMemo(() => {
+    const today = todayISO();
+    const dayMs = 86400000;
+    return activeProjects
+      .filter((p) => !!p.deliveryDate)
+      .map((p) => ({
+        name: p.name,
+        deliveryDate: p.deliveryDate!,
+        daysLeft: Math.round(
+          (new Date(`${p.deliveryDate!}T00:00:00`).getTime() -
+            new Date(`${today}T00:00:00`).getTime()) /
+            dayMs,
+        ),
+      }))
+      .sort((a, b) => a.daysLeft - b.daysLeft);
+  }, [activeProjects]);
 
-  const workerMinutes = state.hours
-    .filter((h) => h.role !== "קבלן משנה" && inRange(h.date, empRange))
-    .reduce((a, h) => a + h.minutes, 0);
-  const subMinutes = state.hours
-    .filter((h) => h.role === "קבלן משנה" && inRange(h.date, subRange))
-    .reduce((a, h) => a + h.minutes, 0);
 
   const rowFor = (name: string) => {
     const p = state.projects.find((x) => x.name === name);
@@ -186,7 +192,7 @@ export function AdminConsole() {
 
   const dashRows = selectedDash.map(rowFor);
   const allActiveRows = allProjectNames.map(rowFor);
-  const alerts = allActiveRows.filter((r) => r.pct >= 80);
+  const alerts = allActiveRows.filter((r) => r.pct >= 80).sort((a, b) => b.pct - a.pct);
   const overrunRows = allActiveRows
     .filter((r) => r.pct >= Number(threshold))
     .filter((r) => overrunManager === "all" || r.manager === overrunManager)
@@ -229,7 +235,7 @@ export function AdminConsole() {
 
   // project form
   const managers = state.users.map((u) => u.full_name);
-  const [np, setNp] = useState({ name: "", manager: "", budget: 100 });
+  const [np, setNp] = useState({ name: "", manager: "", budget: 100, deliveryDate: "" });
 
   const validBudget = (v: number) =>
     Number.isFinite(v) && Number.isInteger(v) && v >= MIN_BUDGET && v <= MAX_BUDGET;
@@ -252,7 +258,14 @@ export function AdminConsole() {
         ...prev,
         projects: exists
           ? prev.projects.map((p) =>
-              p.name === name ? { ...p, manager: np.manager || "לא הוגדר", budget } : p,
+              p.name === name
+                ? {
+                    ...p,
+                    manager: np.manager || "לא הוגדר",
+                    budget,
+                    deliveryDate: np.deliveryDate,
+                  }
+                : p,
             )
           : [
               ...prev.projects,
@@ -260,6 +273,7 @@ export function AdminConsole() {
                 name,
                 manager: np.manager || "לא הוגדר",
                 budget,
+                deliveryDate: np.deliveryDate,
                 team: np.manager ? [np.manager] : [],
                 archived: false,
               },
@@ -267,7 +281,7 @@ export function AdminConsole() {
       };
     });
     toast.success(`הפרויקט '${name}' עודכן בהצלחה עם תקציב של ${budget} שעות.`);
-    setNp({ name: "", manager: "", budget: 100 });
+    setNp({ name: "", manager: "", budget: 100, deliveryDate: "" });
   };
 
   const [editTarget, setEditTarget] = useState<string | null>(null);
@@ -276,11 +290,18 @@ export function AdminConsole() {
     manager: string;
     budget: number;
     team: string[];
-  }>({ name: "", manager: "", budget: 100, team: [] });
+    deliveryDate: string;
+  }>({ name: "", manager: "", budget: 100, team: [], deliveryDate: "" });
 
   const startEdit = (p: Project) => {
     setEditTarget(p.name);
-    setEditForm({ name: p.name, manager: p.manager, budget: p.budget, team: p.team ?? [] });
+    setEditForm({
+      name: p.name,
+      manager: p.manager,
+      budget: p.budget,
+      team: p.team ?? [],
+      deliveryDate: p.deliveryDate ?? "",
+    });
   };
 
   const saveProject = (e: React.FormEvent) => {
@@ -299,6 +320,7 @@ export function AdminConsole() {
               name: editForm.name.trim(),
               manager: editForm.manager,
               budget,
+              deliveryDate: editForm.deliveryDate,
               team: editForm.team,
             }
           : p,
@@ -970,6 +992,15 @@ export function AdminConsole() {
                     onChange={(e) => setNp({ ...np, budget: Number(e.target.value) })}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label>מועד מסירה</Label>
+                  <Input
+                    type="date"
+                    className="w-full"
+                    value={np.deliveryDate}
+                    onChange={(e) => setNp({ ...np, deliveryDate: e.target.value })}
+                  />
+                </div>
               </div>
               <Button type="submit" variant="brand" className="mt-5">
                 שמור ואתחל פרויקט
@@ -1074,6 +1105,17 @@ export function AdminConsole() {
                                 value={editForm.budget}
                                 onChange={(e) =>
                                   setEditForm({ ...editForm, budget: Number(e.target.value) })
+                                }
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>מועד מסירה</Label>
+                              <Input
+                                type="date"
+                                className="w-full"
+                                value={editForm.deliveryDate}
+                                onChange={(e) =>
+                                  setEditForm({ ...editForm, deliveryDate: e.target.value })
                                 }
                               />
                             </div>
