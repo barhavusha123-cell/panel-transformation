@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react";
 import {
+  Archive,
+  ArchiveRestore,
+  AlertTriangle,
   ArrowRight,
   BarChart3,
   Briefcase,
@@ -16,7 +19,7 @@ import {
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
-import { ROLES, type Project, type Role } from "@/lib/allnet/types";
+import { MAX_BUDGET, MIN_BUDGET, ROLES, type Project, type Role } from "@/lib/allnet/types";
 import { daysAgoISO, downloadCsv, formatHoursMinutes, nowStamp, todayISO } from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +51,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DocumentList } from "./DocumentList";
+import { ProjectHoursDetail } from "./ProjectHoursDetail";
 
 const CHART_COLORS = [
   "var(--chart-1)",
@@ -90,9 +94,48 @@ function KpiCard({
   );
 }
 
+const RAD = Math.PI / 180;
+
+function SliceLabel(props: {
+  cx?: number;
+  cy?: number;
+  midAngle?: number;
+  innerRadius?: number;
+  outerRadius?: number;
+  payload?: { name: string; pct: number };
+  percent?: number;
+}) {
+  const { cx = 0, cy = 0, midAngle = 0, innerRadius = 0, outerRadius = 0, payload } = props;
+  if (!payload) return null;
+  if ((props.percent ?? 0) < 0.05) return null;
+  const r = innerRadius + (outerRadius - innerRadius) * 0.55;
+  const x = cx + r * Math.cos(-midAngle * RAD);
+  const y = cy + r * Math.sin(-midAngle * RAD);
+  const short = payload.name.length > 14 ? `${payload.name.slice(0, 13)}…` : payload.name;
+  return (
+    <text
+      x={x}
+      y={y}
+      textAnchor="middle"
+      dominantBaseline="central"
+      className="pointer-events-none"
+      fill="var(--primary-foreground)"
+      style={{ fontSize: 12, fontWeight: 700 }}
+    >
+      <tspan x={x} dy="-0.4em">
+        {short}
+      </tspan>
+      <tspan x={x} dy="1.35em" style={{ fontSize: 11, fontWeight: 600, opacity: 0.9 }}>
+        {payload.pct}%
+      </tspan>
+    </text>
+  );
+}
+
 export function AdminConsole() {
   const { state, setState } = useAllNet();
-  const [view, setView] = useState<"console" | "dashboard" | "projects">("console");
+  const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive">("console");
+  const [detailProject, setDetailProject] = useState<string | null>(null);
 
   // KPI date ranges
   const [empRange, setEmpRange] = useState({ from: daysAgoISO(30), to: todayISO() });
@@ -100,20 +143,25 @@ export function AdminConsole() {
 
   // report filters
   const [projFilter, setProjFilter] = useState<string[]>([]);
-  const [subFilter, setSubFilter] = useState<string[]>([]);
   const [workerFilter, setWorkerFilter] = useState<string[]>([]);
 
-  // dashboard project selection
-  const allProjectNames = useMemo(() => {
-    const names: string[] = [];
-    for (const p of state.projects) {
-      if (!names.includes(p.name)) names.push(p.name);
-      for (const s of p.subs) if (!names.includes(s)) names.push(s);
-    }
-    return names;
-  }, [state.projects]);
+  const activeProjects = useMemo(
+    () => state.projects.filter((p) => !p.archived),
+    [state.projects],
+  );
+  const archivedProjects = useMemo(
+    () => state.projects.filter((p) => p.archived),
+    [state.projects],
+  );
+
+  const allProjectNames = useMemo(() => activeProjects.map((p) => p.name), [activeProjects]);
   const [excluded, setExcluded] = useState<string[]>([]);
   const selectedDash = allProjectNames.filter((n) => !excluded.includes(n));
+
+  // overrun panel
+  const [showOverruns, setShowOverruns] = useState(false);
+  const [threshold, setThreshold] = useState("80");
+  const [overrunManager, setOverrunManager] = useState("all");
 
   const inRange = (d: string, r: { from: string; to: string }) => d >= r.from && d <= r.to;
 
@@ -124,37 +172,32 @@ export function AdminConsole() {
     .filter((h) => h.role === "קבלן משנה" && inRange(h.date, subRange))
     .reduce((a, h) => a + h.minutes, 0);
 
-  const dashRows = selectedDash.map((name) => {
-    let manager = "לא הוגדר";
-    let budget = 100;
-    const direct = state.projects.find((p) => p.name === name);
-    if (direct) {
-      manager = direct.manager;
-      budget = direct.budget;
-    } else {
-      const parent = state.projects.find((p) => p.subs.includes(name));
-      if (parent) {
-        manager = parent.manager;
-        budget = parent.budget;
-      }
-    }
+  const rowFor = (name: string) => {
+    const p = state.projects.find((x) => x.name === name);
+    const manager = p?.manager ?? "לא הוגדר";
+    const budget = p?.budget ?? 100;
     const minutes = state.hours
-      .filter((h) => h.project === name || h.sub === name)
+      .filter((h) => h.project === name)
       .reduce((a, h) => a + h.minutes, 0);
     const reported = Math.round((minutes / 60) * 100) / 100;
     const pct = budget > 0 ? Math.round((reported / budget) * 1000) / 10 : 0;
     return { name, manager, budget, reported, pct };
-  });
-  const alerts = dashRows.filter((r) => r.pct >= 80);
+  };
+
+  const dashRows = selectedDash.map(rowFor);
+  const allActiveRows = allProjectNames.map(rowFor);
+  const alerts = allActiveRows.filter((r) => r.pct >= 80);
+  const overrunRows = allActiveRows
+    .filter((r) => r.pct >= Number(threshold))
+    .filter((r) => overrunManager === "all" || r.manager === overrunManager)
+    .sort((a, b) => b.pct - a.pct);
 
   // reports
   const filteredHours = state.hours.filter(
     (h) =>
       (!projFilter.length || projFilter.includes(h.project)) &&
-      (!subFilter.length || subFilter.includes(h.sub)) &&
       (!workerFilter.length || workerFilter.includes(h.reporter)),
   );
-  const allSubs = [...new Set(state.projects.flatMap((p) => p.subs))];
 
   const toggle = (arr: string[], v: string, set: (x: string[]) => void) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
@@ -187,74 +230,90 @@ export function AdminConsole() {
   // project form
   const managers = state.users.map((u) => u.full_name);
   const [np, setNp] = useState({ name: "", manager: "", budget: 100 });
+
+  const validBudget = (v: number) =>
+    Number.isFinite(v) && Number.isInteger(v) && v >= MIN_BUDGET && v <= MAX_BUDGET;
+
   const addProject = (e: React.FormEvent) => {
     e.preventDefault();
     const name = np.name.trim();
-    if (!name) return;
+    if (!name) {
+      toast.error("אנא הזן שם פרויקט.");
+      return;
+    }
+    const budget = Math.round(Number(np.budget));
+    if (!validBudget(budget)) {
+      toast.error(`תקציב השעות חייב להיות מספר שלם בין ${MIN_BUDGET} ל-${MAX_BUDGET}.`);
+      return;
+    }
     setState((prev) => {
       const exists = prev.projects.some((p) => p.name === name);
       return {
         ...prev,
         projects: exists
           ? prev.projects.map((p) =>
-              p.name === name
-                ? { ...p, manager: np.manager || "לא הוגדר", budget: Number(np.budget) }
-                : p,
+              p.name === name ? { ...p, manager: np.manager || "לא הוגדר", budget } : p,
             )
           : [
               ...prev.projects,
               {
                 name,
-                subs: [],
                 manager: np.manager || "לא הוגדר",
-                budget: Number(np.budget),
+                budget,
+                team: np.manager ? [np.manager] : [],
+                archived: false,
               },
             ],
       };
     });
-    toast.success(`הפרויקט '${name}' עודכן בהצלחה עם תקציב של ${np.budget} שעות.`);
+    toast.success(`הפרויקט '${name}' עודכן בהצלחה עם תקציב של ${budget} שעות.`);
     setNp({ name: "", manager: "", budget: 100 });
   };
 
   const [editTarget, setEditTarget] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{
     name: string;
-    subs: string;
     manager: string;
     budget: number;
-  }>({ name: "", subs: "", manager: "", budget: 100 });
+    team: string[];
+  }>({ name: "", manager: "", budget: 100, team: [] });
 
   const startEdit = (p: Project) => {
     setEditTarget(p.name);
-    setEditForm({
-      name: p.name,
-      subs: p.subs.join(", "),
-      manager: p.manager,
-      budget: p.budget,
-    });
+    setEditForm({ name: p.name, manager: p.manager, budget: p.budget, team: p.team ?? [] });
   };
 
   const saveProject = (e: React.FormEvent) => {
     e.preventDefault();
-    const subs = editForm.subs
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+    const budget = Math.round(Number(editForm.budget));
+    if (!validBudget(budget)) {
+      toast.error(`תקציב השעות חייב להיות מספר שלם בין ${MIN_BUDGET} ל-${MAX_BUDGET}.`);
+      return;
+    }
     setState((prev) => ({
       ...prev,
       projects: prev.projects.map((p) =>
         p.name === editTarget
           ? {
+              ...p,
               name: editForm.name.trim(),
-              subs,
               manager: editForm.manager,
-              budget: Number(editForm.budget),
+              budget,
+              team: editForm.team,
             }
           : p,
       ),
     }));
     setEditTarget(null);
     toast.success("הפרויקט עודכן בהצלחה.");
+  };
+
+  const setArchived = (name: string, archived: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.map((p) => (p.name === name ? { ...p, archived } : p)),
+    }));
+    toast.success(archived ? `הפרויקט '${name}' הועבר לארכיון.` : `הפרויקט '${name}' שוחזר.`);
   };
 
   // file upload
@@ -286,43 +345,100 @@ export function AdminConsole() {
     e.target.value = "";
   };
 
-  if (view === "projects") {
+  if (detailProject) {
+    return (
+      <div className="mx-auto max-w-7xl px-5 pb-16">
+        <ProjectHoursDetail projectName={detailProject} onBack={() => setDetailProject(null)} />
+      </div>
+    );
+  }
+
+  if (view === "projects" || view === "archive") {
+    const isArchive = view === "archive";
+    const list = isArchive ? archivedProjects : activeProjects;
     return (
       <div className="mx-auto max-w-7xl px-5 pb-16">
         <div className="animate-rise surface-panel rounded-2xl p-6">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <h2 className="flex items-center gap-2 text-xl font-bold">
-              <ListChecks className="size-5 text-primary" />
-              רשימת כל הפרויקטים במערכת
+              {isArchive ? (
+                <Archive className="size-5 text-primary" />
+              ) : (
+                <ListChecks className="size-5 text-primary" />
+              )}
+              {isArchive ? "ארכיון פרויקטים" : "רשימת כל הפרויקטים הפעילים"}
             </h2>
-            <Button variant="soft" onClick={() => setView("console")}>
-              <ArrowRight className="size-4" />
-              חזרה למרכז הבקרה הראשי
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="soft"
+                onClick={() => setView(isArchive ? "projects" : "archive")}
+              >
+                {isArchive ? <ListChecks className="size-4" /> : <Archive className="size-4" />}
+                {isArchive ? "פרויקטים פעילים" : `ארכיון (${archivedProjects.length})`}
+              </Button>
+              <Button variant="soft" onClick={() => setView("console")}>
+                <ArrowRight className="size-4" />
+                חזרה למרכז הבקרה הראשי
+              </Button>
+            </div>
           </div>
-          {state.projects.length ? (
+          {list.length ? (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="text-right">שם הפרויקט</TableHead>
                   <TableHead className="text-right">מנהל פרויקט</TableHead>
                   <TableHead className="text-right">תקציב שעות</TableHead>
-                  <TableHead className="text-right">תתי-פרויקטים</TableHead>
+                  <TableHead className="text-right">צוות משויך</TableHead>
+                  <TableHead className="text-right">ניצול</TableHead>
+                  <TableHead className="text-right">פעולות</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {state.projects.map((p) => (
-                  <TableRow key={p.name}>
-                    <TableCell className="font-medium">{p.name}</TableCell>
-                    <TableCell>{p.manager}</TableCell>
-                    <TableCell>{p.budget.toLocaleString()}</TableCell>
-                    <TableCell>{p.subs.join(", ") || "אין"}</TableCell>
-                  </TableRow>
-                ))}
+                {list.map((p) => {
+                  const r = rowFor(p.name);
+                  return (
+                    <TableRow key={p.name} className="transition-colors hover:bg-surface-2/60">
+                      <TableCell>
+                        <button
+                          type="button"
+                          onClick={() => setDetailProject(p.name)}
+                          className="cursor-pointer font-semibold text-primary underline-offset-4 hover:underline"
+                        >
+                          {p.name}
+                        </button>
+                      </TableCell>
+                      <TableCell>{p.manager}</TableCell>
+                      <TableCell>{p.budget.toLocaleString()}</TableCell>
+                      <TableCell className="max-w-64 truncate text-xs text-muted-foreground">
+                        {p.team?.length ? p.team.join(", ") : "לא שויך"}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={r.pct >= 80 ? "destructive" : "secondary"}>{r.pct}%</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setArchived(p.name, !isArchive)}
+                        >
+                          {isArchive ? (
+                            <ArchiveRestore className="size-4" />
+                          ) : (
+                            <Archive className="size-4" />
+                          )}
+                          {isArchive ? "שחזר" : "העבר לארכיון"}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           ) : (
-            <p className="text-sm text-muted-foreground">אין פרויקטים רשומים במערכת כרגע.</p>
+            <p className="text-sm text-muted-foreground">
+              {isArchive ? "אין פרויקטים בארכיון." : "אין פרויקטים רשומים במערכת כרגע."}
+            </p>
           )}
         </div>
       </div>
@@ -338,15 +454,23 @@ export function AdminConsole() {
       <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <KpiCard
           title="פרויקטים פעילים"
-          value={String(state.projects.length)}
+          value={String(activeProjects.length)}
           icon={<Briefcase className="size-4" />}
         >
-          <button
-            onClick={() => setView("projects")}
-            className="mt-2 cursor-pointer text-xs text-primary underline-offset-4 hover:underline"
-          >
-            צפה בכל הפרויקטים
-          </button>
+          <div className="mt-2 flex gap-3 text-xs">
+            <button
+              onClick={() => setView("projects")}
+              className="cursor-pointer text-primary underline-offset-4 hover:underline"
+            >
+              צפה בכל הפרויקטים
+            </button>
+            <button
+              onClick={() => setView("archive")}
+              className="cursor-pointer text-muted-foreground underline-offset-4 hover:underline"
+            >
+              ארכיון ({archivedProjects.length})
+            </button>
+          </div>
         </KpiCard>
 
         <KpiCard title='סה"כ שעות עובדים' icon={<Users className="size-4" />} delay={80}>
@@ -408,51 +532,131 @@ export function AdminConsole() {
             </div>
           ))}
 
-          {state.projects.length ? (
+          {activeProjects.length ? (
             <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
-              <div className="surface-panel rounded-2xl p-6">
-                <h3 className="mb-4 text-lg font-semibold">התפלגות פרויקטים</h3>
-                {dashRows.length ? (
-                  <ResponsiveContainer width="100%" height={340}>
-                    <PieChart>
-                      <Pie
-                        data={dashRows.map((r) => ({ ...r, value: 1 }))}
-                        dataKey="value"
-                        nameKey="name"
-                        innerRadius="45%"
-                        outerRadius="80%"
-                        paddingAngle={2}
-                        label={({ payload }) =>
-                          `${(payload as { name: string; pct: number }).name} · ${(payload as { pct: number }).pct}%`
-                        }
-                      >
-                        {dashRows.map((r, i) => (
-                          <Cell
+              <div className="space-y-6">
+                <div className="surface-panel rounded-2xl p-6">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="text-lg font-semibold">התפלגות פרויקטים</h3>
+                    <Button
+                      variant={showOverruns ? "brand" : "soft"}
+                      size="sm"
+                      onClick={() => setShowOverruns((s) => !s)}
+                    >
+                      <AlertTriangle className="size-4" />
+                      פרויקטים בחריגה ({alerts.length})
+                    </Button>
+                  </div>
+                  {dashRows.length ? (
+                    <ResponsiveContainer width="100%" height={340}>
+                      <PieChart>
+                        <Pie
+                          data={dashRows.map((r) => ({ ...r, value: 1 }))}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius="42%"
+                          outerRadius="82%"
+                          paddingAngle={2}
+                          labelLine={false}
+                          label={SliceLabel}
+                          isAnimationActive
+                        >
+                          {dashRows.map((r, i) => (
+                            <Cell
+                              key={r.name}
+                              fill={r.pct >= 80 ? "var(--destructive)" : CHART_COLORS[i % 6]}
+                              stroke="var(--background)"
+                              strokeWidth={2}
+                              className="cursor-pointer"
+                              onClick={() => setDetailProject(r.name)}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            background: "var(--popover)",
+                            border: "1px solid var(--border)",
+                            borderRadius: 12,
+                            color: "var(--popover-foreground)",
+                          }}
+                          formatter={(_v, _n, item) => {
+                            const p = item.payload as (typeof dashRows)[number];
+                            return [`${p.reported} / ${p.budget} שעות · ${p.pct}%`, p.name];
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      אנא בחר לפחות פרויקט אחד להצגה בדשבורד.
+                    </p>
+                  )}
+                </div>
+
+                {showOverruns && (
+                  <div className="animate-fade surface-panel rounded-2xl p-6">
+                    <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+                      <AlertTriangle className="size-5 text-destructive" />
+                      פרויקטים בחריגת תקציב
+                    </h3>
+                    <div className="mb-4 grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>סף חריגה</Label>
+                        <Select value={threshold} onValueChange={setThreshold}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="80">מעל 80%</SelectItem>
+                            <SelectItem value="90">מעל 90%</SelectItem>
+                            <SelectItem value="100">מעל 100%</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>סנן לפי מנהל פרויקט</Label>
+                        <Select value={overrunManager} onValueChange={setOverrunManager}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">כל המנהלים</SelectItem>
+                            {[...new Set(activeProjects.map((p) => p.manager))].map((m) => (
+                              <SelectItem key={m} value={m}>
+                                {m}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    {overrunRows.length ? (
+                      <div className="space-y-3">
+                        {overrunRows.map((r) => (
+                          <button
                             key={r.name}
-                            fill={r.pct >= 80 ? "var(--destructive)" : CHART_COLORS[i % 6]}
-                            stroke="var(--background)"
-                            strokeWidth={2}
-                          />
+                            type="button"
+                            onClick={() => setDetailProject(r.name)}
+                            className="hover-lift w-full cursor-pointer rounded-xl border border-destructive/40 bg-destructive/5 p-3 text-right transition-all"
+                          >
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="font-semibold">{r.name}</span>
+                              <Badge variant="destructive">{r.pct}%</Badge>
+                            </div>
+                            <Progress value={Math.min(r.pct, 100)} className="my-2 h-1.5" />
+                            <p className="text-xs text-muted-foreground">
+                              {r.manager} · {r.reported} מתוך {r.budget} שעות · לחץ לצפייה
+                              בדיווחים
+                            </p>
+                          </button>
                         ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{
-                          background: "var(--popover)",
-                          border: "1px solid var(--border)",
-                          borderRadius: 12,
-                          color: "var(--popover-foreground)",
-                        }}
-                        formatter={(_v, _n, item) => {
-                          const p = item.payload as (typeof dashRows)[number];
-                          return [`${p.reported} / ${p.budget} שעות · ${p.pct}%`, p.name];
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    אנא בחר לפחות פרויקט אחד להצגה בדשבורד.
-                  </p>
+                      </div>
+                    ) : (
+                      <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                        אין פרויקטים העונים לסינון הנוכחי.
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -461,7 +665,12 @@ export function AdminConsole() {
                   <h3 className="mb-4 text-lg font-semibold">טבלת סיכום פרויקטים</h3>
                   <div className="space-y-3">
                     {dashRows.map((r) => (
-                      <div key={r.name} className="rounded-xl border border-border p-3">
+                      <button
+                        key={r.name}
+                        type="button"
+                        onClick={() => setDetailProject(r.name)}
+                        className="w-full cursor-pointer rounded-xl border border-border p-3 text-right transition-colors hover:border-primary/50"
+                      >
                         <div className="flex items-center justify-between text-sm">
                           <span className="font-semibold">{r.name}</span>
                           <Badge variant={r.pct >= 80 ? "destructive" : "secondary"}>
@@ -472,7 +681,7 @@ export function AdminConsole() {
                         <p className="text-xs text-muted-foreground">
                           {r.manager} · {r.reported} מתוך {r.budget} שעות
                         </p>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -529,18 +738,12 @@ export function AdminConsole() {
 
           {/* Reports */}
           <TabsContent value="reports" className="mt-6 space-y-4">
-            <div className="surface-panel grid gap-4 rounded-2xl p-5 md:grid-cols-3">
+            <div className="surface-panel grid gap-4 rounded-2xl p-5 md:grid-cols-2">
               <FilterGroup
                 label="סנן לפי פרויקט"
                 options={state.projects.map((p) => p.name)}
                 selected={projFilter}
                 onToggle={(v) => toggle(projFilter, v, setProjFilter)}
-              />
-              <FilterGroup
-                label="סנן לפי תת-פרויקט"
-                options={allSubs}
-                selected={subFilter}
-                onToggle={(v) => toggle(subFilter, v, setSubFilter)}
               />
               <FilterGroup
                 label="סנן לפי עובד / קבלן"
@@ -560,7 +763,6 @@ export function AdminConsole() {
                       filteredHours.map((h) => ({
                         "שם המדווח": h.reporter,
                         פרויקט: h.project,
-                        "תת פרויקט": h.sub,
                         תאריך: h.date,
                         משעה: h.from,
                         "עד שעה": h.to,
@@ -584,7 +786,6 @@ export function AdminConsole() {
                       <TableRow>
                         <TableHead className="text-right">שם המדווח</TableHead>
                         <TableHead className="text-right">פרויקט</TableHead>
-                        <TableHead className="text-right">תת פרויקט</TableHead>
                         <TableHead className="text-right">תאריך</TableHead>
                         <TableHead className="text-right">משעה</TableHead>
                         <TableHead className="text-right">עד שעה</TableHead>
@@ -597,8 +798,15 @@ export function AdminConsole() {
                       {filteredHours.map((h) => (
                         <TableRow key={h.id} className="transition-colors hover:bg-surface-2/60">
                           <TableCell className="font-medium">{h.reporter}</TableCell>
-                          <TableCell>{h.project}</TableCell>
-                          <TableCell>{h.sub || "—"}</TableCell>
+                          <TableCell>
+                            <button
+                              type="button"
+                              onClick={() => setDetailProject(h.project)}
+                              className="cursor-pointer text-primary underline-offset-4 hover:underline"
+                            >
+                              {h.project}
+                            </button>
+                          </TableCell>
                           <TableCell>{h.date}</TableCell>
                           <TableCell>{h.from}</TableCell>
                           <TableCell>{h.to}</TableCell>
@@ -713,11 +921,12 @@ export function AdminConsole() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>תקציב שעות מוקצה (100%)</Label>
+                  <Label>תקציב שעות מוקצה (1-1000)</Label>
                   <Input
                     type="number"
-                    min={1}
-                    step={10}
+                    min={MIN_BUDGET}
+                    max={MAX_BUDGET}
+                    step={1}
                     value={np.budget}
                     onChange={(e) => setNp({ ...np, budget: Number(e.target.value) })}
                   />
@@ -729,22 +938,43 @@ export function AdminConsole() {
             </form>
 
             <div className="surface-panel rounded-2xl p-6">
-              <h3 className="mb-4 text-lg font-semibold">ניהול ועריכת פרויקטים קיימים</h3>
-              {state.projects.length ? (
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-lg font-semibold">ניהול ועריכת פרויקטים קיימים</h3>
+                <Button variant="soft" size="sm" onClick={() => setView("archive")}>
+                  <Archive className="size-4" />
+                  ארכיון ({archivedProjects.length})
+                </Button>
+              </div>
+              {activeProjects.length ? (
                 <div className="space-y-3">
-                  {state.projects.map((p) => (
+                  {activeProjects.map((p) => (
                     <div key={p.name} className="rounded-xl border border-border p-4">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                          <p className="font-semibold">{p.name}</p>
+                          <button
+                            type="button"
+                            onClick={() => setDetailProject(p.name)}
+                            className="cursor-pointer font-semibold text-primary underline-offset-4 hover:underline"
+                          >
+                            {p.name}
+                          </button>
                           <p className="text-xs text-muted-foreground">
-                            {p.manager} · {p.budget} שעות · {p.subs.join(", ") || "אין תתי-פרויקטים"}
+                            {p.manager} · {p.budget} שעות ·{" "}
+                            {p.team?.length ? `צוות: ${p.team.join(", ")}` : "לא שויך צוות"}
                           </p>
                         </div>
                         <div className="flex gap-2">
                           <Button size="sm" variant="soft" onClick={() => startEdit(p)}>
                             <Pencil className="size-4" />
                             ערוך
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setArchived(p.name, true)}
+                          >
+                            <Archive className="size-4" />
+                            ארכיון
                           </Button>
                           <Button
                             size="sm"
@@ -778,15 +1008,6 @@ export function AdminConsole() {
                               />
                             </div>
                             <div className="space-y-2">
-                              <Label>תתי-פרויקטים (מופרדים בפסיקים)</Label>
-                              <Input
-                                value={editForm.subs}
-                                onChange={(e) =>
-                                  setEditForm({ ...editForm, subs: e.target.value })
-                                }
-                              />
-                            </div>
-                            <div className="space-y-2">
                               <Label>מנהל פרויקט אחראי</Label>
                               <Select
                                 value={editForm.manager}
@@ -805,16 +1026,41 @@ export function AdminConsole() {
                               </Select>
                             </div>
                             <div className="space-y-2">
-                              <Label>תקציב שעות מוקצה (100%)</Label>
+                              <Label>תקציב שעות מוקצה (1-1000)</Label>
                               <Input
                                 type="number"
-                                min={1}
-                                step={10}
+                                min={MIN_BUDGET}
+                                max={MAX_BUDGET}
+                                step={1}
                                 value={editForm.budget}
                                 onChange={(e) =>
                                   setEditForm({ ...editForm, budget: Number(e.target.value) })
                                 }
                               />
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                              <Label>צוות משויך לפרויקט (ניתן לבחור כמה עובדים)</Label>
+                              <div className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-2 md:grid-cols-3">
+                                {state.users.map((u) => (
+                                  <label
+                                    key={u.username}
+                                    className="flex items-center gap-2 text-sm"
+                                  >
+                                    <Checkbox
+                                      checked={editForm.team.includes(u.full_name)}
+                                      onCheckedChange={() =>
+                                        setEditForm((prev) => ({
+                                          ...prev,
+                                          team: prev.team.includes(u.full_name)
+                                            ? prev.team.filter((x) => x !== u.full_name)
+                                            : [...prev.team, u.full_name],
+                                        }))
+                                      }
+                                    />
+                                    {u.full_name}
+                                  </label>
+                                ))}
+                              </div>
                             </div>
                           </div>
                           <div className="flex gap-2">
@@ -931,10 +1177,29 @@ function UserRow({ username }: { username: string }) {
   });
   if (!user) return null;
 
+  const userProjects = state.projects.filter(
+    (p) => !p.archived && (p.team?.includes(user.full_name) || p.manager === user.full_name),
+  );
+
+  const toggleProject = (name: string) =>
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.map((p) =>
+        p.name === name
+          ? {
+              ...p,
+              team: (p.team ?? []).includes(user.full_name)
+                ? (p.team ?? []).filter((x) => x !== user.full_name)
+                : [...(p.team ?? []), user.full_name],
+            }
+          : p,
+      ),
+    }));
+
   return (
     <AccordionItem value={username}>
       <AccordionTrigger className="text-right">
-        <span className="flex items-center gap-3">
+        <span className="flex flex-wrap items-center gap-3">
           <span className="brand-gradient flex size-8 items-center justify-center rounded-full text-xs font-bold text-primary-foreground">
             {user.full_name.charAt(0)}
           </span>
@@ -942,6 +1207,11 @@ function UserRow({ username }: { username: string }) {
           <Badge variant="outline" className="text-xs">
             {user.role}
           </Badge>
+          {userProjects.length > 0 && (
+            <Badge variant="secondary" className="text-xs">
+              {userProjects.length} פרויקטים
+            </Badge>
+          )}
         </span>
       </AccordionTrigger>
       <AccordionContent>
@@ -977,6 +1247,28 @@ function UserRow({ username }: { username: string }) {
             </Select>
           </div>
         </div>
+
+        <div className="mt-4 space-y-2">
+          <Label>שיוך לפרויקטים (ניתן לבחור מספר פרויקטים)</Label>
+          {state.projects.filter((p) => !p.archived).length ? (
+            <div className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-2 md:grid-cols-3">
+              {state.projects
+                .filter((p) => !p.archived)
+                .map((p) => (
+                  <label key={p.name} className="flex items-center gap-2 text-sm">
+                    <Checkbox
+                      checked={(p.team ?? []).includes(user.full_name)}
+                      onCheckedChange={() => toggleProject(p.name)}
+                    />
+                    {p.name}
+                  </label>
+                ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">אין פרויקטים פעילים לשיוך.</p>
+          )}
+        </div>
+
         <div className="mt-4 flex gap-2">
           <Button
             variant="brand"
