@@ -19,10 +19,12 @@ function HoursGroup({
   title,
   icon,
   rows,
+  markPartialDays = false,
 }: {
   title: string;
   icon: React.ReactNode;
   rows: HoursEntry[];
+  markPartialDays?: boolean;
 }) {
   const minutes = rows.reduce((a, h) => a + h.minutes, 0);
   return (
