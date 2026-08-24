@@ -143,29 +143,15 @@ export function ProjectHoursDetail({
           </div>
         </div>
 
-        <Progress value={Math.min(pct, 100)} className="h-2" />
-        <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-          <span>ניצול תקציב</span>
-          <Badge variant={pct >= 80 ? "destructive" : "secondary"}>{pct}%</Badge>
-        </div>
-
-        <div className="mt-5 grid max-w-md gap-3 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label>מתאריך</Label>
-            <Input
-              type="date"
-              value={range.from}
-              onChange={(e) => setRange({ ...range, from: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>עד תאריך</Label>
-            <Input
-              type="date"
-              value={range.to}
-              onChange={(e) => setRange({ ...range, to: e.target.value })}
-            />
-          </div>
+        <Progress value={Math.min(pct, 100)} className="h-3" />
+        <div className="mt-3 flex items-center justify-between">
+          <span className="text-lg font-semibold">ניצול תקציב</span>
+          <Badge
+            variant={pct >= 80 ? "destructive" : "secondary"}
+            className="px-4 py-1 text-xl font-bold"
+          >
+            {pct}%
+          </Badge>
         </div>
       </div>
 
