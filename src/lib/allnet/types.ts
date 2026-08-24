@@ -14,6 +14,10 @@ export interface User {
   role: Role;
 }
 
+export type Region = "צפון" | "דרום" | "מרכז";
+
+export const REGIONS: Region[] = ["צפון", "דרום", "מרכז"];
+
 export interface Project {
   name: string;
   manager: string;
@@ -21,7 +25,18 @@ export interface Project {
   team: string[];
   archived: boolean;
   deliveryDate?: string;
+  region?: Region;
 }
+
+/** עלות צוות קבלן משנה (2 עובדים) ליום עבודה, לפי איזור */
+export const SUB_CREW_DAY_RATE: Record<Region, number> = {
+  צפון: 2200,
+  דרום: 2200,
+  מרכז: 1800,
+};
+export const SUB_CREW_SIZE = 2;
+/** עלות עובד חברה ליום עבודה */
+export const EMPLOYEE_DAY_RATE = 1200;
 
 
 export const MIN_BUDGET = 1;
