@@ -32,18 +32,12 @@ export function EmployeePortal() {
   const user = session?.user;
 
   const [project, setProject] = useState("");
-  const [sub, setSub] = useState("ללא");
   const [reportDate, setReportDate] = useState(todayISO());
   const [from, setFrom] = useState("07:00");
   const [to, setTo] = useState("17:00");
   const [extras, setExtras] = useState("");
   const [notes, setNotes] = useState("");
   const [docFilter, setDocFilter] = useState("all");
-
-  const subs = useMemo(
-    () => state.projects.find((p) => p.name === project)?.subs ?? [],
-    [state.projects, project],
-  );
 
   const myHours = useMemo(
     () => state.hours.filter((h) => h.username === user?.username).slice().reverse(),
@@ -68,7 +62,6 @@ export function EmployeePortal() {
       id: (state.hours.at(-1)?.id ?? 0) + 1,
       username: user.username,
       project,
-      sub: sub === "ללא" ? "" : sub,
       reporter: user.full_name,
       role: user.role,
       from,
@@ -82,7 +75,6 @@ export function EmployeePortal() {
     };
     setState((prev) => ({ ...prev, hours: [...prev.hours, entry] }));
     toast.success("הדיווח נקלט בהצלחה.");
-    setSub("ללא");
     setNotes("");
     setExtras("");
   };
@@ -129,26 +121,9 @@ export function EmployeePortal() {
                     <SelectValue placeholder="בחר פרויקט" />
                   </SelectTrigger>
                   <SelectContent>
-                    {state.projects.map((p) => (
+                    {state.projects.filter((p) => !p.archived).map((p) => (
                       <SelectItem key={p.name} value={p.name}>
                         {p.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>תת פרויקט (אופציונלי)</Label>
-                <Select value={sub} onValueChange={setSub}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ללא">ללא</SelectItem>
-                    {subs.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -231,7 +206,6 @@ export function EmployeePortal() {
                     <TableRow>
                       <TableHead className="text-right">תאריך</TableHead>
                       <TableHead className="text-right">פרויקט</TableHead>
-                      <TableHead className="text-right">תת פרויקט</TableHead>
                       <TableHead className="text-right">משעה</TableHead>
                       <TableHead className="text-right">עד שעה</TableHead>
                       <TableHead className="text-right">זמן עבודה</TableHead>
@@ -243,7 +217,6 @@ export function EmployeePortal() {
                       <TableRow key={h.id} className="transition-colors hover:bg-surface-2/60">
                         <TableCell>{h.date}</TableCell>
                         <TableCell className="font-medium">{h.project}</TableCell>
-                        <TableCell>{h.sub || "—"}</TableCell>
                         <TableCell>{h.from}</TableCell>
                         <TableCell>{h.to}</TableCell>
                         <TableCell className="text-primary">{h.worked}</TableCell>
@@ -272,7 +245,7 @@ export function EmployeePortal() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">הצג הכל</SelectItem>
-                  {state.projects.map((p) => (
+                  {state.projects.filter((p) => !p.archived).map((p) => (
                     <SelectItem key={p.name} value={p.name}>
                       {p.name}
                     </SelectItem>
