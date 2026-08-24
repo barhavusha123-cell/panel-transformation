@@ -16,8 +16,8 @@ import {
 import {
   EMPLOYEE_DAY_RATE,
   MIN_FULL_DAY_MINUTES,
-  SUB_CREW_DAY_RATE,
   SUB_CREW_SIZE,
+  subDayRate,
   type HoursEntry,
 } from "@/lib/allnet/types";
 
