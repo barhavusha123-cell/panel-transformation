@@ -18,7 +18,15 @@ import {
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
-import { MAX_BUDGET, MIN_BUDGET, ROLES, type Project, type Role } from "@/lib/allnet/types";
+import {
+  MAX_BUDGET,
+  MIN_BUDGET,
+  REGIONS,
+  ROLES,
+  type Project,
+  type Region,
+  type Role,
+} from "@/lib/allnet/types";
 import { downloadCsv, nowStamp, todayISO } from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -247,7 +255,13 @@ export function AdminConsole() {
 
   // project form
   const managers = state.users.map((u) => u.full_name);
-  const [np, setNp] = useState({ name: "", manager: "", budget: 100, deliveryDate: "" });
+  const [np, setNp] = useState<{
+    name: string;
+    manager: string;
+    budget: number;
+    deliveryDate: string;
+    region: Region;
+  }>({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז" });
 
   const validBudget = (v: number) =>
     Number.isFinite(v) && Number.isInteger(v) && v >= MIN_BUDGET && v <= MAX_BUDGET;
@@ -276,6 +290,7 @@ export function AdminConsole() {
                     manager: np.manager || "לא הוגדר",
                     budget,
                     deliveryDate: np.deliveryDate,
+                    region: np.region,
                   }
                 : p,
             )
@@ -286,6 +301,7 @@ export function AdminConsole() {
                 manager: np.manager || "לא הוגדר",
                 budget,
                 deliveryDate: np.deliveryDate,
+                region: np.region,
                 team: np.manager ? [np.manager] : [],
                 archived: false,
               },
@@ -293,7 +309,7 @@ export function AdminConsole() {
       };
     });
     toast.success(`הפרויקט '${name}' עודכן בהצלחה עם תקציב של ${budget} שעות.`);
-    setNp({ name: "", manager: "", budget: 100, deliveryDate: "" });
+    setNp({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז" });
   };
 
   const [editTarget, setEditTarget] = useState<string | null>(null);
@@ -303,7 +319,8 @@ export function AdminConsole() {
     budget: number;
     team: string[];
     deliveryDate: string;
-  }>({ name: "", manager: "", budget: 100, team: [], deliveryDate: "" });
+    region: Region;
+  }>({ name: "", manager: "", budget: 100, team: [], deliveryDate: "", region: "מרכז" });
 
   const startEdit = (p: Project) => {
     setEditTarget(p.name);
@@ -313,6 +330,7 @@ export function AdminConsole() {
       budget: p.budget,
       team: p.team ?? [],
       deliveryDate: p.deliveryDate ?? "",
+      region: p.region ?? "מרכז",
     });
   };
 
@@ -333,6 +351,7 @@ export function AdminConsole() {
               manager: editForm.manager,
               budget,
               deliveryDate: editForm.deliveryDate,
+              region: editForm.region,
               team: editForm.team,
             }
           : p,
@@ -1013,6 +1032,27 @@ export function AdminConsole() {
                     onChange={(e) => setNp({ ...np, deliveryDate: e.target.value })}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label>איזור</Label>
+                  <Select
+                    value={np.region}
+                    onValueChange={(v) => setNp({ ...np, region: v as Region })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="בחר איזור" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {REGIONS.map((r) => (
+                        <SelectItem key={r} value={r}>
+                          {r}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-muted-foreground">
+                    צפון/דרום: 2,200 ₪ לצוות קבלן (2 עובדים) · מרכז: 1,800 ₪
+                  </p>
+                </div>
               </div>
               <Button type="submit" variant="brand" className="mt-5">
                 שמור ואתחל פרויקט
@@ -1130,6 +1170,26 @@ export function AdminConsole() {
                                   setEditForm({ ...editForm, deliveryDate: e.target.value })
                                 }
                               />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>איזור</Label>
+                              <Select
+                                value={editForm.region}
+                                onValueChange={(v) =>
+                                  setEditForm({ ...editForm, region: v as Region })
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="בחר איזור" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {REGIONS.map((r) => (
+                                    <SelectItem key={r} value={r}>
+                                      {r}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                             </div>
                             <div className="space-y-2 md:col-span-2">
                               <Label>צוות משויך לפרויקט (ניתן לבחור כמה עובדים)</Label>

@@ -46,6 +46,7 @@ export function AllNetProvider({ children }: { children: ReactNode }) {
           team: Array.isArray(p.team) ? p.team : [],
           archived: Boolean(p.archived),
           deliveryDate: p.deliveryDate ?? "",
+          region: p.region ?? "מרכז",
         }));
 
         setRaw(merged);

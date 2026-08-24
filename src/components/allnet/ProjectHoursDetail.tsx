@@ -13,7 +13,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MIN_FULL_DAY_MINUTES, type HoursEntry } from "@/lib/allnet/types";
+import {
+  EMPLOYEE_DAY_RATE,
+  MIN_FULL_DAY_MINUTES,
+  SUB_CREW_DAY_RATE,
+  SUB_CREW_SIZE,
+  type HoursEntry,
+} from "@/lib/allnet/types";
 
 function HoursGroup({
   title,
@@ -101,10 +107,26 @@ export function ProjectHoursDetail({
   const employees = rows.filter((h) => h.role !== "קבלן משנה");
   const subs = rows.filter((h) => h.role === "קבלן משנה");
   const partialSubs = subs.filter((h) => h.minutes < MIN_FULL_DAY_MINUTES).length;
-  const subDays = new Set(
-    subs.filter((h) => h.minutes >= MIN_FULL_DAY_MINUTES).map((h) => h.date),
-  ).size;
+  const fullSubDays = subs.filter((h) => h.minutes >= MIN_FULL_DAY_MINUTES);
+  const subDays = new Set(fullSubDays.map((h) => h.date)).size;
   const totalMinutes = rows.reduce((a, h) => a + h.minutes, 0);
+
+  const region = project?.region ?? "מרכז";
+  const crewRate = SUB_CREW_DAY_RATE[region];
+  // עלות קבלני משנה: תעריף צוות (2 עובדים) ליום עבודה, מותאם למספר העובדים שדווחו
+  const subCost = Array.from(new Set(fullSubDays.map((h) => h.date))).reduce((sum, date) => {
+    const workers = Math.max(
+      ...fullSubDays.filter((h) => h.date === date).map((h) => h.workers ?? SUB_CREW_SIZE),
+    );
+    return sum + (crewRate / SUB_CREW_SIZE) * workers;
+  }, 0);
+  // עלות עובדי חברה: 1,200 ₪ ליום עבודה לעובד
+  const employeeDays = new Set(
+    employees.filter((h) => h.minutes >= MIN_FULL_DAY_MINUTES).map((h) => `${h.reporter}|${h.date}`),
+  ).size;
+  const employeeCost = employeeDays * EMPLOYEE_DAY_RATE;
+  const totalCost = subCost + employeeCost;
+  const ils = (n: number) => `${Math.round(n).toLocaleString("he-IL")} ₪`;
   const reported = Math.round((totalMinutes / 60) * 100) / 100;
   const budget = project?.budget ?? 0;
   const pct = budget > 0 ? Math.round((reported / budget) * 1000) / 10 : 0;
@@ -180,8 +202,24 @@ export function ProjectHoursDetail({
           </p>
         </div>
         <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
-          <p className="text-xs text-muted-foreground">סה״כ שעות בפרויקט</p>
-          <p className="text-xl font-bold text-primary">{formatHoursMinutes(totalMinutes)}</p>
+          <p className="text-xs text-muted-foreground">עלויות עובדים וקבלנים · איזור {region}</p>
+          <div className="mt-2 space-y-1 text-sm">
+            <div className="flex items-center justify-between">
+              <span>עלות צוות קבלן ({SUB_CREW_SIZE} עובדים · {ils(crewRate)} ליום)</span>
+              <span className="font-bold text-primary">{ils(subCost)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>עלות עובדי חברה ({ils(EMPLOYEE_DAY_RATE)} ליום)</span>
+              <span className="font-bold text-primary">{ils(employeeCost)}</span>
+            </div>
+            <div className="flex items-center justify-between border-t border-primary/20 pt-1">
+              <span className="font-semibold">סה״כ עלות</span>
+              <span className="text-lg font-bold text-primary">{ils(totalCost)}</span>
+            </div>
+          </div>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            סה״כ שעות בפרויקט: {formatHoursMinutes(totalMinutes)}
+          </p>
         </div>
       </div>
 
