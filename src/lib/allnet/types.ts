@@ -20,7 +20,9 @@ export interface Project {
   budget: number;
   team: string[];
   archived: boolean;
+  deliveryDate?: string;
 }
+
 
 export const MIN_BUDGET = 1;
 export const MAX_BUDGET = 1000;

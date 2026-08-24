@@ -45,7 +45,9 @@ export function AllNetProvider({ children }: { children: ReactNode }) {
           budget: Number(p.budget) || 100,
           team: Array.isArray(p.team) ? p.team : [],
           archived: Boolean(p.archived),
+          deliveryDate: p.deliveryDate ?? "",
         }));
+
         setRaw(merged);
       }
       const sess = sessionStorage.getItem(SESSION_KEY);
