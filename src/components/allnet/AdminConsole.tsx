@@ -290,6 +290,7 @@ export function AdminConsole() {
                     manager: np.manager || "לא הוגדר",
                     budget,
                     deliveryDate: np.deliveryDate,
+                    region: np.region,
                   }
                 : p,
             )
@@ -300,6 +301,7 @@ export function AdminConsole() {
                 manager: np.manager || "לא הוגדר",
                 budget,
                 deliveryDate: np.deliveryDate,
+                region: np.region,
                 team: np.manager ? [np.manager] : [],
                 archived: false,
               },
@@ -307,7 +309,7 @@ export function AdminConsole() {
       };
     });
     toast.success(`הפרויקט '${name}' עודכן בהצלחה עם תקציב של ${budget} שעות.`);
-    setNp({ name: "", manager: "", budget: 100, deliveryDate: "" });
+    setNp({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז" });
   };
 
   const [editTarget, setEditTarget] = useState<string | null>(null);
