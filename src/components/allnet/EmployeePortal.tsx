@@ -33,8 +33,8 @@ export function EmployeePortal() {
 
   const [project, setProject] = useState("");
   const [reportDate, setReportDate] = useState(todayISO());
-  const [from, setFrom] = useState("07:00");
-  const [to, setTo] = useState("17:00");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
   const [extras, setExtras] = useState("");
   const [notes, setNotes] = useState("");
   const [docFilter, setDocFilter] = useState("all");
