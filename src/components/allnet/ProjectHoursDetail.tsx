@@ -112,13 +112,12 @@ export function ProjectHoursDetail({
   const totalMinutes = rows.reduce((a, h) => a + h.minutes, 0);
 
   const region = project?.region ?? "מרכז";
-  const crewRate = SUB_CREW_DAY_RATE[region];
-  // עלות קבלני משנה: תעריף צוות (2 עובדים) ליום עבודה, מותאם למספר העובדים שדווחו
+  // עלות קבלני משנה: מחירון יום עבודה לפי מספר עובדים ואיזור
   const subCost = Array.from(new Set(fullSubDays.map((h) => h.date))).reduce((sum, date) => {
     const workers = Math.max(
       ...fullSubDays.filter((h) => h.date === date).map((h) => h.workers ?? SUB_CREW_SIZE),
     );
-    return sum + (crewRate / SUB_CREW_SIZE) * workers;
+    return sum + subDayRate(region, workers);
   }, 0);
   // עלות עובדי חברה: 1,200 ₪ ליום עבודה לעובד
   const employeeDays = new Set(
