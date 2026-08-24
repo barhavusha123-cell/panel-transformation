@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { MAX_SUB_WORKERS } from "@/lib/allnet/types";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -248,7 +249,7 @@ export function EmployeePortal() {
                 <div className="space-y-2 md:col-span-2">
                   <Label>כמה עובדים היו באותו היום?</Label>
                   <div className="flex flex-wrap gap-4 rounded-xl border border-border bg-surface/60 p-3">
-                    {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                    {Array.from({ length: MAX_SUB_WORKERS }, (_, i) => i + 1).map((n) => (
                       <label key={n} className="flex cursor-pointer items-center gap-2 text-sm">
                         <Checkbox
                           checked={workers === n}

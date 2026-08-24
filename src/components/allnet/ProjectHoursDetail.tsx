@@ -16,8 +16,8 @@ import {
 import {
   EMPLOYEE_DAY_RATE,
   MIN_FULL_DAY_MINUTES,
-  SUB_CREW_DAY_RATE,
   SUB_CREW_SIZE,
+  subDayRate,
   type HoursEntry,
 } from "@/lib/allnet/types";
 
@@ -112,13 +112,12 @@ export function ProjectHoursDetail({
   const totalMinutes = rows.reduce((a, h) => a + h.minutes, 0);
 
   const region = project?.region ?? "מרכז";
-  const crewRate = SUB_CREW_DAY_RATE[region];
-  // עלות קבלני משנה: תעריף צוות (2 עובדים) ליום עבודה, מותאם למספר העובדים שדווחו
+  // עלות קבלני משנה: מחירון יום עבודה לפי מספר עובדים ואיזור
   const subCost = Array.from(new Set(fullSubDays.map((h) => h.date))).reduce((sum, date) => {
     const workers = Math.max(
       ...fullSubDays.filter((h) => h.date === date).map((h) => h.workers ?? SUB_CREW_SIZE),
     );
-    return sum + (crewRate / SUB_CREW_SIZE) * workers;
+    return sum + subDayRate(region, workers);
   }, 0);
   // עלות עובדי חברה: 1,200 ₪ ליום עבודה לעובד
   const employeeDays = new Set(
@@ -205,9 +204,15 @@ export function ProjectHoursDetail({
           <p className="text-xs text-muted-foreground">עלויות עובדים וקבלנים · איזור {region}</p>
           <div className="mt-2 space-y-1 text-sm">
             <div className="flex items-center justify-between">
-              <span>עלות צוות קבלן ({SUB_CREW_SIZE} עובדים · {ils(crewRate)} ליום)</span>
+              <span>עלות קבלני משנה</span>
               <span className="font-bold text-primary">{ils(subCost)}</span>
             </div>
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              מחירון יום עבודה קבלני ({region}):{" "}
+              {[1, 2, 3, 4]
+                .map((n) => `${n} עובדים ${ils(subDayRate(region, n))}`)
+                .join(" · ")}
+            </p>
             <div className="flex items-center justify-between">
               <span>עלות עובדי חברה ({ils(EMPLOYEE_DAY_RATE)} ליום)</span>
               <span className="font-bold text-primary">{ils(employeeCost)}</span>
