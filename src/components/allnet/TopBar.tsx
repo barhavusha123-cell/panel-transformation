@@ -97,7 +97,7 @@ export function TopBar() {
               className="h-10 w-auto object-contain sm:h-12"
             />
             <div>
-              <h1 className="text-lg font-bold tracking-tight sm:text-xl">
+              <h1 className="text-lg font-bold tracking-tight underline-offset-4 group-hover:underline sm:text-xl">
                 פלטפורמת ניהול תפעול ארגוני — <span className="text-gradient">AllNet</span>
               </h1>
               <p className="text-xs text-muted-foreground sm:text-sm">
