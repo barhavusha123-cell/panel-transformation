@@ -177,46 +177,49 @@ export function EmployeePortal() {
 
               <div className="space-y-2">
                 <Label>תאריך הדיווח</Label>
-                <Input
-                  type="date"
-                  value={reportDate}
-                  onChange={(e) => setReportDate(e.target.value)}
-                />
+                <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-right font-normal",
+                        !reportDate && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarIcon className="size-4" />
+                      {reportDate || "בחר תאריך"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={reportDate ? new Date(`${reportDate}T00:00:00`) : undefined}
+                      onSelect={(d) => {
+                        if (!d) return;
+                        setReportDate(toISO(d));
+                        setDateOpen(false);
+                      }}
+                      disabled={(d) => d > new Date()}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="grid gap-5 sm:grid-cols-2 md:col-span-2">
                 <div className="space-y-2">
                   <Label>משעה</Label>
-                  <Select value={from} onValueChange={setFrom}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="בחר שעה" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-64">
-                      {TIME_OPTIONS.map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <TimeSelect value={from} onChange={setFrom} placeholder="בחר שעה" />
                 </div>
 
                 <div className="space-y-2">
                   <Label>עד שעה</Label>
-                  <Select value={to} onValueChange={setTo}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="בחר שעה" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-64">
-                      {TIME_OPTIONS.map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <TimeSelect value={to} onChange={setTo} placeholder="בחר שעה" />
                 </div>
               </div>
+
 
               <div className="space-y-2 md:col-span-2">
                 <Label>תיאור העבודה והערות</Label>
