@@ -473,40 +473,43 @@ export function AdminConsole() {
           </div>
         </KpiCard>
 
-        <KpiCard title='סה"כ שעות עובדים' icon={<Users className="size-4" />} delay={80}>
-          <div className="text-xl font-bold">{formatHoursMinutes(workerMinutes)}</div>
-          <div className="mt-3 flex gap-2">
-            <Input
-              type="date"
-              value={empRange.from}
-              onChange={(e) => setEmpRange({ ...empRange, from: e.target.value })}
-              className="h-8 text-xs"
-            />
-            <Input
-              type="date"
-              value={empRange.to}
-              onChange={(e) => setEmpRange({ ...empRange, to: e.target.value })}
-              className="h-8 text-xs"
-            />
-          </div>
+        <KpiCard title="פרויקטים לפני מסירה" icon={<CalendarClock className="size-4" />} delay={80}>
+          <div className="text-2xl font-bold">{upcoming.length}</div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {upcoming.length ? `הקרוב: ${upcoming[0]!.name} · ${upcoming[0]!.deliveryDate}` : "לא הוגדרו מועדי מסירה"}
+          </p>
+          <Button
+            variant="soft"
+            size="sm"
+            className="mt-3 w-full"
+            onClick={() => setShowDelivery((s) => !s)}
+          >
+            {showDelivery ? "סגור רשימה" : "הצג פרויקטים לפני מסירה"}
+          </Button>
         </KpiCard>
 
-        <KpiCard title='סה"כ שעות קבלני משנה' icon={<HardHat className="size-4" />} delay={160}>
-          <div className="text-xl font-bold">{formatHoursMinutes(subMinutes)}</div>
-          <div className="mt-3 flex gap-2">
-            <Input
-              type="date"
-              value={subRange.from}
-              onChange={(e) => setSubRange({ ...subRange, from: e.target.value })}
-              className="h-8 text-xs"
-            />
-            <Input
-              type="date"
-              value={subRange.to}
-              onChange={(e) => setSubRange({ ...subRange, to: e.target.value })}
-              className="h-8 text-xs"
-            />
+        <KpiCard title="פרויקטים בחריגה" icon={<AlertTriangle className="size-4" />} delay={160}>
+          <div className="flex items-center gap-2">
+            <span className={`text-2xl font-bold ${alerts.length ? "text-destructive" : ""}`}>
+              {alerts.length}
+            </span>
+            {alerts.length > 0 && (
+              <Badge variant="destructive" className="animate-pulse">
+                חריגה מעל 80%
+              </Badge>
+            )}
           </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {alerts.length ? `הגבוה ביותר: ${alerts[0]!.name} · ${alerts[0]!.pct}%` : "כל הפרויקטים בתקציב"}
+          </p>
+          <Button
+            variant={alerts.length ? "brand" : "soft"}
+            size="sm"
+            className="mt-3 w-full"
+            onClick={() => setShowOverruns((s) => !s)}
+          >
+            {showOverruns ? "סגור רשימה" : "הצג פרויקטים בחריגה"}
+          </Button>
         </KpiCard>
 
         <KpiCard title="דשבורד ואנליטיקה" icon={<BarChart3 className="size-4" />} delay={240}>
@@ -519,6 +522,112 @@ export function AdminConsole() {
           </Button>
         </KpiCard>
       </div>
+
+      {showDelivery && (
+        <div className="animate-fade surface-panel mb-8 rounded-2xl p-6">
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <CalendarClock className="size-5 text-primary" />
+            פרויקטים לפני מסירה
+          </h3>
+          {upcoming.length ? (
+            <div className="space-y-3">
+              {upcoming.map((p) => {
+                const r = rowFor(p.name);
+                return (
+                  <button
+                    key={p.name}
+                    type="button"
+                    onClick={() => setDetailProject(p.name)}
+                    className="hover-lift w-full cursor-pointer rounded-xl border border-border p-3 text-right transition-all hover:border-primary/50"
+                  >
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-semibold">{p.name}</span>
+                      <Badge variant={p.daysLeft <= 7 ? "destructive" : "secondary"}>
+                        {p.daysLeft < 0
+                          ? `באיחור ${Math.abs(p.daysLeft)} ימים`
+                          : `${p.daysLeft} ימים למסירה`}
+                      </Badge>
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      מועד מסירה: {p.deliveryDate} · {r.manager} · {r.reported} מתוך {r.budget} שעות
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+              לא הוגדרו מועדי מסירה לפרויקטים פעילים.
+            </p>
+          )}
+        </div>
+      )}
+
+      {showOverruns && (
+        <div className="animate-fade surface-panel mb-8 rounded-2xl p-6">
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <AlertTriangle className="size-5 text-destructive" />
+            פרויקטים בחריגת תקציב
+          </h3>
+          <div className="mb-4 grid gap-3 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>סף חריגה</Label>
+              <Select value={threshold} onValueChange={setThreshold}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="80">מעל 80%</SelectItem>
+                  <SelectItem value="90">מעל 90%</SelectItem>
+                  <SelectItem value="100">מעל 100%</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>סנן לפי מנהל פרויקט</Label>
+              <Select value={overrunManager} onValueChange={setOverrunManager}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">כל המנהלים</SelectItem>
+                  {[...new Set(activeProjects.map((p) => p.manager))].map((m) => (
+                    <SelectItem key={m} value={m}>
+                      {m}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          {overrunRows.length ? (
+            <div className="space-y-3">
+              {overrunRows.map((r) => (
+                <button
+                  key={r.name}
+                  type="button"
+                  onClick={() => setDetailProject(r.name)}
+                  className="hover-lift w-full cursor-pointer rounded-xl border border-destructive/40 bg-destructive/5 p-3 text-right transition-all"
+                >
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-semibold">{r.name}</span>
+                    <Badge variant="destructive">{r.pct}%</Badge>
+                  </div>
+                  <Progress value={Math.min(r.pct, 100)} className="my-2 h-1.5" />
+                  <p className="text-xs text-muted-foreground">
+                    {r.manager} · {r.reported} מתוך {r.budget} שעות · לחץ לצפייה בדיווחים
+                  </p>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+              אין פרויקטים העונים לסינון הנוכחי.
+            </p>
+          )}
+        </div>
+      )}
+
 
       {view === "dashboard" ? (
         <div className="animate-fade space-y-6">
