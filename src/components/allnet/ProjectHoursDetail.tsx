@@ -83,20 +83,18 @@ export function ProjectHoursDetail({
 }) {
   const { state } = useAllNet();
   const project = state.projects.find((p) => p.name === projectName);
-  const [range, setRange] = useState({ from: "", to: "" });
 
   const rows = useMemo(
-    () =>
-      state.hours
-        .filter((h) => h.project === projectName)
-        .filter((h) => (!range.from || h.date >= range.from) && (!range.to || h.date <= range.to))
-        .slice()
-        .reverse(),
-    [state.hours, projectName, range],
+    () => state.hours.filter((h) => h.project === projectName).slice().reverse(),
+    [state.hours, projectName],
   );
 
   const employees = rows.filter((h) => h.role !== "קבלן משנה");
   const subs = rows.filter((h) => h.role === "קבלן משנה");
+  const subDays = subs.reduce(
+    (a, h) => a + (h.minutes >= MIN_FULL_DAY_MINUTES ? Math.max(1, h.workers ?? 1) : 0),
+    0,
+  );
   const totalMinutes = rows.reduce((a, h) => a + h.minutes, 0);
   const reported = Math.round((totalMinutes / 60) * 100) / 100;
   const budget = project?.budget ?? 0;
