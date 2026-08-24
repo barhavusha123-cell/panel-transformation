@@ -87,6 +87,7 @@ export function EmployeePortal() {
   const [extras, setExtras] = useState("");
   const [notes, setNotes] = useState("");
   const [docFilter, setDocFilter] = useState("all");
+  const [workers, setWorkers] = useState(1);
 
   const myHours = useMemo(
     () => state.hours.filter((h) => h.username === user?.username).slice().reverse(),
@@ -138,6 +139,7 @@ export function EmployeePortal() {
       date: reportDate,
       notes,
       extras,
+      workers: user.role === "קבלן משנה" ? workers : undefined,
     };
     setState((prev) => ({ ...prev, hours: [...prev.hours, entry] }));
     toast.success("הדיווח נקלט בהצלחה.");
