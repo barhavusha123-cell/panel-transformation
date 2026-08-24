@@ -83,7 +83,12 @@ export function TopBar() {
     <>
       <header className="surface-panel animate-fade sticky top-0 z-40 mb-6 rounded-b-2xl border-x-0 border-t-0">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4">
-          <div className="flex items-center gap-4">
+          <button
+            type="button"
+            title="חזרה למרכז הבקרה הניהולי"
+            onClick={() => window.dispatchEvent(new CustomEvent("allnet:home"))}
+            className="flex items-center gap-4 rounded-xl px-2 py-1 text-right transition-colors hover:bg-surface-2/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
             <img
               src={logo.url}
               alt="לוגו AllNet"
@@ -99,7 +104,7 @@ export function TopBar() {
                 פורטל בקרת פרויקטים ומעקב שעות עבודה
               </p>
             </div>
-          </div>
+          </button>
 
           <div className="flex items-center gap-2">
             <span className="hidden rounded-full border border-border bg-surface-2/70 px-3 py-1.5 text-xs text-muted-foreground sm:inline">
