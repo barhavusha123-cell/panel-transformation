@@ -18,7 +18,15 @@ import {
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
-import { MAX_BUDGET, MIN_BUDGET, ROLES, type Project, type Role } from "@/lib/allnet/types";
+import {
+  MAX_BUDGET,
+  MIN_BUDGET,
+  REGIONS,
+  ROLES,
+  type Project,
+  type Region,
+  type Role,
+} from "@/lib/allnet/types";
 import { downloadCsv, nowStamp, todayISO } from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
