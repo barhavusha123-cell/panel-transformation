@@ -163,10 +163,8 @@ export function ProjectHoursDetail({
           </p>
         </div>
         <div className="rounded-xl border border-border bg-surface/70 p-4">
-          <p className="text-xs text-muted-foreground">סה״כ שעות קבלני משנה</p>
-          <p className="text-xl font-bold text-primary">
-            {formatHoursMinutes(subs.reduce((a, h) => a + h.minutes, 0))}
-          </p>
+          <p className="text-xs text-muted-foreground">סה״כ ימי עבודה לקבלני משנה</p>
+          <p className="text-xl font-bold text-primary">{subDays} ימי עבודה</p>
         </div>
         <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
           <p className="text-xs text-muted-foreground">סה״כ שעות בפרויקט</p>
