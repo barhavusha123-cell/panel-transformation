@@ -98,11 +98,27 @@ export function EmployeePortal() {
       toast.error("אנא בחר פרויקט תקין.");
       return;
     }
+    if (!reportDate) {
+      toast.error("אנא בחר תאריך דיווח.");
+      return;
+    }
+    if (reportDate > todayISO()) {
+      toast.error("לא ניתן להזין דיווח שעות עבור תאריך עתידי.");
+      return;
+    }
     if (!from || !to) {
       toast.error("אנא בחר שעות התחלה וסיום תקינות.");
       return;
     }
+    const duplicate = state.hours.some(
+      (h) => h.username === user.username && h.date === reportDate,
+    );
+    if (duplicate) {
+      toast.error("קיים כבר דיווch שעות עבור תאריך זה. לא ניתן לדווח פעמיים באותו היום.");
+      return;
+    }
     const minutes = minutesBetween(from, to);
+
     const entry = {
       id: (state.hours.at(-1)?.id ?? 0) + 1,
       username: user.username,
