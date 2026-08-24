@@ -87,7 +87,7 @@ export function TopBar() {
             type="button"
             title="חזרה למרכז הבקרה הניהולי"
             onClick={() => window.dispatchEvent(new CustomEvent("allnet:home"))}
-            className="flex items-center gap-4 rounded-xl px-2 py-1 text-right transition-colors hover:bg-surface-2/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="group flex cursor-pointer items-center gap-4 rounded-xl px-2 py-1 text-right transition-all duration-200 hover:bg-surface-2/70 hover:shadow-sm active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <img
               src={logo.url}
@@ -97,7 +97,7 @@ export function TopBar() {
               className="h-10 w-auto object-contain sm:h-12"
             />
             <div>
-              <h1 className="text-lg font-bold tracking-tight sm:text-xl">
+              <h1 className="text-lg font-bold tracking-tight underline-offset-4 group-hover:underline sm:text-xl">
                 פלטפורמת ניהול תפעול ארגוני — <span className="text-gradient">AllNet</span>
               </h1>
               <p className="text-xs text-muted-foreground sm:text-sm">
