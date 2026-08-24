@@ -538,15 +538,8 @@ export function AdminConsole() {
                 <div className="surface-panel rounded-2xl p-6">
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                     <h3 className="text-lg font-semibold">התפלגות פרויקטים</h3>
-                    <Button
-                      variant={showOverruns ? "brand" : "soft"}
-                      size="sm"
-                      onClick={() => setShowOverruns((s) => !s)}
-                    >
-                      <AlertTriangle className="size-4" />
-                      פרויקטים בחריגה ({alerts.length})
-                    </Button>
                   </div>
+
                   {dashRows.length ? (
                     <ResponsiveContainer width="100%" height={340}>
                       <PieChart>
