@@ -139,7 +139,7 @@ export function EmployeePortal() {
       date: reportDate,
       notes,
       extras,
-      workers: user.role === "קבלן משנה" ? workers : undefined,
+      workers: user.role === "קבלן משנה" ? workers : 1,
     };
     setState((prev) => ({ ...prev, hours: [...prev.hours, entry] }));
     toast.success("הדיווח נקלט בהצלחה.");
