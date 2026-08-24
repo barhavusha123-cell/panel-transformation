@@ -202,8 +202,24 @@ export function ProjectHoursDetail({
           </p>
         </div>
         <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
-          <p className="text-xs text-muted-foreground">סה״כ שעות בפרויקט</p>
-          <p className="text-xl font-bold text-primary">{formatHoursMinutes(totalMinutes)}</p>
+          <p className="text-xs text-muted-foreground">עלויות עובדים וקבלנים · איזור {region}</p>
+          <div className="mt-2 space-y-1 text-sm">
+            <div className="flex items-center justify-between">
+              <span>עלות צוות קבלן ({SUB_CREW_SIZE} עובדים · {ils(crewRate)} ליום)</span>
+              <span className="font-bold text-primary">{ils(subCost)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>עלות עובדי חברה ({ils(EMPLOYEE_DAY_RATE)} ליום)</span>
+              <span className="font-bold text-primary">{ils(employeeCost)}</span>
+            </div>
+            <div className="flex items-center justify-between border-t border-primary/20 pt-1">
+              <span className="font-semibold">סה״כ עלות</span>
+              <span className="text-lg font-bold text-primary">{ils(totalCost)}</span>
+            </div>
+          </div>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            סה״כ שעות בפרויקט: {formatHoursMinutes(totalMinutes)}
+          </p>
         </div>
       </div>
 
