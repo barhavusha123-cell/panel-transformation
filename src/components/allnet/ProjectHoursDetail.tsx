@@ -204,9 +204,15 @@ export function ProjectHoursDetail({
           <p className="text-xs text-muted-foreground">עלויות עובדים וקבלנים · איזור {region}</p>
           <div className="mt-2 space-y-1 text-sm">
             <div className="flex items-center justify-between">
-              <span>עלות צוות קבלן ({SUB_CREW_SIZE} עובדים · {ils(crewRate)} ליום)</span>
+              <span>עלות קבלני משנה</span>
               <span className="font-bold text-primary">{ils(subCost)}</span>
             </div>
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              מחירון יום עבודה קבלני ({region}):{" "}
+              {[1, 2, 3, 4]
+                .map((n) => `${n} עובדים ${ils(subDayRate(region, n))}`)
+                .join(" · ")}
+            </p>
             <div className="flex items-center justify-between">
               <span>עלות עובדי חברה ({ils(EMPLOYEE_DAY_RATE)} ליום)</span>
               <span className="font-bold text-primary">{ils(employeeCost)}</span>
