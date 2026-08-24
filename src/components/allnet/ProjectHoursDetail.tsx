@@ -100,6 +100,7 @@ export function ProjectHoursDetail({
 
   const employees = rows.filter((h) => h.role !== "קבלן משנה");
   const subs = rows.filter((h) => h.role === "קבלן משנה");
+  const partialSubs = subs.filter((h) => h.minutes < MIN_FULL_DAY_MINUTES).length;
   const subDays = subs.reduce(
     (a, h) => a + (h.minutes >= MIN_FULL_DAY_MINUTES ? Math.max(1, h.workers ?? 1) : 0),
     0,
