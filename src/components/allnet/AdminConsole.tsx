@@ -593,71 +593,8 @@ export function AdminConsole() {
                   )}
                 </div>
 
-                {showOverruns && (
-                  <div className="animate-fade surface-panel rounded-2xl p-6">
-                    <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                      <AlertTriangle className="size-5 text-destructive" />
-                      פרויקטים בחריגת תקציב
-                    </h3>
-                    <div className="mb-4 grid gap-3 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label>סף חריגה</Label>
-                        <Select value={threshold} onValueChange={setThreshold}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="80">מעל 80%</SelectItem>
-                            <SelectItem value="90">מעל 90%</SelectItem>
-                            <SelectItem value="100">מעל 100%</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>סנן לפי מנהל פרויקט</Label>
-                        <Select value={overrunManager} onValueChange={setOverrunManager}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">כל המנהלים</SelectItem>
-                            {[...new Set(activeProjects.map((p) => p.manager))].map((m) => (
-                              <SelectItem key={m} value={m}>
-                                {m}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    {overrunRows.length ? (
-                      <div className="space-y-3">
-                        {overrunRows.map((r) => (
-                          <button
-                            key={r.name}
-                            type="button"
-                            onClick={() => setDetailProject(r.name)}
-                            className="hover-lift w-full cursor-pointer rounded-xl border border-destructive/40 bg-destructive/5 p-3 text-right transition-all"
-                          >
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="font-semibold">{r.name}</span>
-                              <Badge variant="destructive">{r.pct}%</Badge>
-                            </div>
-                            <Progress value={Math.min(r.pct, 100)} className="my-2 h-1.5" />
-                            <p className="text-xs text-muted-foreground">
-                              {r.manager} · {r.reported} מתוך {r.budget} שעות · לחץ לצפייה
-                              בדיווחים
-                            </p>
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                        אין פרויקטים העונים לסינון הנוכחי.
-                      </p>
-                    )}
-                  </div>
-                )}
+
+
               </div>
 
               <div className="space-y-6">
