@@ -174,6 +174,10 @@ export function ProjectHoursDetail({
         <div className="rounded-xl border border-border bg-surface/70 p-4">
           <p className="text-xs text-muted-foreground">סה״כ ימי עבודה לקבלני משנה</p>
           <p className="text-xl font-bold text-primary">{subDays} ימי עבודה</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            נספרים רק דיווחים של 3 שעות ומעלה
+            {partialSubs > 0 && ` · ${partialSubs} דיווחים קצרים לא נספרו`}
+          </p>
         </div>
         <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
           <p className="text-xs text-muted-foreground">סה״כ שעות בפרויקט</p>
