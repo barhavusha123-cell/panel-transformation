@@ -36,7 +36,18 @@ export function AllNetProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setRaw({ ...defaultState(), ...JSON.parse(stored) });
+      if (stored) {
+        const parsed = JSON.parse(stored) as Partial<AllNetState>;
+        const merged: AllNetState = { ...defaultState(), ...parsed };
+        merged.projects = (merged.projects ?? []).map((p) => ({
+          name: p.name,
+          manager: p.manager ?? "לא הוגדר",
+          budget: Number(p.budget) || 100,
+          team: Array.isArray(p.team) ? p.team : [],
+          archived: Boolean(p.archived),
+        }));
+        setRaw(merged);
+      }
       const sess = sessionStorage.getItem(SESSION_KEY);
       if (sess) setSessionRaw(JSON.parse(sess));
     } catch {
