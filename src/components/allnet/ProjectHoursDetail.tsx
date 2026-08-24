@@ -101,10 +101,26 @@ export function ProjectHoursDetail({
   const employees = rows.filter((h) => h.role !== "קבלן משנה");
   const subs = rows.filter((h) => h.role === "קבלן משנה");
   const partialSubs = subs.filter((h) => h.minutes < MIN_FULL_DAY_MINUTES).length;
-  const subDays = new Set(
-    subs.filter((h) => h.minutes >= MIN_FULL_DAY_MINUTES).map((h) => h.date),
-  ).size;
+  const fullSubDays = subs.filter((h) => h.minutes >= MIN_FULL_DAY_MINUTES);
+  const subDays = new Set(fullSubDays.map((h) => h.date)).size;
   const totalMinutes = rows.reduce((a, h) => a + h.minutes, 0);
+
+  const region = project?.region ?? "מרכז";
+  const crewRate = SUB_CREW_DAY_RATE[region];
+  // עלות קבלני משנה: תעריף צוות (2 עובדים) ליום עבודה, מותאם למספר העובדים שדווחו
+  const subCost = Array.from(new Set(fullSubDays.map((h) => h.date))).reduce((sum, date) => {
+    const workers = Math.max(
+      ...fullSubDays.filter((h) => h.date === date).map((h) => h.workers ?? SUB_CREW_SIZE),
+    );
+    return sum + (crewRate / SUB_CREW_SIZE) * workers;
+  }, 0);
+  // עלות עובדי חברה: 1,200 ₪ ליום עבודה לעובד
+  const employeeDays = new Set(
+    employees.filter((h) => h.minutes >= MIN_FULL_DAY_MINUTES).map((h) => `${h.reporter}|${h.date}`),
+  ).size;
+  const employeeCost = employeeDays * EMPLOYEE_DAY_RATE;
+  const totalCost = subCost + employeeCost;
+  const ils = (n: number) => `${Math.round(n).toLocaleString("he-IL")} ₪`;
   const reported = Math.round((totalMinutes / 60) * 100) / 100;
   const budget = project?.budget ?? 0;
   const pct = budget > 0 ? Math.round((reported / budget) * 1000) / 10 : 0;
