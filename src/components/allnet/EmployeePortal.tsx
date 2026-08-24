@@ -1,12 +1,15 @@
 import { useMemo, useState } from "react";
-import { CalendarClock, FolderOpen, Send, Timer } from "lucide-react";
+import { CalendarClock, CalendarIcon, FolderOpen, Send, Timer } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { formatHoursMinutes, getAllTimeOptions, minutesBetween, todayISO } from "@/lib/allnet/utils";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -27,12 +30,53 @@ import { DocumentList } from "./DocumentList";
 
 const TIME_OPTIONS = getAllTimeOptions();
 
+function toISO(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate(),
+  ).padStart(2, "0")}`;
+}
+
+function TimeSelect({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+}) {
+  const handleOpen = (open: boolean) => {
+    if (!open) return;
+    // גלילה אוטומטית לטווח שעות העבודה (07:00–16:00)
+    setTimeout(() => {
+      const anchor = document.querySelector<HTMLElement>('[data-time-option="07:00"]');
+      anchor?.scrollIntoView({ block: "start" });
+    }, 10);
+  };
+
+  return (
+    <Select value={value} onValueChange={onChange} onOpenChange={handleOpen}>
+      <SelectTrigger>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent className="max-h-64">
+        {TIME_OPTIONS.map((t) => (
+          <SelectItem key={t} value={t} data-time-option={t}>
+            {t}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
 export function EmployeePortal() {
   const { state, setState, session } = useAllNet();
   const user = session?.user;
 
   const [project, setProject] = useState("");
   const [reportDate, setReportDate] = useState(todayISO());
+  const [dateOpen, setDateOpen] = useState(false);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [extras, setExtras] = useState("");
@@ -45,6 +89,7 @@ export function EmployeePortal() {
   );
 
   const livePreview = from && to ? formatHoursMinutes(minutesBetween(from, to)) : "—";
+
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
