@@ -59,7 +59,14 @@ function HoursGroup({
                   <TableCell>{h.date}</TableCell>
                   <TableCell>{h.from}</TableCell>
                   <TableCell>{h.to}</TableCell>
-                  <TableCell className="text-primary">{h.worked}</TableCell>
+                  <TableCell className="text-primary">
+                    <span>{h.worked}</span>
+                    {markPartialDays && h.minutes < MIN_FULL_DAY_MINUTES && (
+                      <Badge variant="outline" className="mr-2 text-[10px] font-normal">
+                        לא נספר כיום עבודה
+                      </Badge>
+                    )}
+                  </TableCell>
                   <TableCell>{h.extras || "—"}</TableCell>
                   <TableCell className="max-w-48 truncate">{h.notes || "—"}</TableCell>
                 </TableRow>
