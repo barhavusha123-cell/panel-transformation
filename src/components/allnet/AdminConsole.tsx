@@ -255,7 +255,13 @@ export function AdminConsole() {
 
   // project form
   const managers = state.users.map((u) => u.full_name);
-  const [np, setNp] = useState({ name: "", manager: "", budget: 100, deliveryDate: "" });
+  const [np, setNp] = useState<{
+    name: string;
+    manager: string;
+    budget: number;
+    deliveryDate: string;
+    region: Region;
+  }>({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז" });
 
   const validBudget = (v: number) =>
     Number.isFinite(v) && Number.isInteger(v) && v >= MIN_BUDGET && v <= MAX_BUDGET;
