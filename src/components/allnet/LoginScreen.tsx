@@ -31,6 +31,9 @@ export function LoginScreen() {
   const [uname, setUname] = useState("");
   const [pwd, setPwd] = useState("");
   const [adminPwd, setAdminPwd] = useState("");
+  const [otpOpen, setOtpOpen] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpInput, setOtpInput] = useState("");
   const [error, setError] = useState("");
 
   const employeeLogin = (e: React.FormEvent) => {
@@ -52,10 +55,30 @@ export function LoginScreen() {
     e.preventDefault();
     if (adminPwd === state.adminPassword) {
       setError("");
+      if (state.admin2fa) {
+        const code = String(Math.floor(100000 + Math.random() * 900000));
+        setOtpCode(code);
+        setOtpInput("");
+        setOtpOpen(true);
+        toast.success(`נשלח קוד אימות חד-פעמי לדוא״ל ${state.adminEmail}. קוד: ${code}`, {
+          duration: 15000,
+        });
+        return;
+      }
       setSession({ kind: "admin", user: null });
     } else {
       setError("סיסמת מנהל שגויה.");
     }
+  };
+
+  const submitOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otpInput.trim() !== otpCode) {
+      toast.error("קוד האימות שגוי. נסה שוב.");
+      return;
+    }
+    setOtpOpen(false);
+    setSession({ kind: "admin", user: null });
   };
 
   const submitReset = (e: React.FormEvent) => {
