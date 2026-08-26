@@ -71,6 +71,24 @@ const CHART_COLORS = [
   "var(--chart-6)",
 ];
 
+function RegionRates({ region }: { region: Region }) {
+  const rates = SUB_DAY_RATES[region];
+  const ils = (n: number) => `${n.toLocaleString("he-IL")} ₪`;
+  return (
+    <div className="rounded-lg border border-border bg-surface-2/50 p-2 text-[11px] leading-relaxed">
+      <p className="font-semibold">
+        מחירון יום עבודה קבלני · {region}
+        {region === "מרכז" ? " (מחירון מוזל)" : " (מחירון יקר)"}
+      </p>
+      <p className="text-muted-foreground">
+        עובד 1: {ils(rates[1]!)} · צוות 2 עובדים: {ils(rates[2]!)} · 3 עובדים: {ils(rates[3]!)} ·
+        4 עובדים: {ils(rates[4]!)}
+      </p>
+      <p className="text-muted-foreground">עובד חברה: 1,200 ₪ ליום עבודה</p>
+    </div>
+  );
+}
+
 function KpiCard({
   title,
   value,
@@ -1048,6 +1066,16 @@ export function AdminConsole() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label>תקציב ימי עבודה</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={np.budgetDays}
+                    onChange={(e) => setNp({ ...np, budgetDays: Number(e.target.value) })}
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label>מועד מסירה</Label>
                   <Input
                     type="date"
@@ -1073,9 +1101,7 @@ export function AdminConsole() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-[11px] text-muted-foreground">
-                    צפון/דרום: 2,200 ₪ לצוות קבלן (2 עובדים) · מרכז: 1,800 ₪
-                  </p>
+                  <RegionRates region={np.region} />
                 </div>
               </div>
               <Button type="submit" variant="brand" className="mt-5">
@@ -1185,6 +1211,33 @@ export function AdminConsole() {
                               />
                             </div>
                             <div className="space-y-2">
+                              <Label>תקציב ימי עבודה</Label>
+                              <Input
+                                type="number"
+                                min={0}
+                                step={1}
+                                value={editForm.budgetDays}
+                                onChange={(e) =>
+                                  setEditForm({ ...editForm, budgetDays: Number(e.target.value) })
+                                }
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>תוספת שעות עבודה חריגות (באישור מנהל)</Label>
+                              <Input
+                                type="number"
+                                min={0}
+                                step={1}
+                                value={editForm.extraHours}
+                                onChange={(e) =>
+                                  setEditForm({ ...editForm, extraHours: Number(e.target.value) })
+                                }
+                              />
+                              <p className="text-[11px] text-muted-foreground">
+                                השעות נוספות לתקציב הפרויקט לצורך חישוב הניצול.
+                              </p>
+                            </div>
+                            <div className="space-y-2">
                               <Label>מועד מסירה</Label>
                               <Input
                                 type="date"
@@ -1214,6 +1267,7 @@ export function AdminConsole() {
                                   ))}
                                 </SelectContent>
                               </Select>
+                              <RegionRates region={editForm.region} />
                             </div>
                             <div className="space-y-2 md:col-span-2">
                               <Label>צוות משויך לפרויקט (ניתן לבחור כמה עובדים)</Label>
