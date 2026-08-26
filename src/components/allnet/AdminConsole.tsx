@@ -250,7 +250,13 @@ export function AdminConsole() {
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
 
   // user form
-  const [nu, setNu] = useState({ username: "", password: "", full_name: "", role: ROLES[0]! });
+  const [nu, setNu] = useState({
+    username: "",
+    password: "",
+    full_name: "",
+    email: "",
+    role: ROLES[0]!,
+  });
   const addUser = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nu.username || !nu.password || !nu.full_name) return;
@@ -266,12 +272,13 @@ export function AdminConsole() {
           username: nu.username.trim(),
           password: nu.password.trim(),
           full_name: nu.full_name.trim(),
+          email: nu.email.trim(),
           role: nu.role,
         },
       ],
     }));
     toast.success(`המשתמש ${nu.full_name} נוצר בהצלחה.`);
-    setNu({ username: "", password: "", full_name: "", role: ROLES[0]! });
+    setNu({ username: "", password: "", full_name: "", email: "", role: ROLES[0]! });
   };
 
   // project form
@@ -438,6 +445,12 @@ export function AdminConsole() {
     e.target.value = "";
   };
 
+  const goToProjectsTab = () => {
+    setView("console");
+    setTab("projects");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   if (detailProject) {
     return (
       <div className="mx-auto max-w-7xl px-5 pb-16">
@@ -509,7 +522,18 @@ export function AdminConsole() {
                       <TableCell>
                         <Badge variant={r.pct >= 80 ? "destructive" : "secondary"}>{r.pct}%</Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="flex flex-wrap gap-1">
+                        <Button
+                          size="sm"
+                          variant="soft"
+                          onClick={() => {
+                            startEdit(p);
+                            goToProjectsTab();
+                          }}
+                        >
+                          <Pencil className="size-4" />
+                          ערוך
+                        </Button>
                         <Button
                           size="sm"
                           variant="ghost"
@@ -532,6 +556,14 @@ export function AdminConsole() {
             <p className="text-sm text-muted-foreground">
               {isArchive ? "אין פרויקטים בארכיון." : "אין פרויקטים רשומים במערכת כרגע."}
             </p>
+          )}
+          {!isArchive && (
+            <div className="mt-6 flex justify-center border-t border-border pt-5">
+              <Button variant="brand" size="lg" onClick={goToProjectsTab}>
+                <Plus className="size-4" />
+                צור פרויקט חדש
+              </Button>
+            </div>
           )}
         </div>
       </div>
@@ -983,6 +1015,14 @@ export function AdminConsole() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label>דוא״ל (לאיפוס סיסמה)</Label>
+                  <Input
+                    type="email"
+                    value={nu.email}
+                    onChange={(e) => setNu({ ...nu, email: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label>סיסמה</Label>
                   <Input
                     value={nu.password}
@@ -1404,6 +1444,7 @@ function UserRow({ username }: { username: string }) {
   const [form, setForm] = useState({
     full_name: user?.full_name ?? "",
     password: user?.password ?? "",
+    email: user?.email ?? "",
     role: (user?.role ?? ROLES[0]!) as Role,
   });
   if (!user) return null;
@@ -1435,6 +1476,9 @@ function UserRow({ username }: { username: string }) {
             {user.full_name.charAt(0)}
           </span>
           {user.full_name}
+          <Badge variant="secondary" className="font-mono text-xs">
+            {user.username}
+          </Badge>
           <Badge variant="outline" className="text-xs">
             {user.role}
           </Badge>
@@ -1452,6 +1496,18 @@ function UserRow({ username }: { username: string }) {
             <Input
               value={form.full_name}
               onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>שם משתמש (לצפייה בלבד)</Label>
+            <Input value={user.username} readOnly disabled className="bg-surface-2/60" />
+          </div>
+          <div className="space-y-2">
+            <Label>דוא״ל לאיפוס סיסמה</Label>
+            <Input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
           </div>
           <div className="space-y-2">
@@ -1512,6 +1568,7 @@ function UserRow({ username }: { username: string }) {
                         ...u,
                         full_name: form.full_name.trim(),
                         password: form.password.trim(),
+                        email: form.email.trim(),
                         role: form.role,
                       }
                     : u,
