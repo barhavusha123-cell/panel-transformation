@@ -1,14 +1,33 @@
 import { useState } from "react";
-import { KeyRound, LogIn, ShieldCheck, User2 } from "lucide-react";
+import { KeyRound, LogIn, MailCheck, ShieldCheck, User2 } from "lucide-react";
+import { toast } from "sonner";
 import logo from "@/assets/allnet-logo-t.png.asset.json";
 import { useAllNet } from "@/lib/allnet/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+function randomPassword() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  return Array.from(
+    { length: 10 },
+    () => chars[Math.floor(Math.random() * chars.length)],
+  ).join("");
+}
 
 export function LoginScreen() {
-  const { state, setSession } = useAllNet();
+  const { state, setState, setSession } = useAllNet();
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetMode, setResetMode] = useState<"employee" | "admin">("employee");
+  const [resetId, setResetId] = useState("");
   const [uname, setUname] = useState("");
   const [pwd, setPwd] = useState("");
   const [adminPwd, setAdminPwd] = useState("");
@@ -36,6 +55,56 @@ export function LoginScreen() {
       setError("סיסמת מנהל שגויה.");
     }
   };
+
+  const submitReset = (e: React.FormEvent) => {
+    e.preventDefault();
+    const id = resetId.trim().toLowerCase();
+    if (!id) return;
+    const temp = randomPassword();
+    if (resetMode === "admin") {
+      const adminMail = (state.adminEmail ?? "").trim().toLowerCase();
+      if (!adminMail || adminMail !== id) {
+        toast.error("כתובת הדוא״ל אינה תואמת לכתובת מנהל המערכת הרשומה.");
+        return;
+      }
+      setState((prev) => ({ ...prev, adminPassword: temp }));
+    } else {
+      const match = state.users.find(
+        (u) =>
+          u.username.toLowerCase() === id || (u.email ?? "").trim().toLowerCase() === id,
+      );
+      if (!match) {
+        toast.error("לא נמצא משתמש עם שם המשתמש או הדוא״ל שהוזנו.");
+        return;
+      }
+      if (!match.email) {
+        toast.error("לא הוגדרה כתובת דוא״ל למשתמש זה. יש לפנות למנהל המערכת.");
+        return;
+      }
+      setState((prev) => ({
+        ...prev,
+        users: prev.users.map((u) =>
+          u.username === match.username ? { ...u, password: temp } : u,
+        ),
+      }));
+    }
+    setResetOpen(false);
+    setResetId("");
+    toast.success(`נשלח דוא״ל לאיפוס סיסמה. סיסמה זמנית: ${temp}`, { duration: 12000 });
+  };
+
+  const resetLink = (mode: "employee" | "admin") => (
+    <button
+      type="button"
+      onClick={() => {
+        setResetMode(mode);
+        setResetOpen(true);
+      }}
+      className="mt-1 w-full cursor-pointer text-center text-xs text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
+    >
+      שכחת סיסמה? איפוס באמצעות דוא״ל
+    </button>
+  );
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12">
@@ -109,6 +178,7 @@ export function LoginScreen() {
                   <LogIn className="size-4" />
                   התחבר למערכת
                 </Button>
+                {resetLink("employee")}
               </form>
             </TabsContent>
 
@@ -127,9 +197,37 @@ export function LoginScreen() {
                   <KeyRound className="size-4" />
                   אימות והתחברות מנהל
                 </Button>
+                {resetLink("admin")}
               </form>
             </TabsContent>
           </Tabs>
+
+          <Dialog open={resetOpen} onOpenChange={setResetOpen}>
+            <DialogContent dir="rtl" className="text-right sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <MailCheck className="size-5 text-primary" />
+                  איפוס סיסמה בדוא״ל
+                </DialogTitle>
+                <DialogDescription>
+                  {resetMode === "admin"
+                    ? "הזן את כתובת הדוא״ל הרשומה של מנהל המערכת ותישלח סיסמה חדשה."
+                    : "הזן שם משתמש או כתובת דוא״ל ותישלח סיסמה זמנית לאיפוס."}
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={submitReset} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="rid">
+                    {resetMode === "admin" ? "דוא״ל מנהל המערכת" : "שם משתמש או דוא״ל"}
+                  </Label>
+                  <Input id="rid" value={resetId} onChange={(e) => setResetId(e.target.value)} />
+                </div>
+                <Button type="submit" variant="brand" className="w-full">
+                  שלח סיסמה חדשה
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
 
           {error && (
             <p className="animate-fade mt-4 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-center text-sm text-destructive">
