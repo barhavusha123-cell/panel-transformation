@@ -23,6 +23,8 @@ import {
   MIN_BUDGET,
   REGIONS,
   ROLES,
+  SUB_DAY_RATES,
+  effectiveBudget,
   type Project,
   type Region,
   type Role,
@@ -143,6 +145,7 @@ export function AdminConsole() {
   const { state, setState } = useAllNet();
   const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive">("console");
   const [detailProject, setDetailProject] = useState<string | null>(null);
+  const [tab, setTab] = useState("reports");
 
   useEffect(() => {
     const goHome = () => {
@@ -201,7 +204,7 @@ export function AdminConsole() {
   const rowFor = (name: string) => {
     const p = state.projects.find((x) => x.name === name);
     const manager = p?.manager ?? "לא הוגדר";
-    const budget = p?.budget ?? 100;
+    const budget = p ? effectiveBudget(p) : 100;
     const minutes = state.hours
       .filter((h) => h.project === name)
       .reduce((a, h) => a + h.minutes, 0);
@@ -261,7 +264,8 @@ export function AdminConsole() {
     budget: number;
     deliveryDate: string;
     region: Region;
-  }>({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז" });
+    budgetDays: number;
+  }>({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0 });
 
   const validBudget = (v: number) =>
     Number.isFinite(v) && Number.isInteger(v) && v >= MIN_BUDGET && v <= MAX_BUDGET;
@@ -291,6 +295,7 @@ export function AdminConsole() {
                     budget,
                     deliveryDate: np.deliveryDate,
                     region: np.region,
+                    budgetDays: Math.max(0, Math.round(Number(np.budgetDays) || 0)),
                   }
                 : p,
             )
@@ -302,6 +307,8 @@ export function AdminConsole() {
                 budget,
                 deliveryDate: np.deliveryDate,
                 region: np.region,
+                budgetDays: Math.max(0, Math.round(Number(np.budgetDays) || 0)),
+                extraHours: 0,
                 team: np.manager ? [np.manager] : [],
                 archived: false,
               },
@@ -309,7 +316,7 @@ export function AdminConsole() {
       };
     });
     toast.success(`הפרויקט '${name}' עודכן בהצלחה עם תקציב של ${budget} שעות.`);
-    setNp({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז" });
+    setNp({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0 });
   };
 
   const [editTarget, setEditTarget] = useState<string | null>(null);
@@ -320,7 +327,18 @@ export function AdminConsole() {
     team: string[];
     deliveryDate: string;
     region: Region;
-  }>({ name: "", manager: "", budget: 100, team: [], deliveryDate: "", region: "מרכז" });
+    budgetDays: number;
+    extraHours: number;
+  }>({
+    name: "",
+    manager: "",
+    budget: 100,
+    team: [],
+    deliveryDate: "",
+    region: "מרכז",
+    budgetDays: 0,
+    extraHours: 0,
+  });
 
   const startEdit = (p: Project) => {
     setEditTarget(p.name);
@@ -331,6 +349,8 @@ export function AdminConsole() {
       team: p.team ?? [],
       deliveryDate: p.deliveryDate ?? "",
       region: p.region ?? "מרכז",
+      budgetDays: p.budgetDays ?? 0,
+      extraHours: p.extraHours ?? 0,
     });
   };
 
@@ -352,6 +372,8 @@ export function AdminConsole() {
               budget,
               deliveryDate: editForm.deliveryDate,
               region: editForm.region,
+              budgetDays: Math.max(0, Math.round(Number(editForm.budgetDays) || 0)),
+              extraHours: Math.max(0, Math.round(Number(editForm.extraHours) || 0)),
               team: editForm.team,
             }
           : p,
@@ -695,7 +717,7 @@ export function AdminConsole() {
           ))}
 
           {activeProjects.length ? (
-            <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+            <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
               <div className="space-y-6">
                 <div className="surface-panel rounded-2xl p-6">
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -703,15 +725,17 @@ export function AdminConsole() {
                   </div>
 
                   {dashRows.length ? (
-                    <ResponsiveContainer width="100%" height={340}>
-                      <PieChart>
+                    <ResponsiveContainer width="100%" height={560}>
+                      <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                         <Pie
                           data={dashRows.map((r) => ({ ...r, value: 1 }))}
                           dataKey="value"
                           nameKey="name"
-                          innerRadius="42%"
-                          outerRadius="82%"
-                          paddingAngle={2}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius="34%"
+                          outerRadius="99%"
+                          paddingAngle={1.5}
                           labelLine={false}
                           label={SliceLabel}
                           isAnimationActive
@@ -806,7 +830,7 @@ export function AdminConsole() {
           )}
         </div>
       ) : (
-        <Tabs defaultValue="reports" dir="rtl" className="animate-fade">
+        <Tabs value={tab} onValueChange={setTab} dir="rtl" className="animate-fade">
           <TabsList className="bg-surface-2/70 p-1">
             <TabsTrigger
               value="reports"
