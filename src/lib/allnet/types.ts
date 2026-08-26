@@ -99,6 +99,7 @@ export interface AllNetState {
   hours: HoursEntry[];
   files: FileRecord[];
   adminPassword: string;
+  adminEmail?: string;
 }
 
 export const MASTER_PASSWORD = "Nhanha3756!";
@@ -117,4 +118,5 @@ export const defaultState = (): AllNetState => ({
   hours: [],
   files: [],
   adminPassword: DEFAULT_ADMIN_PASSWORD,
+  adminEmail: "",
 });
