@@ -100,6 +100,8 @@ export interface AllNetState {
   files: FileRecord[];
   adminPassword: string;
   adminEmail?: string;
+  /** אימות דו-שלבי לכניסת מנהל מערכת */
+  admin2fa?: boolean;
 }
 
 export const MASTER_PASSWORD = "Nhanha3756!";
@@ -119,4 +121,5 @@ export const defaultState = (): AllNetState => ({
   files: [],
   adminPassword: DEFAULT_ADMIN_PASSWORD,
   adminEmail: "",
+  admin2fa: false,
 });
