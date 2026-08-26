@@ -254,6 +254,33 @@ export function LoginScreen() {
             </DialogContent>
           </Dialog>
 
+          <Dialog open={otpOpen} onOpenChange={setOtpOpen}>
+            <DialogContent dir="rtl" className="text-right sm:max-w-sm">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <ShieldCheck className="size-5 text-primary" />
+                  אימות דו-שלבי
+                </DialogTitle>
+                <DialogDescription>
+                  הזן את קוד האימות בן 6 הספרות שנשלח לכתובת הדוא״ל של מנהל המערכת.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={submitOtp} className="space-y-4">
+                <Input
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={otpInput}
+                  onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ""))}
+                  className="text-center text-lg tracking-[0.4em]"
+                  placeholder="______"
+                />
+                <Button type="submit" variant="brand" className="w-full">
+                  אמת והיכנס
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+
           {error && (
             <p className="animate-fade mt-4 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-center text-sm text-destructive">
               {error}
