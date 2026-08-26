@@ -47,6 +47,8 @@ export function AllNetProvider({ children }: { children: ReactNode }) {
           archived: Boolean(p.archived),
           deliveryDate: p.deliveryDate ?? "",
           region: p.region ?? "מרכז",
+          budgetDays: Number(p.budgetDays) || 0,
+          extraHours: Number(p.extraHours) || 0,
         }));
 
         setRaw(merged);

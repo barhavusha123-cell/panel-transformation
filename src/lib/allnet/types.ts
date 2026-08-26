@@ -12,6 +12,7 @@ export interface User {
   password: string;
   full_name: string;
   role: Role;
+  email?: string;
 }
 
 export type Region = "צפון" | "דרום" | "מרכז";
@@ -26,7 +27,15 @@ export interface Project {
   archived: boolean;
   deliveryDate?: string;
   region?: Region;
+  /** תקציב ימי עבודה */
+  budgetDays?: number;
+  /** תוספת שעות עבודה חריגות באישור מנהל */
+  extraHours?: number;
 }
+
+/** תקציב שעות אפקטיבי כולל תוספת חריגה מאושרת */
+export const effectiveBudget = (p?: { budget?: number; extraHours?: number }) =>
+  (Number(p?.budget) || 0) + (Number(p?.extraHours) || 0);
 
 /** עלות צוות קבלן משנה (2 עובדים) ליום עבודה, לפי איזור */
 export const SUB_CREW_DAY_RATE: Record<Region, number> = {
@@ -68,6 +77,8 @@ export interface HoursEntry {
   notes: string;
   extras: string;
   workers?: number;
+  /** שמות עובדי קבלן המשנה שהיו באתר */
+  workerNames?: string;
 }
 
 export const MIN_FULL_DAY_MINUTES = 180;
@@ -88,6 +99,7 @@ export interface AllNetState {
   hours: HoursEntry[];
   files: FileRecord[];
   adminPassword: string;
+  adminEmail?: string;
 }
 
 export const MASTER_PASSWORD = "Nhanha3756!";
@@ -106,4 +118,5 @@ export const defaultState = (): AllNetState => ({
   hours: [],
   files: [],
   adminPassword: DEFAULT_ADMIN_PASSWORD,
+  adminEmail: "",
 });

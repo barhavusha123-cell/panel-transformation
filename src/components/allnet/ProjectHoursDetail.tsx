@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import {
   EMPLOYEE_DAY_RATE,
+  effectiveBudget,
   MIN_FULL_DAY_MINUTES,
   SUB_CREW_SIZE,
   subDayRate,
@@ -26,11 +27,13 @@ function HoursGroup({
   icon,
   rows,
   markPartialDays = false,
+  showWorkers = false,
 }: {
   title: string;
   icon: React.ReactNode;
   rows: HoursEntry[];
   markPartialDays?: boolean;
+  showWorkers?: boolean;
 }) {
   const minutes = rows.reduce((a, h) => a + h.minutes, 0);
   return (
@@ -49,6 +52,7 @@ function HoursGroup({
               <TableRow>
                 <TableHead className="text-right">שם המדווח</TableHead>
                 <TableHead className="text-right">תפקיד</TableHead>
+                {showWorkers && <TableHead className="text-right">עובדים באתר</TableHead>}
                 <TableHead className="text-right">תאריך</TableHead>
                 <TableHead className="text-right">משעה</TableHead>
                 <TableHead className="text-right">עד שעה</TableHead>
@@ -62,6 +66,11 @@ function HoursGroup({
                 <TableRow key={h.id} className="transition-colors hover:bg-surface-2/60">
                   <TableCell className="font-medium">{h.reporter}</TableCell>
                   <TableCell className="text-xs text-muted-foreground">{h.role}</TableCell>
+                  {showWorkers && (
+                    <TableCell className="text-xs">
+                      {h.workers ?? 1} · {h.workerNames || "—"}
+                    </TableCell>
+                  )}
                   <TableCell>{h.date}</TableCell>
                   <TableCell>{h.from}</TableCell>
                   <TableCell>{h.to}</TableCell>
@@ -113,21 +122,31 @@ export function ProjectHoursDetail({
 
   const region = project?.region ?? "מרכז";
   // עלות קבלני משנה: מחירון יום עבודה לפי מספר עובדים ואיזור
-  const subCost = Array.from(new Set(fullSubDays.map((h) => h.date))).reduce((sum, date) => {
-    const workers = Math.max(
-      ...fullSubDays.filter((h) => h.date === date).map((h) => h.workers ?? SUB_CREW_SIZE),
-    );
-    return sum + subDayRate(region, workers);
-  }, 0);
+  const subBreakdown = Array.from(new Set(fullSubDays.map((h) => h.date)))
+    .sort()
+    .map((date) => {
+      const dayRows = fullSubDays.filter((h) => h.date === date);
+      const workers = Math.max(...dayRows.map((h) => h.workers ?? SUB_CREW_SIZE));
+      const names = Array.from(
+        new Set(dayRows.map((h) => h.workerNames).filter(Boolean) as string[]),
+      ).join(", ");
+      return { date, workers, names, rate: subDayRate(region, workers) };
+    });
+  const subCost = subBreakdown.reduce((sum, d) => sum + d.rate, 0);
   // עלות עובדי חברה: 1,200 ₪ ליום עבודה לעובד
-  const employeeDays = new Set(
-    employees.filter((h) => h.minutes >= MIN_FULL_DAY_MINUTES).map((h) => `${h.reporter}|${h.date}`),
-  ).size;
+  const employeeDayKeys = Array.from(
+    new Set(
+      employees
+        .filter((h) => h.minutes >= MIN_FULL_DAY_MINUTES)
+        .map((h) => `${h.reporter}|${h.date}`),
+    ),
+  ).sort();
+  const employeeDays = employeeDayKeys.length;
   const employeeCost = employeeDays * EMPLOYEE_DAY_RATE;
   const totalCost = subCost + employeeCost;
   const ils = (n: number) => `${Math.round(n).toLocaleString("he-IL")} ₪`;
   const reported = Math.round((totalMinutes / 60) * 100) / 100;
-  const budget = project?.budget ?? 0;
+  const budget = effectiveBudget(project);
   const pct = budget > 0 ? Math.round((reported / budget) * 1000) / 10 : 0;
 
   return (
@@ -140,6 +159,8 @@ export function ProjectHoursDetail({
             </h2>
             <p className="text-sm text-muted-foreground">
               {project?.manager ?? "לא הוגדר"} · {reported} מתוך {budget} שעות
+              {project?.extraHours ? ` (כולל ${project.extraHours} שעות חריגות מאושרות)` : ""}
+              {project?.budgetDays ? ` · תקציב ${project.budgetDays} ימי עבודה` : ""}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -200,11 +221,11 @@ export function ProjectHoursDetail({
             {partialSubs > 0 && ` · ${partialSubs} דיווחים קצרים לא נספרו`}
           </p>
         </div>
-        <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
+        <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 sm:col-span-3">
           <p className="text-xs text-muted-foreground">עלויות עובדים וקבלנים · איזור {region}</p>
           <div className="mt-2 space-y-1 text-sm">
             <div className="flex items-center justify-between">
-              <span>עלות קבלני משנה</span>
+              <span>עלות קבלני משנה ({subDays} ימי עבודה)</span>
               <span className="font-bold text-primary">{ils(subCost)}</span>
             </div>
             <p className="text-[11px] leading-relaxed text-muted-foreground">
@@ -213,10 +234,41 @@ export function ProjectHoursDetail({
                 .map((n) => `${n} עובדים ${ils(subDayRate(region, n))}`)
                 .join(" · ")}
             </p>
+            {subBreakdown.length > 0 && (
+              <div className="rounded-lg border border-primary/20 bg-background/50 p-2 text-[11px]">
+                <p className="mb-1 font-semibold">פירוט חישוב קבלני משנה</p>
+                {subBreakdown.map((d) => (
+                  <div key={d.date} className="flex items-center justify-between gap-2 py-0.5">
+                    <span className="text-muted-foreground">
+                      {d.date} · {d.workers} עובדים{d.names ? ` (${d.names})` : ""} × יום עבודה
+                    </span>
+                    <span className="font-medium">{ils(d.rate)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="flex items-center justify-between">
-              <span>עלות עובדי חברה ({ils(EMPLOYEE_DAY_RATE)} ליום)</span>
+              <span>
+                עלות עובדי חברה ({employeeDays} ימי עבודה × {ils(EMPLOYEE_DAY_RATE)})
+              </span>
               <span className="font-bold text-primary">{ils(employeeCost)}</span>
             </div>
+            {employeeDayKeys.length > 0 && (
+              <div className="rounded-lg border border-primary/20 bg-background/50 p-2 text-[11px]">
+                <p className="mb-1 font-semibold">פירוט חישוב עובדי חברה</p>
+                {employeeDayKeys.map((k) => {
+                  const [reporter, date] = k.split("|");
+                  return (
+                    <div key={k} className="flex items-center justify-between gap-2 py-0.5">
+                      <span className="text-muted-foreground">
+                        {date} · {reporter} × יום עבודה
+                      </span>
+                      <span className="font-medium">{ils(EMPLOYEE_DAY_RATE)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
             <div className="flex items-center justify-between border-t border-primary/20 pt-1">
               <span className="font-semibold">סה״כ עלות</span>
               <span className="text-lg font-bold text-primary">{ils(totalCost)}</span>
@@ -234,6 +286,7 @@ export function ProjectHoursDetail({
         icon={<HardHat className="size-5 text-primary" />}
         rows={subs}
         markPartialDays
+        showWorkers
       />
     </div>
   );

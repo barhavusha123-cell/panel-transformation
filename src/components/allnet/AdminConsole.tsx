@@ -23,6 +23,8 @@ import {
   MIN_BUDGET,
   REGIONS,
   ROLES,
+  SUB_DAY_RATES,
+  effectiveBudget,
   type Project,
   type Region,
   type Role,
@@ -68,6 +70,24 @@ const CHART_COLORS = [
   "var(--chart-5)",
   "var(--chart-6)",
 ];
+
+function RegionRates({ region }: { region: Region }) {
+  const rates = SUB_DAY_RATES[region];
+  const ils = (n: number) => `${n.toLocaleString("he-IL")} ₪`;
+  return (
+    <div className="rounded-lg border border-border bg-surface-2/50 p-2 text-[11px] leading-relaxed">
+      <p className="font-semibold">
+        מחירון יום עבודה קבלני · {region}
+        {region === "מרכז" ? " (מחירון מוזל)" : " (מחירון יקר)"}
+      </p>
+      <p className="text-muted-foreground">
+        עובד 1: {ils(rates[1]!)} · צוות 2 עובדים: {ils(rates[2]!)} · 3 עובדים: {ils(rates[3]!)} ·
+        4 עובדים: {ils(rates[4]!)}
+      </p>
+      <p className="text-muted-foreground">עובד חברה: 1,200 ₪ ליום עבודה</p>
+    </div>
+  );
+}
 
 function KpiCard({
   title,
@@ -143,6 +163,7 @@ export function AdminConsole() {
   const { state, setState } = useAllNet();
   const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive">("console");
   const [detailProject, setDetailProject] = useState<string | null>(null);
+  const [tab, setTab] = useState("reports");
 
   useEffect(() => {
     const goHome = () => {
@@ -201,7 +222,7 @@ export function AdminConsole() {
   const rowFor = (name: string) => {
     const p = state.projects.find((x) => x.name === name);
     const manager = p?.manager ?? "לא הוגדר";
-    const budget = p?.budget ?? 100;
+    const budget = p ? effectiveBudget(p) : 100;
     const minutes = state.hours
       .filter((h) => h.project === name)
       .reduce((a, h) => a + h.minutes, 0);
@@ -228,8 +249,16 @@ export function AdminConsole() {
   const toggle = (arr: string[], v: string, set: (x: string[]) => void) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
 
+  const [adminEmail, setAdminEmail] = useState(state.adminEmail ?? "");
+
   // user form
-  const [nu, setNu] = useState({ username: "", password: "", full_name: "", role: ROLES[0]! });
+  const [nu, setNu] = useState({
+    username: "",
+    password: "",
+    full_name: "",
+    email: "",
+    role: ROLES[0]!,
+  });
   const addUser = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nu.username || !nu.password || !nu.full_name) return;
@@ -245,12 +274,13 @@ export function AdminConsole() {
           username: nu.username.trim(),
           password: nu.password.trim(),
           full_name: nu.full_name.trim(),
+          email: nu.email.trim(),
           role: nu.role,
         },
       ],
     }));
     toast.success(`המשתמש ${nu.full_name} נוצר בהצלחה.`);
-    setNu({ username: "", password: "", full_name: "", role: ROLES[0]! });
+    setNu({ username: "", password: "", full_name: "", email: "", role: ROLES[0]! });
   };
 
   // project form
@@ -261,7 +291,8 @@ export function AdminConsole() {
     budget: number;
     deliveryDate: string;
     region: Region;
-  }>({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז" });
+    budgetDays: number;
+  }>({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0 });
 
   const validBudget = (v: number) =>
     Number.isFinite(v) && Number.isInteger(v) && v >= MIN_BUDGET && v <= MAX_BUDGET;
@@ -291,6 +322,7 @@ export function AdminConsole() {
                     budget,
                     deliveryDate: np.deliveryDate,
                     region: np.region,
+                    budgetDays: Math.max(0, Math.round(Number(np.budgetDays) || 0)),
                   }
                 : p,
             )
@@ -302,6 +334,8 @@ export function AdminConsole() {
                 budget,
                 deliveryDate: np.deliveryDate,
                 region: np.region,
+                budgetDays: Math.max(0, Math.round(Number(np.budgetDays) || 0)),
+                extraHours: 0,
                 team: np.manager ? [np.manager] : [],
                 archived: false,
               },
@@ -309,7 +343,7 @@ export function AdminConsole() {
       };
     });
     toast.success(`הפרויקט '${name}' עודכן בהצלחה עם תקציב של ${budget} שעות.`);
-    setNp({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז" });
+    setNp({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0 });
   };
 
   const [editTarget, setEditTarget] = useState<string | null>(null);
@@ -320,7 +354,18 @@ export function AdminConsole() {
     team: string[];
     deliveryDate: string;
     region: Region;
-  }>({ name: "", manager: "", budget: 100, team: [], deliveryDate: "", region: "מרכז" });
+    budgetDays: number;
+    extraHours: number;
+  }>({
+    name: "",
+    manager: "",
+    budget: 100,
+    team: [],
+    deliveryDate: "",
+    region: "מרכז",
+    budgetDays: 0,
+    extraHours: 0,
+  });
 
   const startEdit = (p: Project) => {
     setEditTarget(p.name);
@@ -331,6 +376,8 @@ export function AdminConsole() {
       team: p.team ?? [],
       deliveryDate: p.deliveryDate ?? "",
       region: p.region ?? "מרכז",
+      budgetDays: p.budgetDays ?? 0,
+      extraHours: p.extraHours ?? 0,
     });
   };
 
@@ -352,6 +399,8 @@ export function AdminConsole() {
               budget,
               deliveryDate: editForm.deliveryDate,
               region: editForm.region,
+              budgetDays: Math.max(0, Math.round(Number(editForm.budgetDays) || 0)),
+              extraHours: Math.max(0, Math.round(Number(editForm.extraHours) || 0)),
               team: editForm.team,
             }
           : p,
@@ -396,6 +445,12 @@ export function AdminConsole() {
     }));
     toast.success(`הקובץ '${file.name}' הועלה בהצלחה.`);
     e.target.value = "";
+  };
+
+  const goToProjectsTab = () => {
+    setView("console");
+    setTab("projects");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (detailProject) {
@@ -469,7 +524,18 @@ export function AdminConsole() {
                       <TableCell>
                         <Badge variant={r.pct >= 80 ? "destructive" : "secondary"}>{r.pct}%</Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="flex flex-wrap gap-1">
+                        <Button
+                          size="sm"
+                          variant="soft"
+                          onClick={() => {
+                            startEdit(p);
+                            goToProjectsTab();
+                          }}
+                        >
+                          <Pencil className="size-4" />
+                          ערוך
+                        </Button>
                         <Button
                           size="sm"
                           variant="ghost"
@@ -492,6 +558,14 @@ export function AdminConsole() {
             <p className="text-sm text-muted-foreground">
               {isArchive ? "אין פרויקטים בארכיון." : "אין פרויקטים רשומים במערכת כרגע."}
             </p>
+          )}
+          {!isArchive && (
+            <div className="mt-6 flex justify-center border-t border-border pt-5">
+              <Button variant="brand" size="lg" onClick={goToProjectsTab}>
+                <Plus className="size-4" />
+                צור פרויקט חדש
+              </Button>
+            </div>
           )}
         </div>
       </div>
@@ -695,7 +769,7 @@ export function AdminConsole() {
           ))}
 
           {activeProjects.length ? (
-            <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+            <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
               <div className="space-y-6">
                 <div className="surface-panel rounded-2xl p-6">
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -703,15 +777,17 @@ export function AdminConsole() {
                   </div>
 
                   {dashRows.length ? (
-                    <ResponsiveContainer width="100%" height={340}>
-                      <PieChart>
+                    <ResponsiveContainer width="100%" height={560}>
+                      <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                         <Pie
                           data={dashRows.map((r) => ({ ...r, value: 1 }))}
                           dataKey="value"
                           nameKey="name"
-                          innerRadius="42%"
-                          outerRadius="82%"
-                          paddingAngle={2}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius="34%"
+                          outerRadius="99%"
+                          paddingAngle={1.5}
                           labelLine={false}
                           label={SliceLabel}
                           isAnimationActive
@@ -806,7 +882,7 @@ export function AdminConsole() {
           )}
         </div>
       ) : (
-        <Tabs defaultValue="reports" dir="rtl" className="animate-fade">
+        <Tabs value={tab} onValueChange={setTab} dir="rtl" className="animate-fade">
           <TabsList className="bg-surface-2/70 p-1">
             <TabsTrigger
               value="reports"
@@ -920,6 +996,32 @@ export function AdminConsole() {
 
           {/* Users */}
           <TabsContent value="users" className="mt-6 space-y-6">
+            <div className="surface-panel rounded-2xl p-6">
+              <h3 className="mb-4 text-lg font-semibold">דוא״ל מנהל מערכת לאיפוס סיסמה</h3>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="min-w-64 flex-1 space-y-2">
+                  <Label>כתובת דוא״ל</Label>
+                  <Input
+                    type="email"
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                  />
+                </div>
+                <Button
+                  variant="brand"
+                  onClick={() => {
+                    setState((prev) => ({ ...prev, adminEmail: adminEmail.trim() }));
+                    toast.success("כתובת הדוא״ל של מנהל המערכת נשמרה.");
+                  }}
+                >
+                  שמור
+                </Button>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                כתובת זו משמשת לאיפוס סיסמת מנהל המערכת ממסך הכניסה.
+              </p>
+            </div>
+
             <form onSubmit={addUser} className="surface-panel rounded-2xl p-6">
               <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
                 <Plus className="size-5 text-primary" />
@@ -938,6 +1040,14 @@ export function AdminConsole() {
                   <Input
                     value={nu.full_name}
                     onChange={(e) => setNu({ ...nu, full_name: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>דוא״ל (לאיפוס סיסמה)</Label>
+                  <Input
+                    type="email"
+                    value={nu.email}
+                    onChange={(e) => setNu({ ...nu, email: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -1024,6 +1134,16 @@ export function AdminConsole() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label>תקציב ימי עבודה</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={np.budgetDays}
+                    onChange={(e) => setNp({ ...np, budgetDays: Number(e.target.value) })}
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label>מועד מסירה</Label>
                   <Input
                     type="date"
@@ -1049,9 +1169,7 @@ export function AdminConsole() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-[11px] text-muted-foreground">
-                    צפון/דרום: 2,200 ₪ לצוות קבלן (2 עובדים) · מרכז: 1,800 ₪
-                  </p>
+                  <RegionRates region={np.region} />
                 </div>
               </div>
               <Button type="submit" variant="brand" className="mt-5">
@@ -1161,6 +1279,33 @@ export function AdminConsole() {
                               />
                             </div>
                             <div className="space-y-2">
+                              <Label>תקציב ימי עבודה</Label>
+                              <Input
+                                type="number"
+                                min={0}
+                                step={1}
+                                value={editForm.budgetDays}
+                                onChange={(e) =>
+                                  setEditForm({ ...editForm, budgetDays: Number(e.target.value) })
+                                }
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>תוספת שעות עבודה חריגות (באישור מנהל)</Label>
+                              <Input
+                                type="number"
+                                min={0}
+                                step={1}
+                                value={editForm.extraHours}
+                                onChange={(e) =>
+                                  setEditForm({ ...editForm, extraHours: Number(e.target.value) })
+                                }
+                              />
+                              <p className="text-[11px] text-muted-foreground">
+                                השעות נוספות לתקציב הפרויקט לצורך חישוב הניצול.
+                              </p>
+                            </div>
+                            <div className="space-y-2">
                               <Label>מועד מסירה</Label>
                               <Input
                                 type="date"
@@ -1190,6 +1335,7 @@ export function AdminConsole() {
                                   ))}
                                 </SelectContent>
                               </Select>
+                              <RegionRates region={editForm.region} />
                             </div>
                             <div className="space-y-2 md:col-span-2">
                               <Label>צוות משויך לפרויקט (ניתן לבחור כמה עובדים)</Label>
@@ -1326,6 +1472,7 @@ function UserRow({ username }: { username: string }) {
   const [form, setForm] = useState({
     full_name: user?.full_name ?? "",
     password: user?.password ?? "",
+    email: user?.email ?? "",
     role: (user?.role ?? ROLES[0]!) as Role,
   });
   if (!user) return null;
@@ -1357,6 +1504,9 @@ function UserRow({ username }: { username: string }) {
             {user.full_name.charAt(0)}
           </span>
           {user.full_name}
+          <Badge variant="secondary" className="font-mono text-xs">
+            {user.username}
+          </Badge>
           <Badge variant="outline" className="text-xs">
             {user.role}
           </Badge>
@@ -1374,6 +1524,18 @@ function UserRow({ username }: { username: string }) {
             <Input
               value={form.full_name}
               onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>שם משתמש (לצפייה בלבד)</Label>
+            <Input value={user.username} readOnly disabled className="bg-surface-2/60" />
+          </div>
+          <div className="space-y-2">
+            <Label>דוא״ל לאיפוס סיסמה</Label>
+            <Input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
           </div>
           <div className="space-y-2">
@@ -1434,6 +1596,7 @@ function UserRow({ username }: { username: string }) {
                         ...u,
                         full_name: form.full_name.trim(),
                         password: form.password.trim(),
+                        email: form.email.trim(),
                         role: form.role,
                       }
                     : u,

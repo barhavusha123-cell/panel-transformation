@@ -89,6 +89,7 @@ export function EmployeePortal() {
   const [notes, setNotes] = useState("");
   const [docFilter, setDocFilter] = useState("all");
   const [workers, setWorkers] = useState(1);
+  const [workerNames, setWorkerNames] = useState("");
 
   const myHours = useMemo(
     () => state.hours.filter((h) => h.username === user?.username).slice().reverse(),
@@ -117,9 +118,14 @@ export function EmployeePortal() {
       toast.error("אנא בחר שעות התחלה וסיום תקינות.");
       return;
     }
-    const duplicate = state.hours.some(
-      (h) => h.username === user.username && h.date === reportDate,
-    );
+    const isSub = user.role === "קבלן משנה";
+    if (isSub && !workerNames.trim()) {
+      toast.error("אנא ציין את שמות העובדים שהיו באתר באותו היום.");
+      return;
+    }
+    const duplicate =
+      !isSub &&
+      state.hours.some((h) => h.username === user.username && h.date === reportDate);
     if (duplicate) {
       toast.error("קיים כבר דיווח שעות עבור תאריך זה. לא ניתן לדווח פעמיים באותו היום.");
       return;
@@ -140,12 +146,14 @@ export function EmployeePortal() {
       date: reportDate,
       notes,
       extras,
-      workers: user.role === "קבלן משנה" ? workers : 1,
+      workers: isSub ? workers : 1,
+      workerNames: isSub ? workerNames.trim() : "",
     };
     setState((prev) => ({ ...prev, hours: [...prev.hours, entry] }));
     toast.success("הדיווח נקלט בהצלחה.");
     setNotes("");
     setExtras("");
+    setWorkerNames("");
   };
 
   return (
@@ -246,7 +254,8 @@ export function EmployeePortal() {
 
 
               {user?.role === "קבלן משנה" && (
-                <div className="space-y-2 md:col-span-2">
+                <div className="grid gap-5 md:col-span-2 md:grid-cols-2">
+                <div className="space-y-2">
                   <Label>כמה עובדים היו באותו היום?</Label>
                   <div className="flex flex-wrap gap-4 rounded-xl border border-border bg-surface/60 p-3">
                     {Array.from({ length: MAX_SUB_WORKERS }, (_, i) => i + 1).map((n) => (
@@ -259,6 +268,21 @@ export function EmployeePortal() {
                       </label>
                     ))}
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>
+                    שמות העובדים שהיו באתר <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    value={workerNames}
+                    onChange={(e) => setWorkerNames(e.target.value)}
+                    placeholder="לדוגמה: מוחמד, יוסי"
+                    required
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    ניתן לדווח מספר דיווחים באותו תאריך (צוותים באתרים שונים).
+                  </p>
+                </div>
                 </div>
               )}
 
