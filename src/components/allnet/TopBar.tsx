@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { BackupCenter } from "@/components/allnet/BackupCenter";
+import { BackupCenter, useAutoBackup } from "@/components/allnet/BackupCenter";
 import { useTheme } from "@/lib/allnet/theme";
 import {
   Dialog,
@@ -32,6 +32,7 @@ export function TopBar() {
   const [confirmPwd, setConfirmPwd] = useState("");
 
   const isAdmin = session?.kind === "admin";
+  useAutoBackup(isAdmin);
 
   const changePassword = (e: React.FormEvent) => {
     e.preventDefault();

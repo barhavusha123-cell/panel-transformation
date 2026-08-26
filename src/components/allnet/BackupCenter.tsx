@@ -32,11 +32,10 @@ const kb = (n: number) => `${Math.max(1, Math.round(n / 1024))} KB`;
 
 /** מרכז גיבוי ושחזור — גיבוי אוטומטי שבועי + ייצוא/יבוא ידני */
 export function BackupCenter() {
-  const { state, setState, hydrated } = useAllNet();
+  const { state, setState } = useAllNet();
   const [snaps, setSnaps] = useState<Snapshot[]>([]);
   const [last, setLast] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
-  const ranRef = useRef(false);
 
   const refresh = () => {
     setSnaps(listSnapshots());
@@ -47,18 +46,11 @@ export function BackupCenter() {
     refresh();
   }, []);
 
-  // גיבוי אוטומטי: פעם בשבוע נשמרת תמונת מצב מקומית ויורד קובץ JSON
   useEffect(() => {
-    if (!hydrated || ranRef.current) return;
-    ranRef.current = true;
-    if (!isAutoBackupDue()) return;
-    if (state.projects.length === 0 && state.hours.length === 0) return;
-    saveSnapshot(state, "auto");
-    downloadBackupFile(state);
-    markAutoBackup();
-    refresh();
-    toast.success("בוצע גיבוי אוטומטי שבועי — קובץ הגיבוי ירד לתיקיית ההורדות.");
-  }, [hydrated, state]);
+    const onDone = () => refresh();
+    window.addEventListener("allnet:backup-done", onDone);
+    return () => window.removeEventListener("allnet:backup-done", onDone);
+  }, []);
 
   const manualBackup = () => {
     saveSnapshot(state, "manual");
@@ -165,4 +157,33 @@ export function BackupCenter() {
       </div>
     </div>
   );
+}
+
+/** גיבוי אוטומטי שבועי — רץ ברקע כל עוד המשתמש מחובר */
+export function useAutoBackup(enabled: boolean) {
+  const { state, hydrated } = useAllNet();
+  const ranRef = useRef(false);
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  useEffect(() => {
+    if (!enabled || !hydrated || ranRef.current) return;
+    ranRef.current = true;
+    const run = () => {
+      const s = stateRef.current;
+      if (!isAutoBackupDue()) return;
+      if (s.projects.length === 0 && s.hours.length === 0) return;
+      saveSnapshot(s, "auto");
+      downloadBackupFile(s);
+      markAutoBackup();
+      window.dispatchEvent(new CustomEvent("allnet:backup-done"));
+      toast.success("בוצע גיבוי אוטומטי שבועי — קובץ הגיבוי ירד לתיקיית ההורדות.");
+    };
+    const t = setTimeout(run, 4000);
+    const iv = setInterval(run, 60 * 60 * 1000);
+    return () => {
+      clearTimeout(t);
+      clearInterval(iv);
+    };
+  }, [enabled, hydrated]);
 }
