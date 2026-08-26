@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, LogOut, Settings } from "lucide-react";
+import { AlertTriangle, DatabaseBackup, LogOut, Moon, Settings, Sun } from "lucide-react";
 import { toast } from "sonner";
 import logo from "@/assets/allnet-logo-t.png.asset.json";
 import { useAllNet } from "@/lib/allnet/store";
@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { BackupCenter } from "@/components/allnet/BackupCenter";
+import { useTheme } from "@/lib/allnet/theme";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +22,8 @@ import {
 export function TopBar() {
   const { state, setState, session, setSession, resetAll } = useAllNet();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [backupOpen, setBackupOpen] = useState(false);
+  const { theme, toggle } = useTheme();
   const [resetOpen, setResetOpen] = useState(false);
   const [confirmStep, setConfirmStep] = useState(false);
   const [master, setMaster] = useState("");
@@ -113,6 +118,24 @@ export function TopBar() {
             <Button
               size="icon"
               variant="secondary"
+              title={theme === "dark" ? "מצב בהיר" : "מצב כהה"}
+              onClick={toggle}
+            >
+              {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            </Button>
+            {isAdmin && (
+              <Button
+                size="icon"
+                variant="secondary"
+                title="מרכז גיבוי ושחזור"
+                onClick={() => setBackupOpen(true)}
+              >
+                <DatabaseBackup className="size-4" />
+              </Button>
+            )}
+            <Button
+              size="icon"
+              variant="secondary"
               title="הגדרות מערכת"
               onClick={() => setSettingsOpen(true)}
             >
@@ -162,6 +185,42 @@ export function TopBar() {
 
           {isAdmin && (
             <>
+              <Separator />
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-2/50 px-3 py-2">
+                <div className="text-right">
+                  <p className="text-sm font-semibold">אימות דו-שלבי לכניסת מנהל</p>
+                  <p className="text-xs text-muted-foreground">
+                    קוד חד-פעמי בן 6 ספרות יישלח לדוא״ל המנהל בכל התחברות
+                  </p>
+                </div>
+                <Switch
+                  checked={Boolean(state.admin2fa)}
+                  onCheckedChange={(v) => {
+                    if (v && !(state.adminEmail ?? "").trim()) {
+                      toast.error("יש להגדיר קודם כתובת דוא״ל למנהל המערכת.");
+                      return;
+                    }
+                    setState((prev) => ({ ...prev, admin2fa: v }));
+                    toast.success(v ? "אימות דו-שלבי הופעל." : "אימות דו-שלבי בוטל.");
+                  }}
+                />
+              </div>
+
+              <Separator />
+              <div className="space-y-2">
+                <h3 className="font-semibold">גיבוי ושחזור</h3>
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  onClick={() => {
+                    setSettingsOpen(false);
+                    setBackupOpen(true);
+                  }}
+                >
+                  <DatabaseBackup className="size-4" /> פתח את מרכז הגיבוי
+                </Button>
+              </div>
+
               <Separator />
               <div className="space-y-2">
                 <h3 className="font-semibold">בקרת חירום</h3>
@@ -218,6 +277,16 @@ export function TopBar() {
               </Button>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={backupOpen} onOpenChange={setBackupOpen}>
+        <DialogContent dir="rtl" className="surface-panel max-h-[85vh] overflow-y-auto text-right sm:max-w-lg">
+          <DialogHeader className="text-right">
+            <DialogTitle>מרכז גיבוי ושחזור</DialogTitle>
+            <DialogDescription>גיבוי אוטומטי שבועי, ייצוא נתונים ושחזור גרסאות</DialogDescription>
+          </DialogHeader>
+          <BackupCenter />
         </DialogContent>
       </Dialog>
     </>
