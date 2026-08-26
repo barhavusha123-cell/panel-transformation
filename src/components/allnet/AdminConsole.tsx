@@ -249,6 +249,8 @@ export function AdminConsole() {
   const toggle = (arr: string[], v: string, set: (x: string[]) => void) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
 
+  const [adminEmail, setAdminEmail] = useState(state.adminEmail ?? "");
+
   // user form
   const [nu, setNu] = useState({
     username: "",
@@ -994,6 +996,32 @@ export function AdminConsole() {
 
           {/* Users */}
           <TabsContent value="users" className="mt-6 space-y-6">
+            <div className="surface-panel rounded-2xl p-6">
+              <h3 className="mb-4 text-lg font-semibold">דוא״ל מנהל מערכת לאיפוס סיסמה</h3>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="min-w-64 flex-1 space-y-2">
+                  <Label>כתובת דוא״ל</Label>
+                  <Input
+                    type="email"
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                  />
+                </div>
+                <Button
+                  variant="brand"
+                  onClick={() => {
+                    setState((prev) => ({ ...prev, adminEmail: adminEmail.trim() }));
+                    toast.success("כתובת הדוא״ל של מנהל המערכת נשמרה.");
+                  }}
+                >
+                  שמור
+                </Button>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                כתובת זו משמשת לאיפוס סיסמת מנהל המערכת ממסך הכניסה.
+              </p>
+            </div>
+
             <form onSubmit={addUser} className="surface-panel rounded-2xl p-6">
               <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
                 <Plus className="size-5 text-primary" />
