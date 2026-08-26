@@ -36,7 +36,9 @@ export function LoginScreen() {
   const employeeLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const match = state.users.find(
-      (u) => u.username === uname.trim() && String(u.password) === pwd.trim(),
+      (u) =>
+        u.username.trim().toLowerCase() === uname.trim().toLowerCase() &&
+        String(u.password) === pwd.trim(),
     );
     if (match) {
       setError("");

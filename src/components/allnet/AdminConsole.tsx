@@ -175,6 +175,15 @@ export function AdminConsole() {
     return () => window.removeEventListener("allnet:home", goHome);
   }, []);
 
+  // רענון אוטומטי של הדשבורד כל חצי שעה
+  useEffect(() => {
+    const interval = window.setInterval(
+      () => window.location.reload(),
+      30 * 60 * 1000,
+    );
+    return () => window.clearInterval(interval);
+  }, []);
+
 
 
   // report filters
