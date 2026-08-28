@@ -69,7 +69,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DocumentList } from "./DocumentList";
+
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProjectHoursDetail } from "./ProjectHoursDetail";
 
@@ -1656,11 +1656,6 @@ export function AdminConsole() {
                   </Select>
                 </div>
               </div>
-            </div>
-
-            <div className="surface-panel space-y-4 rounded-2xl p-6">
-              <h3 className="text-lg font-semibold">ספריית מסמכי המערכת</h3>
-              <DocumentList isAdmin />
             </div>
           </TabsContent>
         </Tabs>
