@@ -757,6 +757,8 @@ export function AdminConsole() {
       equipmentOnSite: p?.closure?.equipmentOnSite ?? null,
       invoiceIssued: p?.closure?.invoiceIssued ?? null,
     });
+    setCloseReason(p?.closure?.reason ?? "");
+    });
     setCloseTarget(name);
   };
 
