@@ -113,6 +113,8 @@ export interface HoursEntry {
   id: number;
   username: string;
   project: string;
+  /** שם הלקוח של הפרויקט בעת הדיווח */
+  client?: string;
   reporter: string;
   role: string;
   from: string;
