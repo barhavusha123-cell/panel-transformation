@@ -1098,20 +1098,36 @@ export function AdminConsole() {
                         <Badge variant={r.pct >= 80 ? "destructive" : "secondary"}>{r.pct}%</Badge>
                       </TableCell>
                       <TableCell>
-                        <Button
-                          size="sm"
-                          variant="soft"
-                          onClick={() => {
-                            startEdit(p);
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }}
-                        >
-                          <Pencil className="size-4" />
-                          ערוך
-                        </Button>
-                      </TableCell>
-                      <TableCell>
-                        <CategoryActions p={p} compact />
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            size="sm"
+                            variant="soft"
+                            onClick={() => {
+                              startEdit(p);
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                          >
+                            <Pencil className="size-4" />
+                            ערוך
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:bg-destructive/10"
+                            onClick={() => {
+                              if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט '${p.name}'?`)) {
+                                setState((prev) => ({
+                                  ...prev,
+                                  projects: prev.projects.filter((x) => x.name !== p.name),
+                                }));
+                                toast.success(`הפרויקט '${p.name}' נמחק בהצלחה.`);
+                              }
+                            }}
+                          >
+                            <Trash2 className="size-4" />
+                            מחק
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
