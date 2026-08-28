@@ -346,10 +346,17 @@ export function AdminConsole() {
     .sort((a, b) => b.pct - a.pct);
 
   // reports
+  const hourClient = (h: (typeof state.hours)[number]): string =>
+    (h.client ?? "").trim() ||
+    (state.projects.find((p) => p.name === h.project)?.client ?? "").trim() ||
+    "—";
+
   const hourColValue = (h: (typeof state.hours)[number], col: string): string => {
     switch (col) {
       case "reporter":
         return h.reporter;
+      case "client":
+        return hourClient(h);
       case "project":
         return h.project;
       case "date":
