@@ -191,13 +191,24 @@ export function ProjectHoursDetail({
   const totalCost = subCost + employeeCost;
   const fixedCosts = project?.fixedCosts ?? [];
   const fixedCostTotal = fixedCosts.reduce((a, c) => a + (Number(c.amount) || 0), 0);
+  const extraHours = Number(project?.extraHours) || 0;
+  const extraHoursCost = extraHours * (EMPLOYEE_DAY_RATE / 8);
   const saleAmount = Number(project?.saleAmount) || 0;
-  const spent = totalCost + fixedCostTotal;
+  const spent = totalCost + fixedCostTotal + extraHoursCost;
   const profit = saleAmount - spent;
   const profitPct = saleAmount > 0 ? Math.round((profit / saleAmount) * 1000) / 10 : 0;
   const profitData = [
     { name: "עלות עבודה (עובדים וקבלנים)", value: totalCost, color: "hsl(207 65% 62%)" },
     { name: "עלויות קבועות", value: fixedCostTotal, color: "hsl(38 75% 62%)" },
+    ...(extraHoursCost > 0
+      ? [
+          {
+            name: "שעות חריגות מאושרות",
+            value: extraHoursCost,
+            color: "hsl(280 55% 58%)",
+          },
+        ]
+      : []),
     {
       name: profit >= 0 ? "רווח" : "הפסד",
       value: Math.abs(profit),
