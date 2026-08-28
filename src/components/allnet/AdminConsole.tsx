@@ -62,7 +62,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DocumentList } from "./DocumentList";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProjectHoursDetail } from "./ProjectHoursDetail";
+
 
 const CHART_COLORS = [
   "var(--chart-1)",
