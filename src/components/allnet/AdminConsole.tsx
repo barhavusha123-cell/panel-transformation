@@ -15,8 +15,10 @@ import {
   ListChecks,
   Pencil,
   Plus,
+  ShieldCheck,
   Trash2,
   Upload,
+
 } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { FixedCostsEditor } from "./FixedCostsEditor";
