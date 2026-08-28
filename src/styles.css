@@ -250,7 +250,7 @@
 @utility surface-panel {
   position: relative;
   background-image: var(--gradient-surface);
-  border: 1px solid color-mix(in oklab, var(--primary) 16%, var(--border));
+  border: 1.5px solid var(--border);
   box-shadow:
     var(--shadow-elegant),
     inset 0 1px 0 color-mix(in oklab, white 55%, transparent);
