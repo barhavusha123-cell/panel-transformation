@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { ArrowRight, Download, HardHat, Users } from "lucide-react";
+import { ArrowRight, Download, HardHat, Pencil, Users } from "lucide-react";
 import { useAllNet } from "@/lib/allnet/store";
 import { downloadCsv, formatHoursMinutes } from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
@@ -101,9 +101,11 @@ function HoursGroup({
 export function ProjectHoursDetail({
   projectName,
   onBack,
+  onEdit,
 }: {
   projectName: string;
   onBack: () => void;
+  onEdit?: (() => void) | undefined;
 }) {
   const { state } = useAllNet();
   const project = state.projects.find((p) => p.name === projectName);
@@ -164,6 +166,12 @@ export function ProjectHoursDetail({
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {onEdit && (
+              <Button variant="brand" onClick={onEdit}>
+                <Pencil className="size-4" />
+                ערוך פרויקט
+              </Button>
+            )}
             <Button
               variant="soft"
               onClick={() =>
