@@ -33,7 +33,13 @@ import {
   type Region,
   type Role,
 } from "@/lib/allnet/types";
-import { downloadCsv, formatDateIL, nowStamp, todayISO } from "@/lib/allnet/utils";
+import {
+  calculateProjectCost,
+  downloadCsv,
+  formatDateIL,
+  nowStamp,
+  todayISO,
+} from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -243,13 +249,15 @@ export function AdminConsole() {
   const rowFor = (name: string) => {
     const p = state.projects.find((x) => x.name === name);
     const manager = p?.manager ?? "לא הוגדר";
+    const client = p?.client ?? "";
     const budget = p ? effectiveBudget(p) : 100;
+    const cost = calculateProjectCost(state, name);
     const minutes = state.hours
       .filter((h) => h.project === name)
       .reduce((a, h) => a + h.minutes, 0);
     const reported = Math.round((minutes / 60) * 100) / 100;
     const pct = budget > 0 ? Math.round((reported / budget) * 1000) / 10 : 0;
-    return { name, manager, budget, reported, pct };
+    return { name, client, manager, budget, cost, reported, pct };
   };
 
   const dashRows = selectedDash.map(rowFor);
@@ -491,6 +499,18 @@ export function AdminConsole() {
     toast.success(archived ? `הפרויקט '${name}' הועבר לארכיון.` : `הפרויקט '${name}' שוחזר.`);
   };
 
+  const deleteProject = (name: string) => {
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.filter((p) => p.name !== name),
+      hours: prev.hours.filter((h) => h.project !== name),
+      files: prev.files.filter((f) => f.project !== name),
+    }));
+    setEditTarget(null);
+    setDetailProject(null);
+    toast.success(`הפרויקט '${name}' נמחק בהצלחה.`);
+  };
+
   // file upload
   const [fileProject, setFileProject] = useState("כללי");
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -713,7 +733,7 @@ export function AdminConsole() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button type="submit" variant="brand">
                         שמור שינויים בפרויקט
                       </Button>
@@ -723,6 +743,27 @@ export function AdminConsole() {
                         onClick={() => setEditTarget(null)}
                       >
                         ביטול
+                      </Button>
+                    </div>
+                    <Separator />
+                    <div className="flex items-center justify-between rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+                      <div>
+                        <p className="font-semibold text-destructive">מחיקת פרויקט</p>
+                        <p className="text-xs text-muted-foreground">
+                          פעולה זו תמחק את הפרויקט, דיווחי השעות והקבצים שלו לצמיתות.
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={() => {
+                          if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט '${editForm.name}'?`)) {
+                            deleteProject(editForm.name);
+                          }
+                        }}
+                      >
+                        <Trash2 className="size-4" />
+                        מחק פרויקט
                       </Button>
                     </div>
                   </form>
@@ -764,12 +805,14 @@ export function AdminConsole() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-right">שם הפרויקט</TableHead>
+                  <TableHead className="text-right">שם לקוח</TableHead>
+                  <TableHead className="text-right">שם פרויקט</TableHead>
+                  <TableHead className="text-right">עלות פרויקט</TableHead>
                   <TableHead className="text-right">מנהל פרויקט</TableHead>
                   <TableHead className="text-right">תקציב שעות</TableHead>
-                  <TableHead className="text-right">צוות משויך</TableHead>
                   <TableHead className="text-right">ניצול</TableHead>
                   <TableHead className="text-right">פעולות</TableHead>
+                  <TableHead className="text-right">העבר לארכיון</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -777,6 +820,9 @@ export function AdminConsole() {
                   const r = rowFor(p.name);
                   return (
                     <TableRow key={p.name} className="transition-colors hover:bg-surface-2/60">
+                      <TableCell className="text-sm text-muted-foreground">
+                        {p.client || "—"}
+                      </TableCell>
                       <TableCell>
                         <button
                           type="button"
@@ -786,15 +832,15 @@ export function AdminConsole() {
                           {p.name}
                         </button>
                       </TableCell>
+                      <TableCell className="font-semibold">
+                        {Math.round(r.cost).toLocaleString("he-IL")} ₪
+                      </TableCell>
                       <TableCell>{p.manager}</TableCell>
                       <TableCell>{p.budget.toLocaleString()}</TableCell>
-                      <TableCell className="max-w-64 truncate text-xs text-muted-foreground">
-                        {p.team?.length ? p.team.join(", ") : "לא שויך"}
-                      </TableCell>
                       <TableCell>
                         <Badge variant={r.pct >= 80 ? "destructive" : "secondary"}>{r.pct}%</Badge>
                       </TableCell>
-                      <TableCell className="flex flex-wrap gap-1">
+                      <TableCell>
                         <Button
                           size="sm"
                           variant="soft"
@@ -802,11 +848,12 @@ export function AdminConsole() {
                             startEdit(p);
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
-
                         >
                           <Pencil className="size-4" />
                           ערוך
                         </Button>
+                      </TableCell>
+                      <TableCell>
                         <Button
                           size="sm"
                           variant="ghost"
