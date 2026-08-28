@@ -1091,18 +1091,7 @@ export function AdminConsole() {
                         </Button>
                       </TableCell>
                       <TableCell>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setArchived(p.name, !isArchive)}
-                        >
-                          {isArchive ? (
-                            <ArchiveRestore className="size-4" />
-                          ) : (
-                            <Archive className="size-4" />
-                          )}
-                          {isArchive ? "שחזר" : "העבר לארכיון"}
-                        </Button>
+                        <CategoryActions p={p} compact />
                       </TableCell>
                     </TableRow>
                   );
@@ -1111,8 +1100,11 @@ export function AdminConsole() {
             </Table>
           ) : (
             <p className="text-sm text-muted-foreground">
-              {isArchive ? "אין פרויקטים בארכיון." : "אין פרויקטים רשומים במערכת כרגע."}
+              {isArchive
+                ? `אין פרויקטים ב"${CATEGORY_LABELS[categoryView]}".`
+                : "אין פרויקטים רשומים במערכת כרגע."}
             </p>
+
           )}
           {!isArchive && (
             <div className="mt-6 flex justify-center border-t border-border pt-5">
