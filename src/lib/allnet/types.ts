@@ -41,6 +41,8 @@ export interface ProjectClosure {
   equipmentOnSite: boolean;
   /** האם יצאה חשבונית */
   invoiceIssued: boolean;
+  /** פירוט הסיבה כאשר אחת התשובות היא "לא" */
+  reason?: string;
   closedAt: string;
 }
 
