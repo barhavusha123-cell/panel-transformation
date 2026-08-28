@@ -996,9 +996,10 @@ export function AdminConsole() {
 
   if (view === "projects" || view === "archive") {
     const isArchive = view === "archive";
-    const list = isArchive ? archivedProjects : activeProjects;
+    const list = isArchive ? categoryProjects : activeProjects;
     return (
       <div className="mx-auto max-w-7xl px-5 pb-16">
+        {closureDialog}
         <div className="animate-rise surface-panel rounded-2xl p-6">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <h2 className="flex items-center gap-2 text-xl font-bold">
@@ -1007,22 +1008,36 @@ export function AdminConsole() {
               ) : (
                 <ListChecks className="size-5 text-primary" />
               )}
-              {isArchive ? "ארכיון פרויקטים" : "רשימת כל הפרויקטים הפעילים"}
+              {isArchive ? CATEGORY_LABELS[categoryView] : "רשימת כל הפרויקטים הפעילים"}
             </h2>
             <div className="flex flex-wrap gap-2">
-              <Button
-                variant="soft"
-                onClick={() => setView(isArchive ? "projects" : "archive")}
-              >
-                {isArchive ? <ListChecks className="size-4" /> : <Archive className="size-4" />}
-                {isArchive ? "פרויקטים פעילים" : `ארכיון (${archivedProjects.length})`}
-              </Button>
               <Button variant="soft" onClick={() => setView("console")}>
                 <ArrowRight className="size-4" />
                 חזרה למרכז הבקרה הראשי
               </Button>
             </div>
           </div>
+          <div className="mb-5 flex flex-wrap gap-2 border-b border-border pb-4">
+            <Button variant={isArchive ? "ghost" : "brand"} size="sm" onClick={() => setView("projects")}>
+              <ListChecks className="size-4" />
+              פרויקטים פעילים ({activeProjects.length})
+            </Button>
+            {PROJECT_CATEGORIES.map((c) => (
+              <Button
+                key={c}
+                size="sm"
+                variant={isArchive && categoryView === c ? "brand" : "ghost"}
+                onClick={() => {
+                  setCategoryView(c);
+                  setView("archive");
+                }}
+              >
+                <Archive className="size-4" />
+                {CATEGORY_LABELS[c]} ({categoryCounts[c]})
+              </Button>
+            ))}
+          </div>
+
           {list.length ? (
             <Table>
               <TableHeader>
