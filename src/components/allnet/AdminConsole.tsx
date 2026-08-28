@@ -591,6 +591,7 @@ export function AdminConsole() {
           onEdit={
             detailProjectObj
               ? () => {
+                  setDetailProject(null);
                   startEdit(detailProjectObj);
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }
