@@ -1497,43 +1497,73 @@ export function AdminConsole() {
   );
 }
 
-function FilterGroup({
+function ColumnFilter({
   label,
   options,
   selected,
   onToggle,
+  onClear,
 }: {
   label: string;
   options: string[];
   selected: string[];
   onToggle: (v: string) => void;
+  onClear: () => void;
 }) {
   return (
-    <div className="space-y-2">
-      <Label>{label}</Label>
-      <div className="flex flex-wrap gap-2">
-        {options.length ? (
-          options.map((o) => (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={`flex cursor-pointer items-center gap-1 rounded-md px-1 py-0.5 text-xs font-semibold transition-colors hover:text-primary ${
+            selected.length ? "text-primary" : ""
+          }`}
+        >
+          {label}
+          {selected.length > 0 && (
+            <span className="brand-gradient rounded-full px-1.5 text-[10px] text-primary-foreground">
+              {selected.length}
+            </span>
+          )}
+          <ChevronDown className="size-3" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="max-h-72 w-56 overflow-y-auto p-2" dir="rtl">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-xs font-semibold">{label}</span>
+          {selected.length > 0 && (
             <button
-              key={o}
               type="button"
-              onClick={() => onToggle(o)}
-              className={`cursor-pointer rounded-full border px-3 py-1 text-xs transition-all duration-300 ${
-                selected.includes(o)
-                  ? "brand-gradient border-transparent text-primary-foreground"
-                  : "border-border bg-surface-2/60 text-muted-foreground hover:border-primary/50 hover:text-primary"
-              }`}
+              onClick={onClear}
+              className="cursor-pointer text-[11px] text-primary hover:underline"
             >
-              {o}
+              נקה
             </button>
-          ))
-        ) : (
-          <span className="text-xs text-muted-foreground">אין ערכים זמינים</span>
-        )}
-      </div>
-    </div>
+          )}
+        </div>
+        <div className="space-y-1">
+          {options.length ? (
+            options.map((o) => (
+              <label
+                key={o}
+                className="flex cursor-pointer items-center gap-2 rounded-md p-1 text-xs hover:bg-surface-2/60"
+              >
+                <Checkbox
+                  checked={selected.includes(o)}
+                  onCheckedChange={() => onToggle(o)}
+                />
+                <span className="truncate">{o}</span>
+              </label>
+            ))
+          ) : (
+            <span className="text-xs text-muted-foreground">אין ערכים זמינים</span>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
+
 
 function UserRow({ username }: { username: string }) {
   const { state, setState } = useAllNet();
