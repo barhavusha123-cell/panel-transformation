@@ -148,6 +148,21 @@ export function ProjectHoursDetail({
   const employeeDays = employeeDayKeys.length;
   const employeeCost = employeeDays * EMPLOYEE_DAY_RATE;
   const totalCost = subCost + employeeCost;
+  const fixedCosts = project?.fixedCosts ?? [];
+  const fixedCostTotal = fixedCosts.reduce((a, c) => a + (Number(c.amount) || 0), 0);
+  const saleAmount = Number(project?.saleAmount) || 0;
+  const spent = totalCost + fixedCostTotal;
+  const profit = saleAmount - spent;
+  const profitPct = saleAmount > 0 ? Math.round((profit / saleAmount) * 1000) / 10 : 0;
+  const profitData = [
+    { name: "עלות עבודה (עובדים וקבלנים)", value: totalCost, color: "hsl(207 65% 62%)" },
+    { name: "עלויות קבועות", value: fixedCostTotal, color: "hsl(38 75% 62%)" },
+    {
+      name: profit >= 0 ? "רווח" : "הפסד",
+      value: Math.abs(profit),
+      color: profit >= 0 ? "hsl(150 55% 48%)" : "hsl(0 70% 58%)",
+    },
+  ].filter((d) => d.value > 0);
   const ils = (n: number) => `${Math.round(n).toLocaleString("he-IL")} ₪`;
   const reported = Math.round((totalMinutes / 60) * 100) / 100;
   const budget = effectiveBudget(project);
@@ -288,6 +303,88 @@ export function ProjectHoursDetail({
             סה״כ שעות בפרויקט: {formatHoursMinutes(totalMinutes)}
           </p>
         </div>
+      </div>
+
+      <div className="surface-panel rounded-2xl p-5">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h3 className="flex items-center gap-2 text-lg font-semibold">
+            <TrendingUp className="size-5 text-primary" />
+            רווחיות הפרויקט
+          </h3>
+          {saleAmount > 0 && (
+            <Badge
+              variant={profit >= 0 ? "secondary" : "destructive"}
+              className="px-4 py-1 text-lg font-bold"
+            >
+              {profitPct}% רווחיות
+            </Badge>
+          )}
+        </div>
+        {saleAmount > 0 ? (
+          <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={profitData}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius="45%"
+                    outerRadius="80%"
+                    paddingAngle={2}
+                    label={(e: { name?: string; percent?: number }) =>
+                      `${e.name} ${Math.round((e.percent ?? 0) * 100)}%`
+                    }
+                  >
+                    {profitData.map((d) => (
+                      <Cell key={d.name} fill={d.color} stroke="hsl(var(--background))" />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(v: number) => ils(Number(v))} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-2 self-center text-sm">
+              <div className="flex items-center justify-between rounded-lg border border-border p-2">
+                <span>סכום מכירת הפרויקט</span>
+                <span className="font-bold">{ils(saleAmount)}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-border p-2">
+                <span>עלות עבודה מדווחת</span>
+                <span className="font-bold">{ils(totalCost)}</span>
+              </div>
+              <div className="rounded-lg border border-border p-2">
+                <div className="flex items-center justify-between">
+                  <span>עלויות קבועות</span>
+                  <span className="font-bold">{ils(fixedCostTotal)}</span>
+                </div>
+                {fixedCosts.map((c) => (
+                  <div
+                    key={c.id}
+                    className="flex items-center justify-between py-0.5 text-[11px] text-muted-foreground"
+                  >
+                    <span>
+                      {c.type}
+                      {c.description ? ` · ${c.description}` : ""}
+                    </span>
+                    <span>{ils(Number(c.amount) || 0)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/10 p-2">
+                <span className="font-semibold">{profit >= 0 ? "רווח נותר" : "הפסד"}</span>
+                <span className="text-lg font-bold text-primary">{ils(Math.abs(profit))}</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                הרווחיות מתעדכנת אוטומטית ככל שנוספים דיווחי שעות לפרויקט.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            להצגת פאי הרווחיות יש להגדיר בעריכת הפרויקט את סכום המכירה ואת העלויות הקבועות.
+          </p>
+        )}
       </div>
 
       <HoursGroup title="עובדי החברה" icon={<Users className="size-5 text-primary" />} rows={employees} />
