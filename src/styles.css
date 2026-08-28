@@ -257,10 +257,32 @@
 }
 
 @utility surface-panel {
+  position: relative;
   background-image: var(--gradient-surface);
-  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
-  box-shadow: var(--shadow-elegant);
+  border: 1px solid color-mix(in oklab, var(--primary) 16%, var(--border));
+  box-shadow:
+    var(--shadow-elegant),
+    inset 0 1px 0 color-mix(in oklab, white 55%, transparent);
   backdrop-filter: blur(10px);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  /* soft peach hairline at the top edge */
+  &::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in oklab, var(--primary) 55%, transparent) 30%,
+      color-mix(in oklab, var(--primary-glow) 70%, transparent) 70%,
+      transparent 100%
+    );
+    opacity: 0.75;
+    pointer-events: none;
+  }
 }
 
 @utility brand-gradient {
@@ -286,9 +308,26 @@
   &:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-glow);
-    border-color: color-mix(in oklab, var(--primary) 35%, transparent);
+    border-color: color-mix(in oklab, var(--primary) 45%, transparent);
   }
 }
+
+@utility peach-halo {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: radial-gradient(
+      18rem 12rem at 100% 0%,
+      color-mix(in oklab, var(--primary) 14%, transparent) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+}
+
 
 @utility animate-rise {
   animation: rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
