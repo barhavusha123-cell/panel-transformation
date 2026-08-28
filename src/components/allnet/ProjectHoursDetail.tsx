@@ -166,6 +166,12 @@ export function ProjectHoursDetail({
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {onEdit && (
+              <Button variant="brand" onClick={onEdit}>
+                <Pencil className="size-4" />
+                ערוך פרויקט
+              </Button>
+            )}
             <Button
               variant="soft"
               onClick={() =>
