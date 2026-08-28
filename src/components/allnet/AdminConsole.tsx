@@ -210,7 +210,6 @@ export function AdminConsole() {
     invoiceIssued: null,
   });
   const [closeReason, setCloseReason] = useState("");
-  });
 
   const [detailProject, setDetailProject] = useState<string | null>(null);
   const [tab, setTab] = useState("reports");
