@@ -1049,7 +1049,7 @@ export function AdminConsole() {
                   <TableHead className="text-right">שעות מנהל פרויקט / עובד</TableHead>
                   <TableHead className="text-right">ניצול</TableHead>
                   <TableHead className="text-right">פעולות</TableHead>
-                  <TableHead className="text-right">העבר לארכיון</TableHead>
+                  <TableHead className="text-right">סגירה וסיווג פרויקט</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
