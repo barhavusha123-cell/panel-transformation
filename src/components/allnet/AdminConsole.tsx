@@ -394,6 +394,169 @@ export function AdminConsole() {
   const toggle = (arr: string[], v: string, set: (x: string[]) => void) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
 
+  // עריכת דיווח שעות (אדמין)
+  const TIME_OPTIONS = getAllTimeOptions();
+  const [hourEdit, setHourEdit] = useState<{
+    id: number;
+    project: string;
+    date: string;
+    from: string;
+    to: string;
+    notes: string;
+    extras: string;
+  } | null>(null);
+
+  const saveHourEdit = () => {
+    if (!hourEdit) return;
+    if (!hourEdit.project || !hourEdit.date || !hourEdit.from || !hourEdit.to) {
+      toast.error("יש למלא פרויקט, תאריך ושעות.");
+      return;
+    }
+    const minutes = minutesBetween(hourEdit.from, hourEdit.to);
+    setState((prev) => ({
+      ...prev,
+      hours: prev.hours.map((h) =>
+        h.id === hourEdit.id
+          ? {
+              ...h,
+              project: hourEdit.project,
+              client: (
+                prev.projects.find((p) => p.name === hourEdit.project)?.client ?? ""
+              ).trim(),
+              date: hourEdit.date,
+              from: hourEdit.from,
+              to: hourEdit.to,
+              minutes,
+              worked: formatHoursMinutes(minutes),
+              decimal: Math.round((minutes / 60) * 100) / 100,
+              notes: hourEdit.notes,
+              extras: hourEdit.extras,
+            }
+          : h,
+      ),
+    }));
+    setHourEdit(null);
+    toast.success("הדיווח עודכן בהצלחה.");
+  };
+
+  const deleteHour = (id: number) => {
+    if (!confirm("האם למחוק את הדיווח לצמיתות?")) return;
+    setState((prev) => ({ ...prev, hours: prev.hours.filter((h) => h.id !== id) }));
+    toast.success("הדיווח נמחק.");
+  };
+
+  const hourEditDialog = (
+    <Dialog open={!!hourEdit} onOpenChange={(o) => !o && setHourEdit(null)}>
+      <DialogContent dir="rtl" className="text-right sm:max-w-lg">
+        <DialogHeader className="text-right">
+          <DialogTitle className="flex items-center gap-2">
+            <Pencil className="size-5 text-primary" />
+            עריכת דיווח שעות
+          </DialogTitle>
+          <DialogDescription>ניתן לעדכן פרויקט, תאריך, שעות והערות.</DialogDescription>
+        </DialogHeader>
+        {hourEdit && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2 sm:col-span-2">
+              <Label>שם פרויקט</Label>
+              <Select
+                value={hourEdit.project}
+                onValueChange={(v) => setHourEdit({ ...hourEdit, project: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר פרויקט" />
+                </SelectTrigger>
+                <SelectContent>
+                  {state.projects.map((p) => (
+                    <SelectItem key={p.name} value={p.name}>
+                      {p.client ? `${p.client} · ` : ""}
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>תאריך</Label>
+              <Input
+                type="date"
+                value={hourEdit.date}
+                max={todayISO()}
+                onChange={(e) => setHourEdit({ ...hourEdit, date: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>זמן מחושב</Label>
+              <div className="rounded-xl border border-border bg-surface-2/50 px-3 py-2 text-sm font-semibold text-primary">
+                {hourEdit.from && hourEdit.to
+                  ? formatHoursMinutes(minutesBetween(hourEdit.from, hourEdit.to))
+                  : "—"}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>משעה</Label>
+              <Select
+                value={hourEdit.from}
+                onValueChange={(v) => setHourEdit({ ...hourEdit, from: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר שעה" />
+                </SelectTrigger>
+                <SelectContent className="max-h-64">
+                  {TIME_OPTIONS.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>עד שעה</Label>
+              <Select
+                value={hourEdit.to}
+                onValueChange={(v) => setHourEdit({ ...hourEdit, to: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר שעה" />
+                </SelectTrigger>
+                <SelectContent className="max-h-64">
+                  {TIME_OPTIONS.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>הערות</Label>
+              <Input
+                value={hourEdit.notes}
+                onChange={(e) => setHourEdit({ ...hourEdit, notes: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>חריגים / תוספות</Label>
+              <Input
+                value={hourEdit.extras}
+                onChange={(e) => setHourEdit({ ...hourEdit, extras: e.target.value })}
+              />
+            </div>
+          </div>
+        )}
+        <DialogFooter className="flex-row-reverse justify-start gap-2">
+          <Button variant="brand" onClick={saveHourEdit}>
+            שמור שינויים
+          </Button>
+          <Button variant="secondary" onClick={() => setHourEdit(null)}>
+            ביטול
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
   const [adminEmail, setAdminEmail] = useState(state.adminEmail ?? "");
 
   // user form
