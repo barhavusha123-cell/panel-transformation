@@ -758,7 +758,6 @@ export function AdminConsole() {
       invoiceIssued: p?.closure?.invoiceIssued ?? null,
     });
     setCloseReason(p?.closure?.reason ?? "");
-    });
     setCloseTarget(name);
   };
 
