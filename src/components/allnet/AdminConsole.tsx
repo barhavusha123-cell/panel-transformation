@@ -1877,8 +1877,6 @@ export function AdminConsole() {
                             <Pencil className="size-4" />
                             ערוך
                           </Button>
-                          <CategoryActions p={p} compact />
-
                           <Button
                             size="sm"
                             variant="ghost"
