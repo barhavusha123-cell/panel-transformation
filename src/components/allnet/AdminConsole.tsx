@@ -52,6 +52,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
@@ -207,6 +208,8 @@ export function AdminConsole() {
     hasDocFile: null,
     equipmentOnSite: null,
     invoiceIssued: null,
+  });
+  const [closeReason, setCloseReason] = useState("");
   });
 
   const [detailProject, setDetailProject] = useState<string | null>(null);
