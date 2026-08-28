@@ -72,6 +72,11 @@ export interface Project {
   saleAmount?: number;
   /** עלויות קבועות לפרויקט */
   fixedCosts?: FixedCost[];
+  /** קטגוריית סיווג לאחר סגירה */
+  category?: ProjectCategory;
+  /** נתוני סגירת פרויקט */
+  closure?: ProjectClosure;
+
 }
 
 
