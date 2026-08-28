@@ -107,9 +107,9 @@
   --warning: oklch(0.78 0.14 75);
   --warning-foreground: oklch(0.25 0.02 50);
 
-  --border: oklch(0.82 0.05 60);
-  --input: oklch(0.82 0.05 60);
-  --ring: oklch(0.72 0.12 55);
+  --border: oklch(0.85 0.03 45);
+  --input: oklch(0.85 0.03 45);
+  --ring: oklch(0.62 0.19 32);
 
   --chart-1: oklch(0.78 0.09 50);
   --chart-2: oklch(0.76 0.1 165);
@@ -118,17 +118,17 @@
   --chart-5: oklch(0.8 0.11 130);
   --chart-6: oklch(0.72 0.1 275);
 
-  --sidebar: oklch(0.98 0.012 68);
-  --sidebar-foreground: oklch(0.2 0.02 50);
-  --sidebar-primary: oklch(0.72 0.12 55);
-  --sidebar-primary-foreground: oklch(0.25 0.02 50);
-  --sidebar-accent: oklch(0.95 0.016 65);
-  --sidebar-accent-foreground: oklch(0.2 0.02 50);
-  --sidebar-border: oklch(0.82 0.05 60);
-  --sidebar-ring: oklch(0.72 0.12 55);
+  --sidebar: oklch(0.98 0.008 58);
+  --sidebar-foreground: oklch(0.22 0.02 45);
+  --sidebar-primary: oklch(0.62 0.19 32);
+  --sidebar-primary-foreground: oklch(0.99 0.005 60);
+  --sidebar-accent: oklch(0.94 0.015 45);
+  --sidebar-accent-foreground: oklch(0.22 0.02 45);
+  --sidebar-border: oklch(0.85 0.03 45);
+  --sidebar-ring: oklch(0.62 0.19 32);
 
-  --gradient-brand: linear-gradient(135deg, oklch(0.74 0.13 55) 0%, oklch(0.82 0.1 58) 100%);
-  --gradient-surface: linear-gradient(160deg, oklch(0.99 0.01 70) 0%, oklch(0.975 0.012 68) 100%);
+  --gradient-brand: linear-gradient(135deg, oklch(0.6 0.2 30) 0%, oklch(0.7 0.17 40) 100%);
+  --gradient-surface: linear-gradient(160deg, oklch(0.995 0.004 60) 0%, oklch(0.975 0.008 58) 100%);
   --gradient-aurora: radial-gradient(
       60rem 40rem at 10% 10%,
       color-mix(in oklab, var(--primary) 12%, transparent) 0%,
