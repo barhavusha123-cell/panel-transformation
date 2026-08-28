@@ -105,7 +105,7 @@ export function ProjectHoursDetail({
 }: {
   projectName: string;
   onBack: () => void;
-  onEdit?: () => void;
+  onEdit?: (() => void) | undefined;
 }) {
   const { state } = useAllNet();
   const project = state.projects.find((p) => p.name === projectName);
