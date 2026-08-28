@@ -39,7 +39,7 @@ export interface Project {
   archived: boolean;
   deliveryDate?: string;
   region?: Region;
-  /** תקציב ימי עבודה */
+  /** ימי עבודה קבלן משנה */
   budgetDays?: number;
   /** תוספת שעות עבודה חריגות באישור מנהל */
   extraHours?: number;
@@ -50,7 +50,7 @@ export interface Project {
 }
 
 
-/** תקציב שעות אפקטיבי כולל תוספת חריגה מאושרת */
+/** יעד שעות מנהל פרויקט / עובד אפקטיבי כולל תוספת חריגה מאושרת */
 export const effectiveBudget = (p?: { budget?: number; extraHours?: number }) =>
   (Number(p?.budget) || 0) + (Number(p?.extraHours) || 0);
 
