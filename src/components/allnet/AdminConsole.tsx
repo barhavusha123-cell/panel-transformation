@@ -1128,17 +1128,6 @@ export function AdminConsole() {
 
       {view === "dashboard" ? (
         <div className="animate-fade space-y-6">
-          {upcoming.map((u) => (
-            <div
-              key={`del-${u.name}`}
-              className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-            >
-              התרעת מסירה: פרויקט '{u.name}' {u.daysLeft < 0
-                ? `באיחור של ${Math.abs(u.daysLeft)} ימים ממועד המסירה`
-                : `נמסר בעוד ${u.daysLeft} ימים`} (מועד מסירה: {formatDateIL(u.deliveryDate)}). נדרש מעקב.
-            </div>
-          ))}
-
           {alerts.map((a) => (
             <div
               key={a.name}
