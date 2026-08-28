@@ -375,6 +375,7 @@ export function ProjectHoursDetail({
                     paddingAngle={2}
                     labelLine={false}
                     label={ProfitSliceLabel}
+                    isAnimationActive={false}
                   >
                     {profitData.map((d) => (
                       <Cell key={d.name} fill={d.color} stroke="hsl(var(--background))" />
