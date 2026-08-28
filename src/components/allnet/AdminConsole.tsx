@@ -949,7 +949,7 @@ export function AdminConsole() {
             )}
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {alerts.length ? `הגבוה ביותר: ${alerts[0]!.name} · ${alerts[0]!.pct}%` : "כל הפרויקטים בתקציב"}
+            {alerts.length ? `הגבוה ביותר: ${alerts[0]!.name} · ${alerts[0]!.pct}%` : "כל הפרויקטים ביעד השעות"}
           </p>
           <Button
             variant={alerts.length ? "brand" : "soft"}
