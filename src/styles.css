@@ -68,47 +68,48 @@
 :root {
   --radius: 1rem;
 
-  --background: oklch(0.995 0.006 60);
-  --foreground: oklch(0.33 0.02 40);
+  /* Clean enterprise: pure white surfaces, black text, red frames */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.15 0 0);
 
-  --surface: oklch(0.985 0.008 55);
-  --surface-2: oklch(0.965 0.014 50);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.975 0 0);
 
-  --card: oklch(0.995 0.007 60);
-  --card-foreground: oklch(0.33 0.02 40);
-  --popover: oklch(0.995 0.007 60);
-  --popover-foreground: oklch(0.33 0.02 40);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0 0);
 
-  /* Soft peach brand */
-  --primary: oklch(0.76 0.085 45);
-  --primary-foreground: oklch(0.29 0.035 40);
-  --primary-glow: oklch(0.85 0.06 55);
+  /* Brand red (matches AllNet logo) */
+  --primary: oklch(0.55 0.22 27);
+  --primary-foreground: oklch(0.99 0 0);
+  --primary-glow: oklch(0.68 0.2 27);
 
-  --secondary: oklch(0.955 0.014 55);
-  --secondary-foreground: oklch(0.36 0.02 40);
+  --secondary: oklch(0.965 0 0);
+  --secondary-foreground: oklch(0.15 0 0);
 
-  --muted: oklch(0.955 0.012 55);
-  --muted-foreground: oklch(0.56 0.02 45);
+  --muted: oklch(0.965 0 0);
+  --muted-foreground: oklch(0.45 0 0);
 
-  --accent: oklch(0.8 0.07 30);
-  --accent-foreground: oklch(0.29 0.035 40);
+  --accent: oklch(0.55 0.22 27);
+  --accent-foreground: oklch(0.99 0 0);
 
-  /* "Active projects" highlight — peach, not blue */
-  --blue: oklch(0.7 0.095 42);
-  --blue-foreground: oklch(0.99 0.005 60);
+  /* "Active projects" highlight — brand red */
+  --blue: oklch(0.55 0.22 27);
+  --blue-foreground: oklch(0.99 0 0);
 
-  --destructive: oklch(0.63 0.15 25);
-  --destructive-foreground: oklch(0.99 0.005 60);
+  --destructive: oklch(0.55 0.22 27);
+  --destructive-foreground: oklch(0.99 0 0);
 
-  --success: oklch(0.75 0.1 162);
-  --success-foreground: oklch(0.27 0.03 160);
+  --success: oklch(0.6 0.13 155);
+  --success-foreground: oklch(0.99 0 0);
 
-  --warning: oklch(0.84 0.1 80);
-  --warning-foreground: oklch(0.28 0.03 60);
+  --warning: oklch(0.75 0.14 75);
+  --warning-foreground: oklch(0.2 0 0);
 
-  --border: oklch(0.9 0.015 55);
-  --input: oklch(0.92 0.014 55);
-  --ring: oklch(0.76 0.085 45);
+  --border: oklch(0.55 0.22 27);
+  --input: oklch(0.55 0.22 27);
+  --ring: oklch(0.55 0.22 27);
 
   --chart-1: oklch(0.78 0.09 50);
   --chart-2: oklch(0.76 0.1 165);
@@ -118,34 +119,20 @@
   --chart-6: oklch(0.72 0.1 275);
 
 
-  --sidebar: oklch(0.98 0.01 55);
-  --sidebar-foreground: oklch(0.33 0.02 40);
-  --sidebar-primary: oklch(0.76 0.085 45);
-  --sidebar-primary-foreground: oklch(0.29 0.035 40);
-  --sidebar-accent: oklch(0.955 0.014 55);
-  --sidebar-accent-foreground: oklch(0.36 0.02 40);
-  --sidebar-border: oklch(0.89 0.015 55);
-  --sidebar-ring: oklch(0.76 0.085 45);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.15 0 0);
+  --sidebar-primary: oklch(0.55 0.22 27);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.965 0 0);
+  --sidebar-accent-foreground: oklch(0.15 0 0);
+  --sidebar-border: oklch(0.55 0.22 27);
+  --sidebar-ring: oklch(0.55 0.22 27);
 
   --gradient-brand: linear-gradient(135deg, var(--primary) 0%, var(--primary-glow) 100%);
-  --gradient-surface: linear-gradient(
-    160deg,
-    color-mix(in oklab, var(--surface) 94%, white 6%) 0%,
-    var(--surface) 55%,
-    color-mix(in oklab, var(--surface) 92%, var(--primary) 8%) 100%
-  );
-  --gradient-aurora: radial-gradient(
-      60rem 40rem at 85% -10%,
-      color-mix(in oklab, var(--primary) 14%, transparent) 0%,
-      transparent 62%
-    ),
-    radial-gradient(
-      55rem 35rem at 5% 0%,
-      color-mix(in oklab, var(--accent) 11%, transparent) 0%,
-      transparent 62%
-    );
-  --shadow-elegant: 0 22px 55px -30px color-mix(in oklab, oklch(0.4 0.06 40) 45%, transparent);
-  --shadow-glow: 0 0 0 1px color-mix(in oklab, var(--primary) 30%, transparent),
+  --gradient-surface: linear-gradient(160deg, oklch(1 0 0) 0%, oklch(0.99 0 0) 100%);
+  --gradient-aurora: none;
+  --shadow-elegant: 0 22px 55px -30px color-mix(in oklab, oklch(0.2 0 0) 35%, transparent);
+  --shadow-glow: 0 0 0 1px color-mix(in oklab, var(--primary) 45%, transparent),
     0 18px 40px -20px color-mix(in oklab, var(--primary) 40%, transparent);
   --transition-smooth: 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -259,7 +246,7 @@
 @utility surface-panel {
   position: relative;
   background-image: var(--gradient-surface);
-  border: 1px solid color-mix(in oklab, var(--primary) 16%, var(--border));
+  border: 1.5px solid var(--border);
   box-shadow:
     var(--shadow-elegant),
     inset 0 1px 0 color-mix(in oklab, white 55%, transparent);
