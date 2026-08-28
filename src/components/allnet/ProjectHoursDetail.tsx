@@ -366,16 +366,15 @@ export function ProjectHoursDetail({
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
+                    <Pie
                     data={profitData}
                     dataKey="value"
                     nameKey="name"
                     innerRadius="45%"
                     outerRadius="80%"
                     paddingAngle={2}
-                    label={(e: { name?: string; percent?: number }) =>
-                      `${e.name} ${Math.round((e.percent ?? 0) * 100)}%`
-                    }
+                    labelLine={false}
+                    label={ProfitSliceLabel}
                   >
                     {profitData.map((d) => (
                       <Cell key={d.name} fill={d.color} stroke="hsl(var(--background))" />
