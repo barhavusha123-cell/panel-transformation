@@ -127,7 +127,7 @@
   --sidebar-border: oklch(0.91 0.008 70);
   --sidebar-ring: oklch(0.62 0.19 32);
 
-  --gradient-brand: linear-gradient(135deg, oklch(0.6 0.2 30) 0%, oklch(0.7 0.17 40) 100%);
+  --gradient-brand: linear-gradient(135deg, oklch(0.64 0.19 32) 0%, oklch(0.74 0.16 40) 100%);
   --gradient-surface: linear-gradient(160deg, oklch(0.995 0.004 60) 0%, oklch(0.975 0.008 58) 100%);
   --gradient-aurora: radial-gradient(
       60rem 40rem at 10% 10%,
