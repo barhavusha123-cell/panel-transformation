@@ -935,27 +935,30 @@ export function AdminConsole() {
       </h2>
 
       <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <KpiCard
-          title="פרויקטים פעילים"
-          value={String(activeProjects.length)}
-          icon={<Briefcase className="size-4" />}
-          titleClassName="text-blue text-base"
-          valueClassName="text-blue text-5xl"
-        >
-          <div className="mt-2 flex gap-3 text-sm text-blue">
-            <button
-              onClick={() => setView("projects")}
-              className="cursor-pointer underline-offset-4 hover:underline"
-            >
-              צפה בכל הפרויקטים
-            </button>
-            <button
-              onClick={() => setView("archive")}
-              className="cursor-pointer text-blue/70 underline-offset-4 hover:underline"
-            >
-              ארכיון ({archivedProjects.length})
-            </button>
+        <KpiCard title="פרויקטים פעילים" icon={<Briefcase className="size-4" />}>
+          <div className="flex items-center gap-2">
+            <span className={`text-2xl font-bold ${activeProjects.length ? "text-primary" : ""}`}>
+              {activeProjects.length}
+            </span>
+            {activeProjects.length > 0 && (
+              <Badge variant="default" className="animate-pulse">
+                פעילים
+              </Badge>
+            )}
           </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {archivedProjects.length > 0
+              ? `בארכיון: ${archivedProjects.length} פרויקטים`
+              : "אין פרויקטים בארכיון"}
+          </p>
+          <Button
+            variant={activeProjects.length ? "brand" : "soft"}
+            size="sm"
+            className="mt-3 w-full"
+            onClick={() => setView("projects")}
+          >
+            צפה בכל הפרויקטים
+          </Button>
         </KpiCard>
 
         <KpiCard title="פרויקטים לפני מסירה" icon={<CalendarClock className="size-4" />} delay={80}>
@@ -1125,17 +1128,6 @@ export function AdminConsole() {
 
       {view === "dashboard" ? (
         <div className="animate-fade space-y-6">
-          {upcoming.map((u) => (
-            <div
-              key={`del-${u.name}`}
-              className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-            >
-              התרעת מסירה: פרויקט '{u.name}' {u.daysLeft < 0
-                ? `באיחור של ${Math.abs(u.daysLeft)} ימים ממועד המסירה`
-                : `נמסר בעוד ${u.daysLeft} ימים`} (מועד מסירה: {formatDateIL(u.deliveryDate)}). נדרש מעקב.
-            </div>
-          ))}
-
           {alerts.map((a) => (
             <div
               key={a.name}
