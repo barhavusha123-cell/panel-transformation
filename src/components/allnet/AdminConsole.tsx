@@ -1160,7 +1160,7 @@ export function AdminConsole() {
                           paddingAngle={1.5}
                           labelLine={false}
                           label={SliceLabel}
-                          isAnimationActive
+                          isAnimationActive={false}
                         >
                           {dashRows.map((r, i) => {
                             const isHovered = hoveredSlice === r.name;
