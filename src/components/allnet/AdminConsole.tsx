@@ -150,7 +150,7 @@ function SliceLabel(props: {
   const r = innerRadius + (outerRadius - innerRadius) * 0.55;
   const x = cx + r * Math.cos(-midAngle * RAD);
   const y = cy + r * Math.sin(-midAngle * RAD);
-  const short = payload.name.length > 14 ? `${payload.name.slice(0, 13)}…` : payload.name;
+  const short = payload.name.length > 16 ? `${payload.name.slice(0, 15)}…` : payload.name;
   return (
     <text
       x={x}
@@ -159,14 +159,9 @@ function SliceLabel(props: {
       dominantBaseline="central"
       className="pointer-events-none"
       fill="var(--foreground)"
-      style={{ fontSize: 12, fontWeight: 700 }}
+      style={{ fontSize: 13, fontWeight: 700 }}
     >
-      <tspan x={x} dy="-0.4em">
-        {short}
-      </tspan>
-      <tspan x={x} dy="1.35em" style={{ fontSize: 11, fontWeight: 600, opacity: 0.9 }}>
-        {payload.pct}%
-      </tspan>
+      {short}
     </text>
   );
 }
@@ -369,7 +364,7 @@ export function AdminConsole() {
     }
     const budget = Math.round(Number(np.budget));
     if (!validBudget(budget)) {
-      toast.error("תקציב השעות חייב להיות מספר שלם חיובי.");
+      toast.error("שעות מנהל פרויקט / עובד חייבות להיות מספר שלם חיובי.");
       return;
     }
     setState((prev) => {
@@ -411,7 +406,7 @@ export function AdminConsole() {
             ],
       };
     });
-    toast.success(`הפרויקט '${name}' עודכן בהצלחה עם תקציב של ${budget} שעות.`);
+    toast.success(`הפרויקט '${name}' נוצר בהצלחה עם ${budget} שעות מנהל פרויקט / עובד.`);
     setNp({ name: "", client: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0, saleAmount: 0, fixedCosts: [] });
   };
 
@@ -463,7 +458,7 @@ export function AdminConsole() {
     e.preventDefault();
     const budget = Math.round(Number(editForm.budget));
     if (!validBudget(budget)) {
-      toast.error("תקציב השעות חייב להיות מספר שלם חיובי.");
+      toast.error("שעות מנהל פרויקט / עובד חייבות להיות מספר שלם חיובי.");
       return;
     }
     setState((prev) => ({
@@ -583,15 +578,6 @@ export function AdminConsole() {
                   <form onSubmit={saveProject} className="animate-fade space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label>שם הפרויקט</Label>
-                        <Input
-                          value={editForm.name}
-                          onChange={(e) =>
-                            setEditForm({ ...editForm, name: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div className="space-y-2">
                         <Label>שם לקוח</Label>
                         <Input
                           value={editForm.client}
@@ -599,6 +585,15 @@ export function AdminConsole() {
                             setEditForm({ ...editForm, client: e.target.value })
                           }
                           placeholder="שם הלקוח"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>שם הפרויקט</Label>
+                        <Input
+                          value={editForm.name}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, name: e.target.value })
+                          }
                         />
                       </div>
                       <div className="space-y-2">
@@ -620,7 +615,7 @@ export function AdminConsole() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label>תקציב שעות מוקצה</Label>
+                        <Label>שעות מנהל פרויקט / עובד</Label>
                         <Input
                           type="number"
                           min={MIN_BUDGET}
@@ -632,7 +627,7 @@ export function AdminConsole() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>תקציב ימי עבודה</Label>
+                        <Label>ימי עבודה קבלן משנה</Label>
                         <Input
                           type="number"
                           min={0}
@@ -655,7 +650,7 @@ export function AdminConsole() {
                           }
                         />
                         <p className="text-[11px] text-muted-foreground">
-                          השעות נוספות לתקציב הפרויקט לצורך חישוב הניצול.
+                          השעות נוספות ליעד השעות לצורך חישוב הניצול.
                         </p>
                       </div>
                       <div className="space-y-2">
@@ -809,7 +804,7 @@ export function AdminConsole() {
                   <TableHead className="text-right">שם פרויקט</TableHead>
                   <TableHead className="text-right">עלות פרויקט</TableHead>
                   <TableHead className="text-right">מנהל פרויקט</TableHead>
-                  <TableHead className="text-right">תקציב שעות</TableHead>
+                  <TableHead className="text-right">שעות מנהל פרויקט / עובד</TableHead>
                   <TableHead className="text-right">ניצול</TableHead>
                   <TableHead className="text-right">פעולות</TableHead>
                   <TableHead className="text-right">העבר לארכיון</TableHead>
@@ -954,7 +949,7 @@ export function AdminConsole() {
             )}
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {alerts.length ? `הגבוה ביותר: ${alerts[0]!.name} · ${alerts[0]!.pct}%` : "כל הפרויקטים בתקציב"}
+            {alerts.length ? `הגבוה ביותר: ${alerts[0]!.name} · ${alerts[0]!.pct}%` : "כל הפרויקטים ביעד השעות"}
           </p>
           <Button
             variant={alerts.length ? "brand" : "soft"}
@@ -1101,7 +1096,7 @@ export function AdminConsole() {
               key={a.name}
               className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
             >
-              התרעת תקציב: פרויקט '{a.name}' הגיע ל-{a.pct}% מהתקציב ({a.reported} מתוך {a.budget}{" "}
+              התרעת ניצול שעות: פרויקט '{a.name}' הגיע ל-{a.pct}% מיעד השעות ({a.reported} מתוך {a.budget}{" "}
               שעות). נדרש מעקב.
             </div>
           ))}
@@ -1464,16 +1459,16 @@ export function AdminConsole() {
               </h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
-                  <Label>שם הפרויקט</Label>
-                  <Input value={np.name} onChange={(e) => setNp({ ...np, name: e.target.value })} />
-                </div>
-                <div className="space-y-2">
                   <Label>שם לקוח</Label>
                   <Input
                     value={np.client}
                     onChange={(e) => setNp({ ...np, client: e.target.value })}
                     placeholder="שם הלקוח"
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label>שם הפרויקט</Label>
+                  <Input value={np.name} onChange={(e) => setNp({ ...np, name: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label>מנהל פרויקט אחראי</Label>
@@ -1491,7 +1486,7 @@ export function AdminConsole() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>תקציב שעות מוקצה</Label>
+                  <Label>שעות מנהל פרויקט / עובד</Label>
                   <Input
                     type="number"
                     min={MIN_BUDGET}
@@ -1501,7 +1496,7 @@ export function AdminConsole() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>תקציב ימי עבודה</Label>
+                  <Label>ימי עבודה קבלן משנה</Label>
                   <Input
                     type="number"
                     min={0}
