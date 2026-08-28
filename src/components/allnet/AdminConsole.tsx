@@ -863,7 +863,7 @@ export function AdminConsole() {
             סגירת פרויקט — {closeTarget}
           </DialogTitle>
           <DialogDescription>
-            יש לסמן את שלוש השאלות. ללא סגירת פרויקט לא ניתן להעביר את הפרויקט לאף קטגוריה.
+            יש לענות כן / לא על כל שלוש השאלות. ללא סגירת פרויקט לא ניתן להעביר את הפרויקט לאף קטגוריה.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
