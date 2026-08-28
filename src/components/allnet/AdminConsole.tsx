@@ -25,17 +25,20 @@ import { FixedCostsEditor } from "./FixedCostsEditor";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import {
+  CATEGORY_LABELS,
   MIN_BUDGET,
+  PROJECT_CATEGORIES,
   REGIONS,
   ROLES,
   SUB_DAY_RATES,
   effectiveBudget,
   type FixedCost,
   type Project,
-
+  type ProjectCategory,
   type Region,
   type Role,
 } from "@/lib/allnet/types";
+
 import {
   calculateProjectCost,
   downloadCsv,
