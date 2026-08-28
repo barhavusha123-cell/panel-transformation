@@ -150,7 +150,7 @@ function SliceLabel(props: {
   const r = innerRadius + (outerRadius - innerRadius) * 0.55;
   const x = cx + r * Math.cos(-midAngle * RAD);
   const y = cy + r * Math.sin(-midAngle * RAD);
-  const short = payload.name.length > 14 ? `${payload.name.slice(0, 13)}…` : payload.name;
+  const short = payload.name.length > 16 ? `${payload.name.slice(0, 15)}…` : payload.name;
   return (
     <text
       x={x}
@@ -159,14 +159,9 @@ function SliceLabel(props: {
       dominantBaseline="central"
       className="pointer-events-none"
       fill="var(--foreground)"
-      style={{ fontSize: 12, fontWeight: 700 }}
+      style={{ fontSize: 13, fontWeight: 700 }}
     >
-      <tspan x={x} dy="-0.4em">
-        {short}
-      </tspan>
-      <tspan x={x} dy="1.35em" style={{ fontSize: 11, fontWeight: 600, opacity: 0.9 }}>
-        {payload.pct}%
-      </tspan>
+      {short}
     </text>
   );
 }
