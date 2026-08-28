@@ -50,6 +50,7 @@ export function AllNetProvider({ children }: { children: ReactNode }) {
           region: p.region ?? "מרכז",
           budgetDays: Number(p.budgetDays) || 0,
           extraHours: Number(p.extraHours) || 0,
+          extraHoursReason: p.extraHoursReason ?? "",
           saleAmount: Number(p.saleAmount) || 0,
           fixedCosts: Array.isArray(p.fixedCosts) ? p.fixedCosts : [],
 
