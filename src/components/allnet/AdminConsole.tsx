@@ -179,6 +179,7 @@ export function AdminConsole() {
   const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive">("console");
   const [detailProject, setDetailProject] = useState<string | null>(null);
   const [tab, setTab] = useState("reports");
+  const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
 
   useEffect(() => {
     const goHome = () => {
