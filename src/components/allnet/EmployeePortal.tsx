@@ -80,6 +80,7 @@ export function EmployeePortal() {
   const { state, setState, session } = useAllNet();
   const user = session?.user;
 
+  const [client, setClient] = useState("");
   const [project, setProject] = useState("");
   const [reportDate, setReportDate] = useState(todayISO());
   const [dateOpen, setDateOpen] = useState(false);
