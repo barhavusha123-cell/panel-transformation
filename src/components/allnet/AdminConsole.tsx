@@ -33,7 +33,13 @@ import {
   type Region,
   type Role,
 } from "@/lib/allnet/types";
-import { downloadCsv, formatDateIL, nowStamp, todayISO } from "@/lib/allnet/utils";
+import {
+  calculateProjectCost,
+  downloadCsv,
+  formatDateIL,
+  nowStamp,
+  todayISO,
+} from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
