@@ -1818,11 +1818,24 @@ export function AdminConsole() {
             <div className="surface-panel rounded-2xl p-6">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <h3 className="text-lg font-semibold">ניהול ועריכת פרויקטים קיימים</h3>
-                <Button variant="soft" size="sm" onClick={() => setView("archive")}>
-                  <Archive className="size-4" />
-                  ארכיון ({archivedProjects.length})
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  {PROJECT_CATEGORIES.map((c) => (
+                    <Button
+                      key={c}
+                      variant="soft"
+                      size="sm"
+                      onClick={() => {
+                        setCategoryView(c);
+                        setView("archive");
+                      }}
+                    >
+                      <Archive className="size-4" />
+                      {CATEGORY_LABELS[c]} ({categoryCounts[c]})
+                    </Button>
+                  ))}
+                </div>
               </div>
+
               {activeProjects.length ? (
                 <div className="space-y-3">
                   {activeProjects.map((p) => (
