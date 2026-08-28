@@ -650,7 +650,7 @@ export function AdminConsole() {
                           }
                         />
                         <p className="text-[11px] text-muted-foreground">
-                          השעות נוספות לתקציב הפרויקט לצורך חישוב הניצול.
+                          השעות נוספות ליעד השעות לצורך חישוב הניצול.
                         </p>
                       </div>
                       <div className="space-y-2">
