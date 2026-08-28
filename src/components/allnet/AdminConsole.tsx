@@ -461,6 +461,7 @@ export function AdminConsole() {
     region: Region;
     budgetDays: number;
     extraHours: number;
+    extraHoursReason: string;
     saleAmount: number;
     fixedCosts: FixedCost[];
   }>({
@@ -473,6 +474,7 @@ export function AdminConsole() {
     region: "מרכז",
     budgetDays: 0,
     extraHours: 0,
+    extraHoursReason: "",
     saleAmount: 0,
     fixedCosts: [],
   });
@@ -489,6 +491,7 @@ export function AdminConsole() {
       region: p.region ?? "מרכז",
       budgetDays: p.budgetDays ?? 0,
       extraHours: p.extraHours ?? 0,
+      extraHoursReason: p.extraHoursReason ?? "",
       saleAmount: p.saleAmount ?? 0,
       fixedCosts: p.fixedCosts ?? [],
     });
@@ -515,6 +518,7 @@ export function AdminConsole() {
               region: editForm.region,
               budgetDays: Math.max(0, Math.round(Number(editForm.budgetDays) || 0)),
               extraHours: Math.max(0, Math.round(Number(editForm.extraHours) || 0)),
+              extraHoursReason: editForm.extraHoursReason.trim(),
               saleAmount: Math.max(0, Number(editForm.saleAmount) || 0),
               fixedCosts: editForm.fixedCosts,
               team: editForm.team,
@@ -696,6 +700,13 @@ export function AdminConsole() {
                         <p className="text-[11px] text-muted-foreground">
                           השעות נוספות ליעד השעות לצורך חישוב הניצול.
                         </p>
+                        <Input
+                          value={editForm.extraHoursReason}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, extraHoursReason: e.target.value })
+                          }
+                          placeholder="סיבת האישור (למשל: הארכת עבודות גמר באישור מנהל)"
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label>מועד מסירה</Label>

@@ -219,7 +219,9 @@ export function ProjectHoursDetail({
             </h2>
             <p className="text-sm text-muted-foreground">
               {project?.manager ?? "לא הוגדר"} · {reported} מתוך {budget} שעות
-              {project?.extraHours ? ` (כולל ${project.extraHours} שעות חריגות מאושרות)` : ""}
+              {project?.extraHours
+                ? ` (כולל ${project.extraHours} שעות חריגות מאושרות${project.extraHoursReason ? ` · ${project.extraHoursReason}` : ""})`
+                : ""}
               {project?.budgetDays ? ` · תקציב ${project.budgetDays} ימי עבודה` : ""}
             </p>
           </div>
