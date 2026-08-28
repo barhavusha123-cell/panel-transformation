@@ -953,20 +953,27 @@ export function AdminConsole() {
 
           {/* Reports */}
           <TabsContent value="reports" className="mt-6 space-y-4">
-            <div className="surface-panel grid gap-4 rounded-2xl p-5 md:grid-cols-2">
-              <FilterGroup
-                label="סנן לפי פרויקט"
-                options={state.projects.map((p) => p.name)}
-                selected={projFilter}
-                onToggle={(v) => toggle(projFilter, v, setProjFilter)}
-              />
-              <FilterGroup
-                label="סנן לפי עובד / קבלן"
-                options={state.users.map((u) => u.full_name)}
-                selected={workerFilter}
-                onToggle={(v) => toggle(workerFilter, v, setWorkerFilter)}
-              />
-            </div>
+            {Object.values(colFilters).some((v) => v.length) && (
+              <div className="surface-panel flex flex-wrap items-center gap-2 rounded-2xl p-4">
+                <span className="text-xs font-semibold text-muted-foreground">סינון פעיל:</span>
+                {Object.entries(colFilters).flatMap(([col, vals]) =>
+                  vals.map((v) => (
+                    <button
+                      key={`${col}-${v}`}
+                      type="button"
+                      onClick={() => toggleColFilter(col, v)}
+                      className="brand-gradient cursor-pointer rounded-full px-3 py-1 text-xs text-primary-foreground"
+                    >
+                      {v} ✕
+                    </button>
+                  )),
+                )}
+                <Button size="sm" variant="ghost" onClick={() => setColFilters({})}>
+                  נקה הכל
+                </Button>
+              </div>
+            )}
+
 
             <div className="surface-panel rounded-2xl p-5">
               <div className="mb-4 flex items-center justify-between">
