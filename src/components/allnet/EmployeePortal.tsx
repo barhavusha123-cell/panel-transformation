@@ -156,6 +156,8 @@ export function EmployeePortal() {
       id: (state.hours.at(-1)?.id ?? 0) + 1,
       username: user.username,
       project,
+      client:
+        (state.projects.find((p) => p.name === project)?.client ?? "").trim() || client.trim(),
       reporter: user.full_name,
       role: user.role,
       from,
