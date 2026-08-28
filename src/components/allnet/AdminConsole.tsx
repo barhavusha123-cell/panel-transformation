@@ -5,6 +5,8 @@ import {
   AlertTriangle,
   ArrowRight,
   BarChart3,
+  ChevronDown,
+
   CalendarClock,
   Briefcase,
   Download,
@@ -60,7 +62,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DocumentList } from "./DocumentList";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProjectHoursDetail } from "./ProjectHoursDetail";
+
 
 const CHART_COLORS = [
   "var(--chart-1)",
@@ -186,9 +190,15 @@ export function AdminConsole() {
 
 
 
-  // report filters
-  const [projFilter, setProjFilter] = useState<string[]>([]);
-  const [workerFilter, setWorkerFilter] = useState<string[]>([]);
+  // report filters (per-column)
+  const [colFilters, setColFilters] = useState<Record<string, string[]>>({});
+  const toggleColFilter = (col: string, v: string) =>
+    setColFilters((prev) => {
+      const cur = prev[col] ?? [];
+      return { ...prev, [col]: cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v] };
+    });
+  const clearColFilter = (col: string) => setColFilters((prev) => ({ ...prev, [col]: [] }));
+
 
   const activeProjects = useMemo(
     () => state.projects.filter((p) => !p.archived),
@@ -249,11 +259,43 @@ export function AdminConsole() {
     .sort((a, b) => b.pct - a.pct);
 
   // reports
-  const filteredHours = state.hours.filter(
-    (h) =>
-      (!projFilter.length || projFilter.includes(h.project)) &&
-      (!workerFilter.length || workerFilter.includes(h.reporter)),
-  );
+  const hourColValue = (h: (typeof state.hours)[number], col: string): string => {
+    switch (col) {
+      case "reporter":
+        return h.reporter;
+      case "project":
+        return h.project;
+      case "date":
+        return h.date;
+      case "from":
+        return h.from;
+      case "to":
+        return h.to;
+      case "worked":
+        return h.worked;
+      case "extras":
+        return h.extras || "—";
+      case "notes":
+        return h.notes || "—";
+      default:
+        return "";
+    }
+  };
+
+  const hourColOptions = (col: string) =>
+    Array.from(new Set(state.hours.map((h) => hourColValue(h, col)))).sort((a, b) =>
+      a.localeCompare(b, "he"),
+    );
+
+  const filteredHours = state.hours
+    .filter((h) =>
+      Object.entries(colFilters).every(
+        ([col, vals]) => !vals.length || vals.includes(hourColValue(h, col)),
+      ),
+    )
+    .slice()
+    .sort((a, b) => (a.date === b.date ? b.id - a.id : a.date < b.date ? 1 : -1));
+
 
   const toggle = (arr: string[], v: string, set: (x: string[]) => void) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
@@ -470,6 +512,164 @@ export function AdminConsole() {
     );
   }
 
+  if (editTarget) {
+    return (
+      <div className="mx-auto max-w-5xl px-5 pb-16">
+        <div className="animate-rise surface-panel rounded-2xl p-6">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="flex items-center gap-2 text-xl font-bold">
+              <Pencil className="size-5 text-primary" />
+              עריכת פרויקט · <span className="text-gradient">{editTarget}</span>
+            </h2>
+            <Button variant="soft" onClick={() => setEditTarget(null)}>
+              <ArrowRight className="size-4" />
+              חזרה
+            </Button>
+          </div>
+                  <form onSubmit={saveProject} className="animate-fade space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>שם הפרויקט</Label>
+                        <Input
+                          value={editForm.name}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, name: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>מנהל פרויקט אחראי</Label>
+                        <Select
+                          value={editForm.manager}
+                          onValueChange={(v) => setEditForm({ ...editForm, manager: v })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="בחר מנהל" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {managers.map((m) => (
+                              <SelectItem key={m} value={m}>
+                                {m}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>תקציב שעות מוקצה (1-1000)</Label>
+                        <Input
+                          type="number"
+                          min={MIN_BUDGET}
+                          max={MAX_BUDGET}
+                          step={1}
+                          value={editForm.budget}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, budget: Number(e.target.value) })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>תקציב ימי עבודה</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          step={1}
+                          value={editForm.budgetDays}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, budgetDays: Number(e.target.value) })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>תוספת שעות עבודה חריגות (באישור מנהל)</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          step={1}
+                          value={editForm.extraHours}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, extraHours: Number(e.target.value) })
+                          }
+                        />
+                        <p className="text-[11px] text-muted-foreground">
+                          השעות נוספות לתקציב הפרויקט לצורך חישוב הניצול.
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>מועד מסירה</Label>
+                        <Input
+                          type="date"
+                          className="w-full"
+                          value={editForm.deliveryDate}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, deliveryDate: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>איזור</Label>
+                        <Select
+                          value={editForm.region}
+                          onValueChange={(v) =>
+                            setEditForm({ ...editForm, region: v as Region })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="בחר איזור" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {REGIONS.map((r) => (
+                              <SelectItem key={r} value={r}>
+                                {r}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <RegionRates region={editForm.region} />
+                      </div>
+                      <div className="space-y-2 md:col-span-2">
+                        <Label>צוות משויך לפרויקט (ניתן לבחור כמה עובדים)</Label>
+                        <div className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-2 md:grid-cols-3">
+                          {state.users.map((u) => (
+                            <label
+                              key={u.username}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              <Checkbox
+                                checked={editForm.team.includes(u.full_name)}
+                                onCheckedChange={() =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    team: prev.team.includes(u.full_name)
+                                      ? prev.team.filter((x) => x !== u.full_name)
+                                      : [...prev.team, u.full_name],
+                                  }))
+                                }
+                              />
+                              {u.full_name}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button type="submit" variant="brand">
+                        שמור שינויים בפרויקט
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setEditTarget(null)}
+                      >
+                        ביטול
+                      </Button>
+                    </div>
+                  </form>
+        </div>
+      </div>
+    );
+  }
+
   if (view === "projects" || view === "archive") {
     const isArchive = view === "archive";
     const list = isArchive ? archivedProjects : activeProjects;
@@ -539,8 +739,9 @@ export function AdminConsole() {
                           variant="soft"
                           onClick={() => {
                             startEdit(p);
-                            goToProjectsTab();
+                            window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
+
                         >
                           <Pencil className="size-4" />
                           ערוך
@@ -915,20 +1116,27 @@ export function AdminConsole() {
 
           {/* Reports */}
           <TabsContent value="reports" className="mt-6 space-y-4">
-            <div className="surface-panel grid gap-4 rounded-2xl p-5 md:grid-cols-2">
-              <FilterGroup
-                label="סנן לפי פרויקט"
-                options={state.projects.map((p) => p.name)}
-                selected={projFilter}
-                onToggle={(v) => toggle(projFilter, v, setProjFilter)}
-              />
-              <FilterGroup
-                label="סנן לפי עובד / קבלן"
-                options={state.users.map((u) => u.full_name)}
-                selected={workerFilter}
-                onToggle={(v) => toggle(workerFilter, v, setWorkerFilter)}
-              />
-            </div>
+            {Object.values(colFilters).some((v) => v.length) && (
+              <div className="surface-panel flex flex-wrap items-center gap-2 rounded-2xl p-4">
+                <span className="text-xs font-semibold text-muted-foreground">סינון פעיל:</span>
+                {Object.entries(colFilters).flatMap(([col, vals]) =>
+                  vals.map((v) => (
+                    <button
+                      key={`${col}-${v}`}
+                      type="button"
+                      onClick={() => toggleColFilter(col, v)}
+                      className="brand-gradient cursor-pointer rounded-full px-3 py-1 text-xs text-primary-foreground"
+                    >
+                      {v} ✕
+                    </button>
+                  )),
+                )}
+                <Button size="sm" variant="ghost" onClick={() => setColFilters({})}>
+                  נקה הכל
+                </Button>
+              </div>
+            )}
+
 
             <div className="surface-panel rounded-2xl p-5">
               <div className="mb-4 flex items-center justify-between">
@@ -961,14 +1169,29 @@ export function AdminConsole() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-right">שם המדווח</TableHead>
-                        <TableHead className="text-right">פרויקט</TableHead>
-                        <TableHead className="text-right">תאריך</TableHead>
-                        <TableHead className="text-right">משעה</TableHead>
-                        <TableHead className="text-right">עד שעה</TableHead>
-                        <TableHead className="text-right">זמן עבודה</TableHead>
-                        <TableHead className="text-right">חריגים</TableHead>
-                        <TableHead className="text-right">הערות</TableHead>
+                        {(
+                          [
+                            ["reporter", "שם המדווח"],
+                            ["project", "פרויקט"],
+                            ["date", "תאריך"],
+                            ["from", "משעה"],
+                            ["to", "עד שעה"],
+                            ["worked", "זמן עבודה"],
+                            ["extras", "חריגים"],
+                            ["notes", "הערות"],
+                          ] as const
+                        ).map(([col, label]) => (
+                          <TableHead key={col} className="text-right">
+                            <ColumnFilter
+                              label={label}
+                              options={hourColOptions(col)}
+                              selected={colFilters[col] ?? []}
+                              onToggle={(v) => toggleColFilter(col, v)}
+                              onClear={() => clearColFilter(col)}
+                            />
+                          </TableHead>
+                        ))}
+
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1243,148 +1466,6 @@ export function AdminConsole() {
                         </div>
                       </div>
 
-                      {editTarget === p.name && (
-                        <form onSubmit={saveProject} className="animate-fade mt-4 space-y-4">
-                          <Separator />
-                          <div className="grid gap-4 md:grid-cols-2">
-                            <div className="space-y-2">
-                              <Label>שם הפרויקט</Label>
-                              <Input
-                                value={editForm.name}
-                                onChange={(e) =>
-                                  setEditForm({ ...editForm, name: e.target.value })
-                                }
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>מנהל פרויקט אחראי</Label>
-                              <Select
-                                value={editForm.manager}
-                                onValueChange={(v) => setEditForm({ ...editForm, manager: v })}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="בחר מנהל" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {managers.map((m) => (
-                                    <SelectItem key={m} value={m}>
-                                      {m}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-2">
-                              <Label>תקציב שעות מוקצה (1-1000)</Label>
-                              <Input
-                                type="number"
-                                min={MIN_BUDGET}
-                                max={MAX_BUDGET}
-                                step={1}
-                                value={editForm.budget}
-                                onChange={(e) =>
-                                  setEditForm({ ...editForm, budget: Number(e.target.value) })
-                                }
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>תקציב ימי עבודה</Label>
-                              <Input
-                                type="number"
-                                min={0}
-                                step={1}
-                                value={editForm.budgetDays}
-                                onChange={(e) =>
-                                  setEditForm({ ...editForm, budgetDays: Number(e.target.value) })
-                                }
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>תוספת שעות עבודה חריגות (באישור מנהל)</Label>
-                              <Input
-                                type="number"
-                                min={0}
-                                step={1}
-                                value={editForm.extraHours}
-                                onChange={(e) =>
-                                  setEditForm({ ...editForm, extraHours: Number(e.target.value) })
-                                }
-                              />
-                              <p className="text-[11px] text-muted-foreground">
-                                השעות נוספות לתקציב הפרויקט לצורך חישוב הניצול.
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <Label>מועד מסירה</Label>
-                              <Input
-                                type="date"
-                                className="w-full"
-                                value={editForm.deliveryDate}
-                                onChange={(e) =>
-                                  setEditForm({ ...editForm, deliveryDate: e.target.value })
-                                }
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>איזור</Label>
-                              <Select
-                                value={editForm.region}
-                                onValueChange={(v) =>
-                                  setEditForm({ ...editForm, region: v as Region })
-                                }
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="בחר איזור" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {REGIONS.map((r) => (
-                                    <SelectItem key={r} value={r}>
-                                      {r}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <RegionRates region={editForm.region} />
-                            </div>
-                            <div className="space-y-2 md:col-span-2">
-                              <Label>צוות משויך לפרויקט (ניתן לבחור כמה עובדים)</Label>
-                              <div className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-2 md:grid-cols-3">
-                                {state.users.map((u) => (
-                                  <label
-                                    key={u.username}
-                                    className="flex items-center gap-2 text-sm"
-                                  >
-                                    <Checkbox
-                                      checked={editForm.team.includes(u.full_name)}
-                                      onCheckedChange={() =>
-                                        setEditForm((prev) => ({
-                                          ...prev,
-                                          team: prev.team.includes(u.full_name)
-                                            ? prev.team.filter((x) => x !== u.full_name)
-                                            : [...prev.team, u.full_name],
-                                        }))
-                                      }
-                                    />
-                                    {u.full_name}
-                                  </label>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button type="submit" variant="brand">
-                              שמור שינויים בפרויקט
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="secondary"
-                              onClick={() => setEditTarget(null)}
-                            >
-                              ביטול
-                            </Button>
-                          </div>
-                        </form>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -1437,43 +1518,73 @@ export function AdminConsole() {
   );
 }
 
-function FilterGroup({
+function ColumnFilter({
   label,
   options,
   selected,
   onToggle,
+  onClear,
 }: {
   label: string;
   options: string[];
   selected: string[];
   onToggle: (v: string) => void;
+  onClear: () => void;
 }) {
   return (
-    <div className="space-y-2">
-      <Label>{label}</Label>
-      <div className="flex flex-wrap gap-2">
-        {options.length ? (
-          options.map((o) => (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={`flex cursor-pointer items-center gap-1 rounded-md px-1 py-0.5 text-xs font-semibold transition-colors hover:text-primary ${
+            selected.length ? "text-primary" : ""
+          }`}
+        >
+          {label}
+          {selected.length > 0 && (
+            <span className="brand-gradient rounded-full px-1.5 text-[10px] text-primary-foreground">
+              {selected.length}
+            </span>
+          )}
+          <ChevronDown className="size-3" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="max-h-72 w-56 overflow-y-auto p-2" dir="rtl">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-xs font-semibold">{label}</span>
+          {selected.length > 0 && (
             <button
-              key={o}
               type="button"
-              onClick={() => onToggle(o)}
-              className={`cursor-pointer rounded-full border px-3 py-1 text-xs transition-all duration-300 ${
-                selected.includes(o)
-                  ? "brand-gradient border-transparent text-primary-foreground"
-                  : "border-border bg-surface-2/60 text-muted-foreground hover:border-primary/50 hover:text-primary"
-              }`}
+              onClick={onClear}
+              className="cursor-pointer text-[11px] text-primary hover:underline"
             >
-              {o}
+              נקה
             </button>
-          ))
-        ) : (
-          <span className="text-xs text-muted-foreground">אין ערכים זמינים</span>
-        )}
-      </div>
-    </div>
+          )}
+        </div>
+        <div className="space-y-1">
+          {options.length ? (
+            options.map((o) => (
+              <label
+                key={o}
+                className="flex cursor-pointer items-center gap-2 rounded-md p-1 text-xs hover:bg-surface-2/60"
+              >
+                <Checkbox
+                  checked={selected.includes(o)}
+                  onCheckedChange={() => onToggle(o)}
+                />
+                <span className="truncate">{o}</span>
+              </label>
+            ))
+          ) : (
+            <span className="text-xs text-muted-foreground">אין ערכים זמינים</span>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
+
 
 function UserRow({ username }: { username: string }) {
   const { state, setState } = useAllNet();
