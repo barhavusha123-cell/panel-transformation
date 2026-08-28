@@ -24,6 +24,47 @@ import {
   type HoursEntry,
 } from "@/lib/allnet/types";
 
+const RAD = Math.PI / 180;
+
+function ProfitSliceLabel(props: {
+  cx?: number;
+  cy?: number;
+  midAngle?: number;
+  innerRadius?: number;
+  outerRadius?: number;
+  payload?: { name: string };
+  percent?: number;
+}) {
+  const { cx = 0, cy = 0, midAngle = 0, innerRadius = 0, outerRadius = 0, payload } = props;
+  if (!payload) return null;
+  if ((props.percent ?? 0) < 0.05) return null;
+  const r = innerRadius + (outerRadius - innerRadius) * 0.55;
+  const x = cx + r * Math.cos(-midAngle * RAD);
+  const y = cy + r * Math.sin(-midAngle * RAD);
+  const short = payload.name.length > 14 ? `${payload.name.slice(0, 13)}…` : payload.name;
+  return (
+    <text
+      x={x}
+      y={y}
+      textAnchor="middle"
+      dominantBaseline="central"
+      className="pointer-events-none"
+      fill="#000000"
+      stroke="#ffffff"
+      strokeWidth={4}
+      paintOrder="stroke"
+      style={{ fontSize: 22, fontWeight: 900 }}
+    >
+      <tspan x={x} dy="-0.5em">
+        {short}
+      </tspan>
+      <tspan x={x} dy="1.25em" style={{ fontSize: 18, fontWeight: 800 }}>
+        {Math.round((props.percent ?? 0) * 100)}%
+      </tspan>
+    </text>
+  );
+}
+
 function HoursGroup({
   title,
   icon,
@@ -325,16 +366,15 @@ export function ProjectHoursDetail({
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
+                    <Pie
                     data={profitData}
                     dataKey="value"
                     nameKey="name"
                     innerRadius="45%"
                     outerRadius="80%"
                     paddingAngle={2}
-                    label={(e: { name?: string; percent?: number }) =>
-                      `${e.name} ${Math.round((e.percent ?? 0) * 100)}%`
-                    }
+                    labelLine={false}
+                    label={ProfitSliceLabel}
                   >
                     {profitData.map((d) => (
                       <Cell key={d.name} fill={d.color} stroke="hsl(var(--background))" />

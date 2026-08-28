@@ -150,7 +150,7 @@ function SliceLabel(props: {
   const r = innerRadius + (outerRadius - innerRadius) * 0.55;
   const x = cx + r * Math.cos(-midAngle * RAD);
   const y = cy + r * Math.sin(-midAngle * RAD);
-  const short = payload.name.length > 18 ? `${payload.name.slice(0, 17)}…` : payload.name;
+  const short = payload.name.length > 14 ? `${payload.name.slice(0, 13)}…` : payload.name;
   return (
     <text
       x={x}
@@ -159,12 +159,15 @@ function SliceLabel(props: {
       dominantBaseline="central"
       className="pointer-events-none"
       fill="#000000"
-      style={{ fontSize: 18, fontWeight: 800 }}
+      stroke="#ffffff"
+      strokeWidth={4}
+      paintOrder="stroke"
+      style={{ fontSize: 26, fontWeight: 900 }}
     >
       <tspan x={x} dy="-0.5em">
         {short}
       </tspan>
-      <tspan x={x} dy="1.25em" style={{ fontSize: 16, fontWeight: 700 }}>
+      <tspan x={x} dy="1.25em" style={{ fontSize: 22, fontWeight: 800 }}>
         {Math.round(payload.pct)}%
       </tspan>
     </text>
@@ -176,6 +179,7 @@ export function AdminConsole() {
   const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive">("console");
   const [detailProject, setDetailProject] = useState<string | null>(null);
   const [tab, setTab] = useState("reports");
+  const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
 
   useEffect(() => {
     const goHome = () => {
@@ -1162,16 +1166,21 @@ export function AdminConsole() {
                           label={SliceLabel}
                           isAnimationActive
                         >
-                          {dashRows.map((r, i) => (
-                            <Cell
-                              key={r.name}
-                              fill={CHART_COLORS[i % 6]}
-                              stroke="var(--background)"
-                              strokeWidth={2}
-                              className="cursor-pointer"
-                              onClick={() => setDetailProject(r.name)}
-                            />
-                          ))}
+                          {dashRows.map((r, i) => {
+                            const isHovered = hoveredSlice === r.name;
+                            return (
+                              <Cell
+                                key={r.name}
+                                fill={isHovered ? "#22c55e" : CHART_COLORS[i % 6]}
+                                stroke="var(--background)"
+                                strokeWidth={2}
+                                className="cursor-pointer transition-all duration-200"
+                                onClick={() => setDetailProject(r.name)}
+                                onMouseEnter={() => setHoveredSlice(r.name)}
+                                onMouseLeave={() => setHoveredSlice(null)}
+                              />
+                            );
+                          })}
                         </Pie>
                         <Tooltip
                           contentStyle={{
