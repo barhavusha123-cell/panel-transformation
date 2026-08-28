@@ -53,6 +53,10 @@ export function AllNetProvider({ children }: { children: ReactNode }) {
           extraHoursReason: p.extraHoursReason ?? "",
           saleAmount: Number(p.saleAmount) || 0,
           fixedCosts: Array.isArray(p.fixedCosts) ? p.fixedCosts : [],
+          ...(p.category ? { category: p.category } : {}),
+          ...(p.closure ? { closure: p.closure } : {}),
+
+
 
         }));
 

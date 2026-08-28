@@ -15,25 +15,30 @@ import {
   ListChecks,
   Pencil,
   Plus,
+  ShieldCheck,
   Trash2,
   Upload,
+
 } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { FixedCostsEditor } from "./FixedCostsEditor";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import {
+  CATEGORY_LABELS,
   MIN_BUDGET,
+  PROJECT_CATEGORIES,
   REGIONS,
   ROLES,
   SUB_DAY_RATES,
   effectiveBudget,
   type FixedCost,
   type Project,
-
+  type ProjectCategory,
   type Region,
   type Role,
 } from "@/lib/allnet/types";
+
 import {
   calculateProjectCost,
   downloadCsv,
@@ -72,6 +77,15 @@ import {
 } from "@/components/ui/table";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 import { ProjectHoursDetail } from "./ProjectHoursDetail";
 
 
@@ -179,6 +193,15 @@ function SliceLabel(props: {
 export function AdminConsole() {
   const { state, setState } = useAllNet();
   const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive">("console");
+  const [categoryView, setCategoryView] = useState<ProjectCategory>("warranty");
+  /** פרויקט שנמצא בתהליך סגירה (טופס 3 שאלות) */
+  const [closeTarget, setCloseTarget] = useState<string | null>(null);
+  const [closeForm, setCloseForm] = useState({
+    hasDocFile: false,
+    equipmentOnSite: false,
+    invoiceIssued: false,
+  });
+
   const [detailProject, setDetailProject] = useState<string | null>(null);
   const [tab, setTab] = useState("reports");
   const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
@@ -251,6 +274,22 @@ export function AdminConsole() {
     () => state.projects.filter((p) => p.archived),
     [state.projects],
   );
+  const categoryCounts = useMemo(() => {
+    const base: Record<ProjectCategory, number> = { warranty: 0, service: 0, noservice: 0 };
+    for (const p of state.projects) {
+      if (p.archived && p.category) base[p.category] += 1;
+      else if (p.archived) base.warranty += 1;
+    }
+    return base;
+  }, [state.projects]);
+  const categoryProjects = useMemo(
+    () =>
+      state.projects.filter(
+        (p) => p.archived && (p.category ?? "warranty") === categoryView,
+      ),
+    [state.projects, categoryView],
+  );
+
 
   const allProjectNames = useMemo(() => activeProjects.map((p) => p.name), [activeProjects]);
   const [excluded, setExcluded] = useState<string[]>([]);
@@ -530,13 +569,62 @@ export function AdminConsole() {
     toast.success("הפרויקט עודכן בהצלחה.");
   };
 
-  const setArchived = (name: string, archived: boolean) => {
+  const projectByName = (name: string) => state.projects.find((p) => p.name === name);
+
+  const openClosure = (name: string) => {
+    const p = projectByName(name);
+    setCloseForm({
+      hasDocFile: p?.closure?.hasDocFile ?? false,
+      equipmentOnSite: p?.closure?.equipmentOnSite ?? false,
+      invoiceIssued: p?.closure?.invoiceIssued ?? false,
+    });
+    setCloseTarget(name);
+  };
+
+  const saveClosure = () => {
+    if (!closeTarget) return;
+    if (!closeForm.hasDocFile || !closeForm.equipmentOnSite || !closeForm.invoiceIssued) {
+      toast.error("יש לסמן את שלוש השאלות כדי להשלים את סגירת הפרויקט.");
+      return;
+    }
+    const name = closeTarget;
     setState((prev) => ({
       ...prev,
-      projects: prev.projects.map((p) => (p.name === name ? { ...p, archived } : p)),
+      projects: prev.projects.map((p) =>
+        p.name === name
+          ? { ...p, closure: { ...closeForm, closedAt: new Date().toISOString() } }
+          : p,
+      ),
     }));
-    toast.success(archived ? `הפרויקט '${name}' הועבר לארכיון.` : `הפרויקט '${name}' שוחזר.`);
+    setCloseTarget(null);
+    toast.success(`סגירת הפרויקט '${name}' הושלמה. כעת ניתן לסווג אותו לקטגוריה.`);
   };
+
+  const moveToCategory = (name: string, category: ProjectCategory) => {
+    const p = projectByName(name);
+    if (!p?.closure) {
+      toast.error("לא ניתן להעביר פרויקט לקטגוריה ללא סגירת פרויקט מלאה.");
+      return;
+    }
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.map((x) =>
+        x.name === name ? { ...x, archived: true, category } : x,
+      ),
+    }));
+    toast.success(`הפרויקט '${name}' הועבר ל"${CATEGORY_LABELS[category]}".`);
+  };
+
+  const restoreProject = (name: string) => {
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.map((p) =>
+        p.name === name ? { ...p, archived: false } : p,
+      ),
+    }));
+    toast.success(`הפרויקט '${name}' הוחזר לפרויקטים הפעילים.`);
+  };
+
 
   const deleteProject = (name: string) => {
     setState((prev) => ({
@@ -585,6 +673,90 @@ export function AdminConsole() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const closureDialog = (
+    <Dialog open={!!closeTarget} onOpenChange={(o) => !o && setCloseTarget(null)}>
+      <DialogContent dir="rtl" className="text-right sm:max-w-md">
+        <DialogHeader className="text-right">
+          <DialogTitle className="flex items-center gap-2">
+            <ShieldCheck className="size-5 text-warning" />
+            סגירת פרויקט — {closeTarget}
+          </DialogTitle>
+          <DialogDescription>
+            יש לסמן את שלוש השאלות. ללא סגירת פרויקט לא ניתן להעביר את הפרויקט לאף קטגוריה.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          {(
+            [
+              ["hasDocFile", "האם יש תיק תיעוד"],
+              ["equipmentOnSite", "האם נשאר ציוד באתר"],
+              ["invoiceIssued", "האם יצאה חשבונית"],
+            ] as const
+          ).map(([key, label]) => (
+            <label
+              key={key}
+              className="flex cursor-pointer items-center gap-3 rounded-xl border border-border p-3 text-sm transition-colors hover:bg-surface-2/60"
+            >
+              <Checkbox
+                checked={closeForm[key]}
+                onCheckedChange={(v) => setCloseForm((prev) => ({ ...prev, [key]: !!v }))}
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+        <DialogFooter className="flex-row-reverse justify-start gap-2">
+          <Button variant="brand" onClick={saveClosure}>
+            אשר סגירת פרויקט
+          </Button>
+          <Button variant="secondary" onClick={() => setCloseTarget(null)}>
+            ביטול
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
+  /** לחצני סגירה + סיווג לקטגוריות עבור פרויקט בודד */
+  const CategoryActions = ({ p, compact }: { p: Project; compact?: boolean }) => (
+    <div className={compact ? "flex flex-wrap items-center gap-2" : "flex flex-wrap gap-2"}>
+      <Button
+        size={compact ? "sm" : "default"}
+        variant={p.closure ? "soft" : "default"}
+        className={
+          p.closure
+            ? "border border-success/40 text-success"
+            : "bg-warning text-warning-foreground hover:bg-warning/90"
+        }
+        onClick={() => openClosure(p.name)}
+      >
+        <ShieldCheck className="size-4" />
+        {p.closure ? "סגירת פרויקט הושלמה" : "סגירת פרויקט"}
+      </Button>
+      {PROJECT_CATEGORIES.map((c) => (
+        <Button
+          key={c}
+          size={compact ? "sm" : "default"}
+          variant={p.archived && (p.category ?? "warranty") === c ? "brand" : "ghost"}
+          disabled={!p.closure}
+          title={p.closure ? undefined : "נדרשת סגירת פרויקט לפני סיווג"}
+          onClick={() => moveToCategory(p.name, c)}
+        >
+          <Archive className="size-4" />
+          {CATEGORY_LABELS[c]}
+        </Button>
+      ))}
+      {p.archived && (
+        <Button size={compact ? "sm" : "default"} variant="ghost" onClick={() => restoreProject(p.name)}>
+          <ArchiveRestore className="size-4" />
+          החזר לפעילים
+        </Button>
+      )}
+    </div>
+  );
+
+
+
   if (detailProject) {
     const detailProjectObj = state.projects.find((p) => p.name === detailProject);
     return (
@@ -609,6 +781,8 @@ export function AdminConsole() {
   if (editTarget) {
     return (
       <div className="mx-auto max-w-5xl px-5 pb-16">
+        {closureDialog}
+
         <div className="animate-rise surface-panel rounded-2xl p-6">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <h2 className="flex items-center gap-2 text-xl font-bold">
@@ -796,6 +970,25 @@ export function AdminConsole() {
                       </Button>
                     </div>
                     <Separator />
+                    {(() => {
+                      const cur = projectByName(editTarget);
+                      if (!cur) return null;
+                      return (
+                        <div className="space-y-3 rounded-xl border border-border bg-surface-2/40 p-4">
+                          <div>
+                            <p className="font-semibold">סגירה וסיווג פרויקט</p>
+                            <p className="text-xs text-muted-foreground">
+                              {cur.closure
+                                ? "סגירת הפרויקט הושלמה — ניתן להעביר את הפרויקט לאחת מהקטגוריות."
+                                : "יש להשלים סגירת פרויקט (3 שאלות חובה) לפני העברה לקטגוריה."}
+                            </p>
+                          </div>
+                          <CategoryActions p={cur} compact />
+                        </div>
+                      );
+                    })()}
+                    <Separator />
+
                     <div className="flex items-center justify-between rounded-xl border border-destructive/30 bg-destructive/5 p-4">
                       <div>
                         <p className="font-semibold text-destructive">מחיקת פרויקט</p>
@@ -824,9 +1017,10 @@ export function AdminConsole() {
 
   if (view === "projects" || view === "archive") {
     const isArchive = view === "archive";
-    const list = isArchive ? archivedProjects : activeProjects;
+    const list = isArchive ? categoryProjects : activeProjects;
     return (
       <div className="mx-auto max-w-7xl px-5 pb-16">
+        {closureDialog}
         <div className="animate-rise surface-panel rounded-2xl p-6">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <h2 className="flex items-center gap-2 text-xl font-bold">
@@ -835,22 +1029,36 @@ export function AdminConsole() {
               ) : (
                 <ListChecks className="size-5 text-primary" />
               )}
-              {isArchive ? "ארכיון פרויקטים" : "רשימת כל הפרויקטים הפעילים"}
+              {isArchive ? CATEGORY_LABELS[categoryView] : "רשימת כל הפרויקטים הפעילים"}
             </h2>
             <div className="flex flex-wrap gap-2">
-              <Button
-                variant="soft"
-                onClick={() => setView(isArchive ? "projects" : "archive")}
-              >
-                {isArchive ? <ListChecks className="size-4" /> : <Archive className="size-4" />}
-                {isArchive ? "פרויקטים פעילים" : `ארכיון (${archivedProjects.length})`}
-              </Button>
               <Button variant="soft" onClick={() => setView("console")}>
                 <ArrowRight className="size-4" />
                 חזרה למרכז הבקרה הראשי
               </Button>
             </div>
           </div>
+          <div className="mb-5 flex flex-wrap gap-2 border-b border-border pb-4">
+            <Button variant={isArchive ? "ghost" : "brand"} size="sm" onClick={() => setView("projects")}>
+              <ListChecks className="size-4" />
+              פרויקטים פעילים ({activeProjects.length})
+            </Button>
+            {PROJECT_CATEGORIES.map((c) => (
+              <Button
+                key={c}
+                size="sm"
+                variant={isArchive && categoryView === c ? "brand" : "ghost"}
+                onClick={() => {
+                  setCategoryView(c);
+                  setView("archive");
+                }}
+              >
+                <Archive className="size-4" />
+                {CATEGORY_LABELS[c]} ({categoryCounts[c]})
+              </Button>
+            ))}
+          </div>
+
           {list.length ? (
             <Table>
               <TableHeader>
@@ -862,7 +1070,7 @@ export function AdminConsole() {
                   <TableHead className="text-right">שעות מנהל פרויקט / עובד</TableHead>
                   <TableHead className="text-right">ניצול</TableHead>
                   <TableHead className="text-right">פעולות</TableHead>
-                  <TableHead className="text-right">העבר לארכיון</TableHead>
+                  <TableHead className="text-right">סגירה וסיווג פרויקט</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -904,18 +1112,7 @@ export function AdminConsole() {
                         </Button>
                       </TableCell>
                       <TableCell>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setArchived(p.name, !isArchive)}
-                        >
-                          {isArchive ? (
-                            <ArchiveRestore className="size-4" />
-                          ) : (
-                            <Archive className="size-4" />
-                          )}
-                          {isArchive ? "שחזר" : "העבר לארכיון"}
-                        </Button>
+                        <CategoryActions p={p} compact />
                       </TableCell>
                     </TableRow>
                   );
@@ -924,8 +1121,11 @@ export function AdminConsole() {
             </Table>
           ) : (
             <p className="text-sm text-muted-foreground">
-              {isArchive ? "אין פרויקטים בארכיון." : "אין פרויקטים רשומים במערכת כרגע."}
+              {isArchive
+                ? `אין פרויקטים ב"${CATEGORY_LABELS[categoryView]}".`
+                : "אין פרויקטים רשומים במערכת כרגע."}
             </p>
+
           )}
           {!isArchive && (
             <div className="mt-6 flex justify-center border-t border-border pt-5">
@@ -942,9 +1142,11 @@ export function AdminConsole() {
 
   return (
     <div className="mx-auto max-w-7xl px-5 pb-16">
+      {closureDialog}
       <h2 className="animate-rise mb-6 text-2xl font-bold">
         מרכז <span className="text-gradient">בקרה ניהולי</span>
       </h2>
+
 
       <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <KpiCard title="פרויקטים פעילים" icon={<Briefcase className="size-4" />}>
@@ -960,9 +1162,10 @@ export function AdminConsole() {
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
             {archivedProjects.length > 0
-              ? `בארכיון: ${archivedProjects.length} פרויקטים`
-              : "אין פרויקטים בארכיון"}
+              ? `פרויקטים סגורים: ${archivedProjects.length} (שנת שירות ${categoryCounts.warranty} · הסכם שירות ${categoryCounts.service} · לא בשירות ${categoryCounts.noservice})`
+              : "אין פרויקטים סגורים"}
           </p>
+
           <Button
             variant={activeProjects.length ? "brand" : "soft"}
             size="sm"
@@ -1618,11 +1821,24 @@ export function AdminConsole() {
             <div className="surface-panel rounded-2xl p-6">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <h3 className="text-lg font-semibold">ניהול ועריכת פרויקטים קיימים</h3>
-                <Button variant="soft" size="sm" onClick={() => setView("archive")}>
-                  <Archive className="size-4" />
-                  ארכיון ({archivedProjects.length})
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  {PROJECT_CATEGORIES.map((c) => (
+                    <Button
+                      key={c}
+                      variant="soft"
+                      size="sm"
+                      onClick={() => {
+                        setCategoryView(c);
+                        setView("archive");
+                      }}
+                    >
+                      <Archive className="size-4" />
+                      {CATEGORY_LABELS[c]} ({categoryCounts[c]})
+                    </Button>
+                  ))}
+                </div>
               </div>
+
               {activeProjects.length ? (
                 <div className="space-y-3">
                   {activeProjects.map((p) => (
@@ -1646,14 +1862,8 @@ export function AdminConsole() {
                             <Pencil className="size-4" />
                             ערוך
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setArchived(p.name, true)}
-                          >
-                            <Archive className="size-4" />
-                            ארכיון
-                          </Button>
+                          <CategoryActions p={p} compact />
+
                           <Button
                             size="sm"
                             variant="ghost"

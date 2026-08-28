@@ -22,12 +22,35 @@ export const REGIONS: Region[] = ["צפון", "דרום", "מרכז"];
 /** סוגי עלויות קבועות לפרויקט */
 export const COST_TYPES = ["קבלן", "ציוד", "יעוץ", "אחר"] as const;
 
+/** קטגוריות סיווג לפרויקט שנסגר */
+export type ProjectCategory = "warranty" | "service" | "noservice";
+
+export const PROJECT_CATEGORIES: ProjectCategory[] = ["warranty", "service", "noservice"];
+
+export const CATEGORY_LABELS: Record<ProjectCategory, string> = {
+  warranty: "פרויקטים בשנת שירות",
+  service: "פרויקטים בהסכם שירות",
+  noservice: "פרויקטים לא בשירות",
+};
+
+/** טופס סגירת פרויקט — חובה לפני סיווג לקטגוריה */
+export interface ProjectClosure {
+  /** האם יש תיק תיעוד */
+  hasDocFile: boolean;
+  /** האם נשאר ציוד באתר */
+  equipmentOnSite: boolean;
+  /** האם יצאה חשבונית */
+  invoiceIssued: boolean;
+  closedAt: string;
+}
+
 export interface FixedCost {
   id: string;
   type: string;
   description: string;
   amount: number;
 }
+
 
 export interface Project {
   name: string;
@@ -49,6 +72,11 @@ export interface Project {
   saleAmount?: number;
   /** עלויות קבועות לפרויקט */
   fixedCosts?: FixedCost[];
+  /** קטגוריית סיווג לאחר סגירה */
+  category?: ProjectCategory;
+  /** נתוני סגירת פרויקט */
+  closure?: ProjectClosure;
+
 }
 
 
