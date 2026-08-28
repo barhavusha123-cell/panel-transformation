@@ -1,10 +1,12 @@
 import { useMemo } from "react";
-import { ArrowRight, Download, HardHat, Pencil, Users } from "lucide-react";
+import { ArrowRight, Download, HardHat, Pencil, TrendingUp, Users } from "lucide-react";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { useAllNet } from "@/lib/allnet/store";
 import { downloadCsv, formatDateIL, formatHoursMinutes } from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+
 import {
   Table,
   TableBody,
