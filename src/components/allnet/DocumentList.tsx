@@ -60,9 +60,21 @@ export function DocumentList({
           <div className="min-w-40 flex-1">
             <div className="flex items-center gap-2">
               <span className="font-semibold">{file.name}</span>
-              <Badge variant="outline" className="text-xs">
-                {file.project}
-              </Badge>
+              {(() => {
+                const project = state.projects.find((p) => p.name === file.project);
+                return (
+                  <>
+                    {project?.client && (
+                      <Badge variant="outline" className="text-xs">
+                        {project.client}
+                      </Badge>
+                    )}
+                    <Badge variant="secondary" className="text-xs">
+                      {file.project}
+                    </Badge>
+                  </>
+                );
+              })()}
             </div>
             <p className="text-xs text-muted-foreground">
               {file.size} · הועלה ע״י {file.uploadedBy} · {formatDateIL(file.uploadedAt)}
