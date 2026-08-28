@@ -739,8 +739,9 @@ export function AdminConsole() {
                           variant="soft"
                           onClick={() => {
                             startEdit(p);
-                            goToProjectsTab();
+                            window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
+
                         >
                           <Pencil className="size-4" />
                           ערוך
