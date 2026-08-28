@@ -1142,9 +1142,11 @@ export function AdminConsole() {
 
   return (
     <div className="mx-auto max-w-7xl px-5 pb-16">
+      {closureDialog}
       <h2 className="animate-rise mb-6 text-2xl font-bold">
         מרכז <span className="text-gradient">בקרה ניהולי</span>
       </h2>
+
 
       <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <KpiCard title="פרויקטים פעילים" icon={<Briefcase className="size-4" />}>
