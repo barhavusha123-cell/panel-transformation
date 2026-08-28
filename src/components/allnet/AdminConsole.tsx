@@ -1495,9 +1495,11 @@ export function AdminConsole() {
                 הגדרת פרויקטים
               </h3>
               <div className="grid gap-4 md:grid-cols-3">
+                {historyDatalists}
                 <div className="space-y-2">
                   <Label>שם לקוח</Label>
                   <Input
+                    list="allnet-client-history"
                     value={np.client}
                     onChange={(e) => setNp({ ...np, client: e.target.value })}
                     placeholder="שם הלקוח"
@@ -1505,7 +1507,11 @@ export function AdminConsole() {
                 </div>
                 <div className="space-y-2">
                   <Label>שם הפרויקט</Label>
-                  <Input value={np.name} onChange={(e) => setNp({ ...np, name: e.target.value })} />
+                  <Input
+                    list="allnet-project-history"
+                    value={np.name}
+                    onChange={(e) => setNp({ ...np, name: e.target.value })}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>מנהל פרויקט אחראי</Label>
