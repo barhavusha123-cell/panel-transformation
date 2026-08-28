@@ -1825,14 +1825,8 @@ export function AdminConsole() {
                             <Pencil className="size-4" />
                             ערוך
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setArchived(p.name, true)}
-                          >
-                            <Archive className="size-4" />
-                            ארכיון
-                          </Button>
+                          <CategoryActions p={p} compact />
+
                           <Button
                             size="sm"
                             variant="ghost"
