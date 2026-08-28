@@ -27,7 +27,9 @@ import {
   ROLES,
   SUB_DAY_RATES,
   effectiveBudget,
+  type FixedCost,
   type Project,
+
   type Region,
   type Role,
 } from "@/lib/allnet/types";
