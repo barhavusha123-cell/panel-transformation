@@ -68,16 +68,16 @@
 :root {
   --radius: 1rem;
 
-  /* Bright near-white surfaces with a whisper of warmth */
-  --background: oklch(0.985 0.006 60);
+  /* Bright white surfaces, subtle neutral borders */
+  --background: oklch(0.99 0.003 60);
   --foreground: oklch(0.22 0.02 45);
 
-  --surface: oklch(0.98 0.008 58);
-  --surface-2: oklch(0.96 0.01 55);
+  --surface: oklch(0.985 0.004 70);
+  --surface-2: oklch(0.965 0.005 70);
 
-  --card: oklch(0.995 0.004 60);
+  --card: oklch(0.995 0.003 70);
   --card-foreground: oklch(0.22 0.02 45);
-  --popover: oklch(0.995 0.004 60);
+  --popover: oklch(0.995 0.003 70);
   --popover-foreground: oklch(0.22 0.02 45);
 
   /* Coral red-orange brand — matches the AllNet logo */
