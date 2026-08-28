@@ -64,7 +64,7 @@ export function DocumentList({
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground">
-              {file.size} · הועלה ע״י {file.uploadedBy} · {file.uploadedAt}
+              {file.size} · הועלה ע״י {file.uploadedBy} · {formatDateIL(file.uploadedAt)}
             </p>
           </div>
           <div className="flex items-center gap-2">

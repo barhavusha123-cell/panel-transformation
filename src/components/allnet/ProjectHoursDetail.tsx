@@ -71,7 +71,7 @@ function HoursGroup({
                       {h.workers ?? 1} · {h.workerNames || "—"}
                     </TableCell>
                   )}
-                  <TableCell>{h.date}</TableCell>
+                  <TableCell>{formatDateIL(h.date)}</TableCell>
                   <TableCell>{h.from}</TableCell>
                   <TableCell>{h.to}</TableCell>
                   <TableCell className="text-primary">
@@ -180,7 +180,7 @@ export function ProjectHoursDetail({
                     "שם המדווח": h.reporter,
                     תפקיד: h.role,
                     פרויקט: h.project,
-                    תאריך: h.date,
+                    תאריך: formatDateIL(h.date),
                     משעה: h.from,
                     "עד שעה": h.to,
                     "זמן עבודה": h.worked,
@@ -248,7 +248,7 @@ export function ProjectHoursDetail({
                 {subBreakdown.map((d) => (
                   <div key={d.date} className="flex items-center justify-between gap-2 py-0.5">
                     <span className="text-muted-foreground">
-                      {d.date} · {d.workers} עובדים{d.names ? ` (${d.names})` : ""} × יום עבודה
+                      {formatDateIL(d.date)} · {d.workers} עובדים{d.names ? ` (${d.names})` : ""} × יום עבודה
                     </span>
                     <span className="font-medium">{ils(d.rate)}</span>
                   </div>
