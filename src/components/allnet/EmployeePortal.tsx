@@ -214,13 +214,43 @@ export function EmployeePortal() {
 
             <div className="grid gap-5 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>שם פרויקט ראשי</Label>
-                <Select value={project} onValueChange={setProject}>
+                <Label>שם לקוח</Label>
+                <Select
+                  value={client}
+                  onValueChange={(v) => {
+                    setClient(v);
+                    const p = state.projects.find((x) => x.name === project);
+                    if (p && (p.client ?? "").trim() !== v) setProject("");
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="בחר לקוח" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clients.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>שם פרויקט</Label>
+                <Select
+                  value={project}
+                  onValueChange={(v) => {
+                    setProject(v);
+                    const c = (state.projects.find((x) => x.name === v)?.client ?? "").trim();
+                    if (c) setClient(c);
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="בחר פרויקט" />
                   </SelectTrigger>
                   <SelectContent>
-                    {state.projects.filter((p) => !p.archived).map((p) => (
+                    {projectOptions.map((p) => (
                       <SelectItem key={p.name} value={p.name}>
                         {p.name}
                       </SelectItem>
