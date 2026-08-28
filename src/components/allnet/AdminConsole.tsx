@@ -781,6 +781,8 @@ export function AdminConsole() {
   if (editTarget) {
     return (
       <div className="mx-auto max-w-5xl px-5 pb-16">
+        {closureDialog}
+
         <div className="animate-rise surface-panel rounded-2xl p-6">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <h2 className="flex items-center gap-2 text-xl font-bold">
