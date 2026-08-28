@@ -942,17 +942,19 @@ export function AdminConsole() {
           title="פרויקטים פעילים"
           value={String(activeProjects.length)}
           icon={<Briefcase className="size-4" />}
+          titleClassName="text-blue text-base"
+          valueClassName="text-blue text-5xl"
         >
-          <div className="mt-2 flex gap-3 text-xs">
+          <div className="mt-2 flex gap-3 text-sm text-blue">
             <button
               onClick={() => setView("projects")}
-              className="cursor-pointer text-primary underline-offset-4 hover:underline"
+              className="cursor-pointer underline-offset-4 hover:underline"
             >
               צפה בכל הפרויקטים
             </button>
             <button
               onClick={() => setView("archive")}
-              className="cursor-pointer text-muted-foreground underline-offset-4 hover:underline"
+              className="cursor-pointer text-blue/70 underline-offset-4 hover:underline"
             >
               ארכיון ({archivedProjects.length})
             </button>
