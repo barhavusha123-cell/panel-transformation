@@ -505,9 +505,21 @@ export function AdminConsole() {
   };
 
   if (detailProject) {
+    const detailProjectObj = state.projects.find((p) => p.name === detailProject);
     return (
       <div className="mx-auto max-w-7xl px-5 pb-16">
-        <ProjectHoursDetail projectName={detailProject} onBack={() => setDetailProject(null)} />
+        <ProjectHoursDetail
+          projectName={detailProject}
+          onBack={() => setDetailProject(null)}
+          onEdit={
+            detailProjectObj
+              ? () => {
+                  startEdit(detailProjectObj);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              : undefined
+          }
+        />
       </div>
     );
   }
