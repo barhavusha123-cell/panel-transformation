@@ -1006,14 +1006,29 @@ export function AdminConsole() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-right">שם המדווח</TableHead>
-                        <TableHead className="text-right">פרויקט</TableHead>
-                        <TableHead className="text-right">תאריך</TableHead>
-                        <TableHead className="text-right">משעה</TableHead>
-                        <TableHead className="text-right">עד שעה</TableHead>
-                        <TableHead className="text-right">זמן עבודה</TableHead>
-                        <TableHead className="text-right">חריגים</TableHead>
-                        <TableHead className="text-right">הערות</TableHead>
+                        {(
+                          [
+                            ["reporter", "שם המדווח"],
+                            ["project", "פרויקט"],
+                            ["date", "תאריך"],
+                            ["from", "משעה"],
+                            ["to", "עד שעה"],
+                            ["worked", "זמן עבודה"],
+                            ["extras", "חריגים"],
+                            ["notes", "הערות"],
+                          ] as const
+                        ).map(([col, label]) => (
+                          <TableHead key={col} className="text-right">
+                            <ColumnFilter
+                              label={label}
+                              options={hourColOptions(col)}
+                              selected={colFilters[col] ?? []}
+                              onToggle={(v) => toggleColFilter(col, v)}
+                              onClear={() => clearColFilter(col)}
+                            />
+                          </TableHead>
+                        ))}
+
                       </TableRow>
                     </TableHeader>
                     <TableBody>
