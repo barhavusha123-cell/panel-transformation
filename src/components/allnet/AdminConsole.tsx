@@ -569,13 +569,62 @@ export function AdminConsole() {
     toast.success("הפרויקט עודכן בהצלחה.");
   };
 
-  const setArchived = (name: string, archived: boolean) => {
+  const projectByName = (name: string) => state.projects.find((p) => p.name === name);
+
+  const openClosure = (name: string) => {
+    const p = projectByName(name);
+    setCloseForm({
+      hasDocFile: p?.closure?.hasDocFile ?? false,
+      equipmentOnSite: p?.closure?.equipmentOnSite ?? false,
+      invoiceIssued: p?.closure?.invoiceIssued ?? false,
+    });
+    setCloseTarget(name);
+  };
+
+  const saveClosure = () => {
+    if (!closeTarget) return;
+    if (!closeForm.hasDocFile || !closeForm.equipmentOnSite || !closeForm.invoiceIssued) {
+      toast.error("יש לסמן את שלוש השאלות כדי להשלים את סגירת הפרויקט.");
+      return;
+    }
+    const name = closeTarget;
     setState((prev) => ({
       ...prev,
-      projects: prev.projects.map((p) => (p.name === name ? { ...p, archived } : p)),
+      projects: prev.projects.map((p) =>
+        p.name === name
+          ? { ...p, closure: { ...closeForm, closedAt: new Date().toISOString() } }
+          : p,
+      ),
     }));
-    toast.success(archived ? `הפרויקט '${name}' הועבר לארכיון.` : `הפרויקט '${name}' שוחזר.`);
+    setCloseTarget(null);
+    toast.success(`סגירת הפרויקט '${name}' הושלמה. כעת ניתן לסווג אותו לקטגוריה.`);
   };
+
+  const moveToCategory = (name: string, category: ProjectCategory) => {
+    const p = projectByName(name);
+    if (!p?.closure) {
+      toast.error("לא ניתן להעביר פרויקט לקטגוריה ללא סגירת פרויקט מלאה.");
+      return;
+    }
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.map((x) =>
+        x.name === name ? { ...x, archived: true, category } : x,
+      ),
+    }));
+    toast.success(`הפרויקט '${name}' הועבר ל"${CATEGORY_LABELS[category]}".`);
+  };
+
+  const restoreProject = (name: string) => {
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.map((p) =>
+        p.name === name ? { ...p, archived: false } : p,
+      ),
+    }));
+    toast.success(`הפרויקט '${name}' הוחזר לפרויקטים הפעילים.`);
+  };
+
 
   const deleteProject = (name: string) => {
     setState((prev) => ({
