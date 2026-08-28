@@ -199,10 +199,14 @@ export function AdminConsole() {
   const [categoryView, setCategoryView] = useState<ProjectCategory>("warranty");
   /** פרויקט שנמצא בתהליך סגירה (טופס 3 שאלות) */
   const [closeTarget, setCloseTarget] = useState<string | null>(null);
-  const [closeForm, setCloseForm] = useState({
-    hasDocFile: false,
-    equipmentOnSite: false,
-    invoiceIssued: false,
+  const [closeForm, setCloseForm] = useState<{
+    hasDocFile: boolean | null;
+    equipmentOnSite: boolean | null;
+    invoiceIssued: boolean | null;
+  }>({
+    hasDocFile: null,
+    equipmentOnSite: null,
+    invoiceIssued: null,
   });
 
   const [detailProject, setDetailProject] = useState<string | null>(null);
@@ -747,9 +751,9 @@ export function AdminConsole() {
   const openClosure = (name: string) => {
     const p = projectByName(name);
     setCloseForm({
-      hasDocFile: p?.closure?.hasDocFile ?? false,
-      equipmentOnSite: p?.closure?.equipmentOnSite ?? false,
-      invoiceIssued: p?.closure?.invoiceIssued ?? false,
+      hasDocFile: p?.closure?.hasDocFile ?? null,
+      equipmentOnSite: p?.closure?.equipmentOnSite ?? null,
+      invoiceIssued: p?.closure?.invoiceIssued ?? null,
     });
     setCloseTarget(name);
   };
