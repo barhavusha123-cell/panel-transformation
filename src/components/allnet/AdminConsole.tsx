@@ -1166,16 +1166,21 @@ export function AdminConsole() {
                           label={SliceLabel}
                           isAnimationActive
                         >
-                          {dashRows.map((r, i) => (
-                            <Cell
-                              key={r.name}
-                              fill={CHART_COLORS[i % 6]}
-                              stroke="var(--background)"
-                              strokeWidth={2}
-                              className="cursor-pointer"
-                              onClick={() => setDetailProject(r.name)}
-                            />
-                          ))}
+                          {dashRows.map((r, i) => {
+                            const isHovered = hoveredSlice === r.name;
+                            return (
+                              <Cell
+                                key={r.name}
+                                fill={isHovered ? "#22c55e" : CHART_COLORS[i % 6]}
+                                stroke="var(--background)"
+                                strokeWidth={2}
+                                className="cursor-pointer transition-all duration-200"
+                                onClick={() => setDetailProject(r.name)}
+                                onMouseEnter={() => setHoveredSlice(r.name)}
+                                onMouseLeave={() => setHoveredSlice(null)}
+                              />
+                            );
+                          })}
                         </Pie>
                         <Tooltip
                           contentStyle={{
