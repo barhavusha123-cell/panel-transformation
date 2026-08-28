@@ -968,6 +968,25 @@ export function AdminConsole() {
                       </Button>
                     </div>
                     <Separator />
+                    {(() => {
+                      const cur = projectByName(editTarget);
+                      if (!cur) return null;
+                      return (
+                        <div className="space-y-3 rounded-xl border border-border bg-surface-2/40 p-4">
+                          <div>
+                            <p className="font-semibold">סגירה וסיווג פרויקט</p>
+                            <p className="text-xs text-muted-foreground">
+                              {cur.closure
+                                ? "סגירת הפרויקט הושלמה — ניתן להעביר את הפרויקט לאחת מהקטגוריות."
+                                : "יש להשלים סגירת פרויקט (3 שאלות חובה) לפני העברה לקטגוריה."}
+                            </p>
+                          </div>
+                          <CategoryActions p={cur} compact />
+                        </div>
+                      );
+                    })()}
+                    <Separator />
+
                     <div className="flex items-center justify-between rounded-xl border border-destructive/30 bg-destructive/5 p-4">
                       <div>
                         <p className="font-semibold text-destructive">מחיקת פרויקט</p>
