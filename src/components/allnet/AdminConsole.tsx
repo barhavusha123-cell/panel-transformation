@@ -578,15 +578,6 @@ export function AdminConsole() {
                   <form onSubmit={saveProject} className="animate-fade space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label>שם הפרויקט</Label>
-                        <Input
-                          value={editForm.name}
-                          onChange={(e) =>
-                            setEditForm({ ...editForm, name: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div className="space-y-2">
                         <Label>שם לקוח</Label>
                         <Input
                           value={editForm.client}
@@ -594,6 +585,15 @@ export function AdminConsole() {
                             setEditForm({ ...editForm, client: e.target.value })
                           }
                           placeholder="שם הלקוח"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>שם הפרויקט</Label>
+                        <Input
+                          value={editForm.name}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, name: e.target.value })
+                          }
                         />
                       </div>
                       <div className="space-y-2">
@@ -615,7 +615,7 @@ export function AdminConsole() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label>תקציב שעות מוקצה</Label>
+                        <Label>שעות מנהל פרויקט / עובד</Label>
                         <Input
                           type="number"
                           min={MIN_BUDGET}
@@ -627,7 +627,7 @@ export function AdminConsole() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>תקציב ימי עבודה</Label>
+                        <Label>ימי עבודה קבלן משנה</Label>
                         <Input
                           type="number"
                           min={0}
