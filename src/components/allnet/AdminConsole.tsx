@@ -193,6 +193,15 @@ function SliceLabel(props: {
 export function AdminConsole() {
   const { state, setState } = useAllNet();
   const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive">("console");
+  const [categoryView, setCategoryView] = useState<ProjectCategory>("warranty");
+  /** פרויקט שנמצא בתהליך סגירה (טופס 3 שאלות) */
+  const [closeTarget, setCloseTarget] = useState<string | null>(null);
+  const [closeForm, setCloseForm] = useState({
+    hasDocFile: false,
+    equipmentOnSite: false,
+    invoiceIssued: false,
+  });
+
   const [detailProject, setDetailProject] = useState<string | null>(null);
   const [tab, setTab] = useState("reports");
   const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
