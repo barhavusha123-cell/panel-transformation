@@ -406,7 +406,7 @@ export function AdminConsole() {
             ],
       };
     });
-    toast.success(`הפרויקט '${name}' עודכן בהצלחה עם תקציב של ${budget} שעות.`);
+    toast.success(`הפרויקט '${name}' נוצר בהצלחה עם ${budget} שעות מנהל פרויקט / עובד.`);
     setNp({ name: "", client: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0, saleAmount: 0, fixedCosts: [] });
   };
 
