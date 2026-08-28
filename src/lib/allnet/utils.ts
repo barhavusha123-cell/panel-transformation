@@ -24,6 +24,16 @@ export function minutesBetween(start: string, end: string): number {
   return diff;
 }
 
+/** תצוגת תאריך בפורמט ישראלי: יום/חודש/שנה */
+export function formatDateIL(iso?: string): string {
+  if (!iso) return "";
+  const [datePart, timePart] = String(iso).trim().split(" ");
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(datePart ?? "");
+  if (!m) return String(iso);
+  const base = `${m[3]}/${m[2]}/${m[1]}`;
+  return timePart ? `${base} ${timePart}` : base;
+}
+
 export function todayISO(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(

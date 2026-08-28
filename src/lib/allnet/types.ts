@@ -21,6 +21,8 @@ export const REGIONS: Region[] = ["צפון", "דרום", "מרכז"];
 
 export interface Project {
   name: string;
+  /** שם הלקוח */
+  client?: string;
   manager: string;
   budget: number;
   team: string[];
@@ -60,7 +62,7 @@ export const EMPLOYEE_DAY_RATE = 1200;
 
 
 export const MIN_BUDGET = 1;
-export const MAX_BUDGET = 1000;
+export const MAX_BUDGET = Number.MAX_SAFE_INTEGER;
 
 export interface HoursEntry {
   id: number;

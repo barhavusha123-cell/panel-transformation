@@ -41,6 +41,7 @@ export function AllNetProvider({ children }: { children: ReactNode }) {
         const merged: AllNetState = { ...defaultState(), ...parsed };
         merged.projects = (merged.projects ?? []).map((p) => ({
           name: p.name,
+          client: p.client ?? "",
           manager: p.manager ?? "לא הוגדר",
           budget: Number(p.budget) || 100,
           team: Array.isArray(p.team) ? p.team : [],

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { CalendarClock, CalendarIcon, FolderOpen, Send, Timer } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
-import { formatHoursMinutes, getAllTimeOptions, minutesBetween, todayISO } from "@/lib/allnet/utils";
+import { formatDateIL, formatHoursMinutes, getAllTimeOptions, minutesBetween, todayISO } from "@/lib/allnet/utils";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -220,7 +220,7 @@ export function EmployeePortal() {
                       )}
                     >
                       <CalendarIcon className="size-4" />
-                      {reportDate || "בחר תאריך"}
+                      {reportDate ? formatDateIL(reportDate) : "בחר תאריך"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -330,7 +330,7 @@ export function EmployeePortal() {
                   <TableBody>
                     {myHours.map((h) => (
                       <TableRow key={h.id} className="transition-colors hover:bg-surface-2/60">
-                        <TableCell>{h.date}</TableCell>
+                        <TableCell>{formatDateIL(h.date)}</TableCell>
                         <TableCell className="font-medium">{h.project}</TableCell>
                         <TableCell>{h.from}</TableCell>
                         <TableCell>{h.to}</TableCell>

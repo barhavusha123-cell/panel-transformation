@@ -21,7 +21,6 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import {
-  MAX_BUDGET,
   MIN_BUDGET,
   REGIONS,
   ROLES,
@@ -31,7 +30,7 @@ import {
   type Region,
   type Role,
 } from "@/lib/allnet/types";
-import { downloadCsv, nowStamp, todayISO } from "@/lib/allnet/utils";
+import { downloadCsv, formatDateIL, nowStamp, todayISO } from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -338,15 +337,15 @@ export function AdminConsole() {
   const managers = state.users.map((u) => u.full_name);
   const [np, setNp] = useState<{
     name: string;
+    client: string;
     manager: string;
     budget: number;
     deliveryDate: string;
     region: Region;
     budgetDays: number;
-  }>({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0 });
+  }>({ name: "", client: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0 });
 
-  const validBudget = (v: number) =>
-    Number.isFinite(v) && Number.isInteger(v) && v >= MIN_BUDGET && v <= MAX_BUDGET;
+  const validBudget = (v: number) => Number.isFinite(v) && Number.isInteger(v) && v >= MIN_BUDGET;
 
   const addProject = (e: React.FormEvent) => {
     e.preventDefault();
@@ -357,7 +356,7 @@ export function AdminConsole() {
     }
     const budget = Math.round(Number(np.budget));
     if (!validBudget(budget)) {
-      toast.error(`תקציב השעות חייב להיות מספר שלם בין ${MIN_BUDGET} ל-${MAX_BUDGET}.`);
+      toast.error("תקציב השעות חייב להיות מספר שלם חיובי.");
       return;
     }
     setState((prev) => {
@@ -369,6 +368,7 @@ export function AdminConsole() {
               p.name === name
                 ? {
                     ...p,
+                    client: np.client.trim(),
                     manager: np.manager || "לא הוגדר",
                     budget,
                     deliveryDate: np.deliveryDate,
@@ -381,6 +381,7 @@ export function AdminConsole() {
               ...prev.projects,
               {
                 name,
+                client: np.client.trim(),
                 manager: np.manager || "לא הוגדר",
                 budget,
                 deliveryDate: np.deliveryDate,
@@ -394,12 +395,13 @@ export function AdminConsole() {
       };
     });
     toast.success(`הפרויקט '${name}' עודכן בהצלחה עם תקציב של ${budget} שעות.`);
-    setNp({ name: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0 });
+    setNp({ name: "", client: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0 });
   };
 
   const [editTarget, setEditTarget] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{
     name: string;
+    client: string;
     manager: string;
     budget: number;
     team: string[];
@@ -409,6 +411,7 @@ export function AdminConsole() {
     extraHours: number;
   }>({
     name: "",
+    client: "",
     manager: "",
     budget: 100,
     team: [],
@@ -422,6 +425,7 @@ export function AdminConsole() {
     setEditTarget(p.name);
     setEditForm({
       name: p.name,
+      client: p.client ?? "",
       manager: p.manager,
       budget: p.budget,
       team: p.team ?? [],
@@ -436,7 +440,7 @@ export function AdminConsole() {
     e.preventDefault();
     const budget = Math.round(Number(editForm.budget));
     if (!validBudget(budget)) {
-      toast.error(`תקציב השעות חייב להיות מספר שלם בין ${MIN_BUDGET} ל-${MAX_BUDGET}.`);
+      toast.error("תקציב השעות חייב להיות מספר שלם חיובי.");
       return;
     }
     setState((prev) => ({
@@ -446,6 +450,7 @@ export function AdminConsole() {
           ? {
               ...p,
               name: editForm.name.trim(),
+              client: editForm.client.trim(),
               manager: editForm.manager,
               budget,
               deliveryDate: editForm.deliveryDate,
@@ -550,6 +555,16 @@ export function AdminConsole() {
                         />
                       </div>
                       <div className="space-y-2">
+                        <Label>שם לקוח</Label>
+                        <Input
+                          value={editForm.client}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, client: e.target.value })
+                          }
+                          placeholder="שם הלקוח"
+                        />
+                      </div>
+                      <div className="space-y-2">
                         <Label>מנהל פרויקט אחראי</Label>
                         <Select
                           value={editForm.manager}
@@ -568,11 +583,10 @@ export function AdminConsole() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label>תקציב שעות מוקצה (1-1000)</Label>
+                        <Label>תקציב שעות מוקצה</Label>
                         <Input
                           type="number"
                           min={MIN_BUDGET}
-                          max={MAX_BUDGET}
                           step={1}
                           value={editForm.budget}
                           onChange={(e) =>
@@ -823,12 +837,21 @@ export function AdminConsole() {
         </KpiCard>
 
         <KpiCard title="פרויקטים לפני מסירה" icon={<CalendarClock className="size-4" />} delay={80}>
-          <div className="text-2xl font-bold">{upcoming.length}</div>
+          <div className="flex items-center gap-2">
+            <span className={`text-2xl font-bold ${upcoming.length ? "text-destructive" : ""}`}>
+              {upcoming.length}
+            </span>
+            {upcoming.length > 0 && (
+              <Badge variant="destructive" className="animate-pulse">
+                מסירה בתוך 14 ימים
+              </Badge>
+            )}
+          </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {upcoming.length ? `הקרוב: ${upcoming[0]!.name} · ${upcoming[0]!.deliveryDate}` : "אין מסירות ב-14 הימים הקרובים"}
+            {upcoming.length ? `הקרוב: ${upcoming[0]!.name} · ${formatDateIL(upcoming[0]!.deliveryDate)}` : "אין מסירות ב-14 הימים הקרובים"}
           </p>
           <Button
-            variant="soft"
+            variant={upcoming.length ? "brand" : "soft"}
             size="sm"
             className="mt-3 w-full"
             onClick={() => setShowDelivery((s) => !s)}
@@ -898,7 +921,7 @@ export function AdminConsole() {
                       </Badge>
                     </div>
                     <p className="mt-2 text-xs text-muted-foreground">
-                      מועד מסירה: {p.deliveryDate} · {r.manager} · {r.reported} מתוך {r.budget} שעות
+                      מועד מסירה: {formatDateIL(p.deliveryDate)} · {r.manager} · {r.reported} מתוך {r.budget} שעות
                     </p>
                   </button>
                 );
@@ -980,6 +1003,17 @@ export function AdminConsole() {
 
       {view === "dashboard" ? (
         <div className="animate-fade space-y-6">
+          {upcoming.map((u) => (
+            <div
+              key={`del-${u.name}`}
+              className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+            >
+              התרעת מסירה: פרויקט '{u.name}' {u.daysLeft < 0
+                ? `באיחור של ${Math.abs(u.daysLeft)} ימים ממועד המסירה`
+                : `נמסר בעוד ${u.daysLeft} ימים`} (מועד מסירה: {formatDateIL(u.deliveryDate)}). נדרש מעקב.
+            </div>
+          ))}
+
           {alerts.map((a) => (
             <div
               key={a.name}
@@ -1160,7 +1194,7 @@ export function AdminConsole() {
                       filteredHours.map((h) => ({
                         "שם המדווח": h.reporter,
                         פרויקט: h.project,
-                        תאריך: h.date,
+                        תאריך: formatDateIL(h.date),
                         משעה: h.from,
                         "עד שעה": h.to,
                         "זמן עבודה": h.worked,
@@ -1219,7 +1253,7 @@ export function AdminConsole() {
                               {h.project}
                             </button>
                           </TableCell>
-                          <TableCell>{h.date}</TableCell>
+                          <TableCell>{formatDateIL(h.date)}</TableCell>
                           <TableCell>{h.from}</TableCell>
                           <TableCell>{h.to}</TableCell>
                           <TableCell className="text-primary">{h.worked}</TableCell>
@@ -1352,6 +1386,14 @@ export function AdminConsole() {
                   <Input value={np.name} onChange={(e) => setNp({ ...np, name: e.target.value })} />
                 </div>
                 <div className="space-y-2">
+                  <Label>שם לקוח</Label>
+                  <Input
+                    value={np.client}
+                    onChange={(e) => setNp({ ...np, client: e.target.value })}
+                    placeholder="שם הלקוח"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label>מנהל פרויקט אחראי</Label>
                   <Select value={np.manager} onValueChange={(v) => setNp({ ...np, manager: v })}>
                     <SelectTrigger>
@@ -1367,11 +1409,10 @@ export function AdminConsole() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>תקציב שעות מוקצה (1-1000)</Label>
+                  <Label>תקציב שעות מוקצה</Label>
                   <Input
                     type="number"
                     min={MIN_BUDGET}
-                    max={MAX_BUDGET}
                     step={1}
                     value={np.budget}
                     onChange={(e) => setNp({ ...np, budget: Number(e.target.value) })}
@@ -1443,7 +1484,7 @@ export function AdminConsole() {
                             {p.name}
                           </button>
                           <p className="text-xs text-muted-foreground">
-                            {p.manager} · {p.budget} שעות ·{" "}
+                            {p.client ? `לקוח: ${p.client} · ` : ""}{p.manager} · {p.budget} שעות ·{" "}
                             {p.team?.length ? `צוות: ${p.team.join(", ")}` : "לא שויך צוות"}
                           </p>
                         </div>
