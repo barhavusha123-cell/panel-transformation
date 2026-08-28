@@ -364,7 +364,7 @@ export function AdminConsole() {
     }
     const budget = Math.round(Number(np.budget));
     if (!validBudget(budget)) {
-      toast.error("תקציב השעות חייב להיות מספר שלם חיובי.");
+      toast.error("שעות מנהל פרויקט / עובד חייבות להיות מספר שלם חיובי.");
       return;
     }
     setState((prev) => {
