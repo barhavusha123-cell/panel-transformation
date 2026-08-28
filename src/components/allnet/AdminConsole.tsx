@@ -673,6 +673,90 @@ export function AdminConsole() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const closureDialog = (
+    <Dialog open={!!closeTarget} onOpenChange={(o) => !o && setCloseTarget(null)}>
+      <DialogContent dir="rtl" className="text-right sm:max-w-md">
+        <DialogHeader className="text-right">
+          <DialogTitle className="flex items-center gap-2">
+            <ShieldCheck className="size-5 text-warning" />
+            סגירת פרויקט — {closeTarget}
+          </DialogTitle>
+          <DialogDescription>
+            יש לסמן את שלוש השאלות. ללא סגירת פרויקט לא ניתן להעביר את הפרויקט לאף קטגוריה.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          {(
+            [
+              ["hasDocFile", "האם יש תיק תיעוד"],
+              ["equipmentOnSite", "האם נשאר ציוד באתר"],
+              ["invoiceIssued", "האם יצאה חשבונית"],
+            ] as const
+          ).map(([key, label]) => (
+            <label
+              key={key}
+              className="flex cursor-pointer items-center gap-3 rounded-xl border border-border p-3 text-sm transition-colors hover:bg-surface-2/60"
+            >
+              <Checkbox
+                checked={closeForm[key]}
+                onCheckedChange={(v) => setCloseForm((prev) => ({ ...prev, [key]: !!v }))}
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+        <DialogFooter className="flex-row-reverse justify-start gap-2">
+          <Button variant="brand" onClick={saveClosure}>
+            אשר סגירת פרויקט
+          </Button>
+          <Button variant="secondary" onClick={() => setCloseTarget(null)}>
+            ביטול
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
+  /** לחצני סגירה + סיווג לקטגוריות עבור פרויקט בודד */
+  const CategoryActions = ({ p, compact }: { p: Project; compact?: boolean }) => (
+    <div className={compact ? "flex flex-wrap items-center gap-2" : "flex flex-wrap gap-2"}>
+      <Button
+        size={compact ? "sm" : "default"}
+        variant={p.closure ? "soft" : "default"}
+        className={
+          p.closure
+            ? "border border-success/40 text-success"
+            : "bg-warning text-warning-foreground hover:bg-warning/90"
+        }
+        onClick={() => openClosure(p.name)}
+      >
+        <ShieldCheck className="size-4" />
+        {p.closure ? "סגירת פרויקט הושלמה" : "סגירת פרויקט"}
+      </Button>
+      {PROJECT_CATEGORIES.map((c) => (
+        <Button
+          key={c}
+          size={compact ? "sm" : "default"}
+          variant={p.archived && (p.category ?? "warranty") === c ? "brand" : "ghost"}
+          disabled={!p.closure}
+          title={p.closure ? undefined : "נדרשת סגירת פרויקט לפני סיווג"}
+          onClick={() => moveToCategory(p.name, c)}
+        >
+          <Archive className="size-4" />
+          {CATEGORY_LABELS[c]}
+        </Button>
+      ))}
+      {p.archived && (
+        <Button size={compact ? "sm" : "default"} variant="ghost" onClick={() => restoreProject(p.name)}>
+          <ArchiveRestore className="size-4" />
+          החזר לפעילים
+        </Button>
+      )}
+    </div>
+  );
+
+
+
   if (detailProject) {
     const detailProjectObj = state.projects.find((p) => p.name === detailProject);
     return (
