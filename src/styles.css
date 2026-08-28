@@ -92,6 +92,9 @@
   --accent: oklch(0.62 0.1 255);
   --accent-foreground: oklch(0.99 0.005 250);
 
+  --blue: oklch(0.62 0.16 250);
+  --blue-foreground: oklch(0.99 0.005 250);
+
   --destructive: oklch(0.62 0.18 25);
   --destructive-foreground: oklch(0.99 0.005 250);
 
