@@ -69,7 +69,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DocumentList } from "./DocumentList";
+
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProjectHoursDetail } from "./ProjectHoursDetail";
 
@@ -150,7 +150,7 @@ function SliceLabel(props: {
   const r = innerRadius + (outerRadius - innerRadius) * 0.55;
   const x = cx + r * Math.cos(-midAngle * RAD);
   const y = cy + r * Math.sin(-midAngle * RAD);
-  const short = payload.name.length > 16 ? `${payload.name.slice(0, 15)}…` : payload.name;
+  const short = payload.name.length > 18 ? `${payload.name.slice(0, 17)}…` : payload.name;
   return (
     <text
       x={x}
@@ -158,10 +158,15 @@ function SliceLabel(props: {
       textAnchor="middle"
       dominantBaseline="central"
       className="pointer-events-none"
-      fill="var(--foreground)"
-      style={{ fontSize: 13, fontWeight: 700 }}
+      fill="#000000"
+      style={{ fontSize: 18, fontWeight: 800 }}
     >
-      {short}
+      <tspan x={x} dy="-0.5em">
+        {short}
+      </tspan>
+      <tspan x={x} dy="1.25em" style={{ fontSize: 16, fontWeight: 700 }}>
+        {Math.round(payload.pct)}%
+      </tspan>
     </text>
   );
 }
@@ -206,6 +211,35 @@ export function AdminConsole() {
   const activeProjects = useMemo(
     () => state.projects.filter((p) => !p.archived),
     [state.projects],
+  );
+  /** היסטוריית שמות לקוח ופרויקט למניעת כפילויות בכתיב */
+  const clientHistory = useMemo(
+    () =>
+      Array.from(
+        new Set(state.projects.map((p) => (p.client ?? "").trim()).filter(Boolean)),
+      ).sort((a, b) => a.localeCompare(b, "he")),
+    [state.projects],
+  );
+  const projectNameHistory = useMemo(
+    () =>
+      Array.from(new Set(state.projects.map((p) => p.name.trim()).filter(Boolean))).sort(
+        (a, b) => a.localeCompare(b, "he"),
+      ),
+    [state.projects],
+  );
+  const historyDatalists = (
+    <>
+      <datalist id="allnet-client-history">
+        {clientHistory.map((c) => (
+          <option key={c} value={c} />
+        ))}
+      </datalist>
+      <datalist id="allnet-project-history">
+        {projectNameHistory.map((n) => (
+          <option key={n} value={n} />
+        ))}
+      </datalist>
+    </>
   );
   const archivedProjects = useMemo(
     () => state.projects.filter((p) => p.archived),
@@ -577,9 +611,11 @@ export function AdminConsole() {
           </div>
                   <form onSubmit={saveProject} className="animate-fade space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
+                      {historyDatalists}
                       <div className="space-y-2">
                         <Label>שם לקוח</Label>
                         <Input
+                          list="allnet-client-history"
                           value={editForm.client}
                           onChange={(e) =>
                             setEditForm({ ...editForm, client: e.target.value })
@@ -590,6 +626,7 @@ export function AdminConsole() {
                       <div className="space-y-2">
                         <Label>שם הפרויקט</Label>
                         <Input
+                          list="allnet-project-history"
                           value={editForm.name}
                           onChange={(e) =>
                             setEditForm({ ...editForm, name: e.target.value })
@@ -1458,9 +1495,11 @@ export function AdminConsole() {
                 הגדרת פרויקטים
               </h3>
               <div className="grid gap-4 md:grid-cols-3">
+                {historyDatalists}
                 <div className="space-y-2">
                   <Label>שם לקוח</Label>
                   <Input
+                    list="allnet-client-history"
                     value={np.client}
                     onChange={(e) => setNp({ ...np, client: e.target.value })}
                     placeholder="שם הלקוח"
@@ -1468,7 +1507,11 @@ export function AdminConsole() {
                 </div>
                 <div className="space-y-2">
                   <Label>שם הפרויקט</Label>
-                  <Input value={np.name} onChange={(e) => setNp({ ...np, name: e.target.value })} />
+                  <Input
+                    list="allnet-project-history"
+                    value={np.name}
+                    onChange={(e) => setNp({ ...np, name: e.target.value })}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>מנהל פרויקט אחראי</Label>
@@ -1651,11 +1694,6 @@ export function AdminConsole() {
                   </Select>
                 </div>
               </div>
-            </div>
-
-            <div className="surface-panel space-y-4 rounded-2xl p-6">
-              <h3 className="text-lg font-semibold">ספריית מסמכי המערכת</h3>
-              <DocumentList isAdmin />
             </div>
           </TabsContent>
         </Tabs>
