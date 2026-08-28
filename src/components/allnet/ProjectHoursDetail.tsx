@@ -445,6 +445,15 @@ export function ProjectHoursDetail({
                   </div>
                 ))}
               </div>
+              {extraHoursCost > 0 && (
+                <div className="flex items-center justify-between rounded-lg border border-border p-2">
+                  <span>
+                    שעות חריגות מאושרות ({extraHours} שעות × {ils(EMPLOYEE_DAY_RATE / 8)})
+                    {project?.extraHoursReason ? ` · ${project.extraHoursReason}` : ""}
+                  </span>
+                  <span className="font-bold">{ils(extraHoursCost)}</span>
+                </div>
+              )}
               <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/10 p-2">
                 <span className="font-semibold">{profit >= 0 ? "רווח נותר" : "הפסד"}</span>
                 <span className="text-lg font-bold text-primary">{ils(Math.abs(profit))}</span>
