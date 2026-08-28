@@ -82,3 +82,39 @@ export function downloadCsv(rows: Record<string, unknown>[], filename: string) {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+/** מחשב את עלות הפרויקט לפי דיווחי השעות והעלויות הקבועות */
+export function calculateProjectCost(state: AllNetState, projectName: string): number {
+  const project = state.projects.find((p) => p.name === projectName);
+  if (!project) return 0;
+  const rows = state.hours.filter((h) => h.project === projectName);
+  const region = project.region ?? "מרכז";
+
+  const employees = rows.filter((h) => h.role !== "קבלן משנה");
+  const subs = rows.filter((h) => h.role === "קבלן משנה");
+  const fullSubDays = subs.filter((h) => h.minutes >= MIN_FULL_DAY_MINUTES);
+
+  const subBreakdown = Array.from(new Set(fullSubDays.map((h) => h.date)))
+    .sort()
+    .map((date) => {
+      const dayRows = fullSubDays.filter((h) => h.date === date);
+      const workers = Math.max(...dayRows.map((h) => h.workers ?? SUB_CREW_SIZE));
+      return subDayRate(region, workers);
+    });
+  const subCost = subBreakdown.reduce((sum, rate) => sum + rate, 0);
+
+  const employeeDayKeys = Array.from(
+    new Set(
+      employees
+        .filter((h) => h.minutes >= MIN_FULL_DAY_MINUTES)
+        .map((h) => `${h.reporter}|${h.date}`),
+    ),
+  );
+  const employeeCost = employeeDayKeys.length * EMPLOYEE_DAY_RATE;
+  const fixedCostTotal = (project.fixedCosts ?? []).reduce(
+    (a, c) => a + (Number(c.amount) || 0),
+    0,
+  );
+
+  return subCost + employeeCost + fixedCostTotal;
+}
