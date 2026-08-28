@@ -499,6 +499,18 @@ export function AdminConsole() {
     toast.success(archived ? `הפרויקט '${name}' הועבר לארכיון.` : `הפרויקט '${name}' שוחזר.`);
   };
 
+  const deleteProject = (name: string) => {
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.filter((p) => p.name !== name),
+      hours: prev.hours.filter((h) => h.project !== name),
+      files: prev.files.filter((f) => f.project !== name),
+    }));
+    setEditTarget(null);
+    setDetailProject(null);
+    toast.success(`הפרויקט '${name}' נמחק בהצלחה.`);
+  };
+
   // file upload
   const [fileProject, setFileProject] = useState("כללי");
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
