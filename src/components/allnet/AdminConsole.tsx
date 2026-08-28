@@ -18,6 +18,7 @@ import {
   Upload,
 } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { FixedCostsEditor } from "./FixedCostsEditor";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import {
@@ -26,7 +27,9 @@ import {
   ROLES,
   SUB_DAY_RATES,
   effectiveBudget,
+  type FixedCost,
   type Project,
+
   type Region,
   type Role,
 } from "@/lib/allnet/types";
@@ -343,7 +346,9 @@ export function AdminConsole() {
     deliveryDate: string;
     region: Region;
     budgetDays: number;
-  }>({ name: "", client: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0 });
+    saleAmount: number;
+    fixedCosts: FixedCost[];
+  }>({ name: "", client: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0, saleAmount: 0, fixedCosts: [] });
 
   const validBudget = (v: number) => Number.isFinite(v) && Number.isInteger(v) && v >= MIN_BUDGET;
 
@@ -374,6 +379,8 @@ export function AdminConsole() {
                     deliveryDate: np.deliveryDate,
                     region: np.region,
                     budgetDays: Math.max(0, Math.round(Number(np.budgetDays) || 0)),
+                    saleAmount: Math.max(0, Number(np.saleAmount) || 0),
+                    fixedCosts: np.fixedCosts,
                   }
                 : p,
             )
@@ -387,6 +394,8 @@ export function AdminConsole() {
                 deliveryDate: np.deliveryDate,
                 region: np.region,
                 budgetDays: Math.max(0, Math.round(Number(np.budgetDays) || 0)),
+                saleAmount: Math.max(0, Number(np.saleAmount) || 0),
+                fixedCosts: np.fixedCosts,
                 extraHours: 0,
                 team: np.manager ? [np.manager] : [],
                 archived: false,
@@ -395,7 +404,7 @@ export function AdminConsole() {
       };
     });
     toast.success(`הפרויקט '${name}' עודכן בהצלחה עם תקציב של ${budget} שעות.`);
-    setNp({ name: "", client: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0 });
+    setNp({ name: "", client: "", manager: "", budget: 100, deliveryDate: "", region: "מרכז", budgetDays: 0, saleAmount: 0, fixedCosts: [] });
   };
 
   const [editTarget, setEditTarget] = useState<string | null>(null);
@@ -409,6 +418,8 @@ export function AdminConsole() {
     region: Region;
     budgetDays: number;
     extraHours: number;
+    saleAmount: number;
+    fixedCosts: FixedCost[];
   }>({
     name: "",
     client: "",
@@ -419,6 +430,8 @@ export function AdminConsole() {
     region: "מרכז",
     budgetDays: 0,
     extraHours: 0,
+    saleAmount: 0,
+    fixedCosts: [],
   });
 
   const startEdit = (p: Project) => {
@@ -433,6 +446,8 @@ export function AdminConsole() {
       region: p.region ?? "מרכז",
       budgetDays: p.budgetDays ?? 0,
       extraHours: p.extraHours ?? 0,
+      saleAmount: p.saleAmount ?? 0,
+      fixedCosts: p.fixedCosts ?? [],
     });
   };
 
@@ -457,6 +472,8 @@ export function AdminConsole() {
               region: editForm.region,
               budgetDays: Math.max(0, Math.round(Number(editForm.budgetDays) || 0)),
               extraHours: Math.max(0, Math.round(Number(editForm.extraHours) || 0)),
+              saleAmount: Math.max(0, Number(editForm.saleAmount) || 0),
+              fixedCosts: editForm.fixedCosts,
               team: editForm.team,
             }
           : p,
@@ -652,6 +669,24 @@ export function AdminConsole() {
                           </SelectContent>
                         </Select>
                         <RegionRates region={editForm.region} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>סכום מכירת הפרויקט (₪)</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          step={1}
+                          value={editForm.saleAmount}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, saleAmount: Number(e.target.value) })
+                          }
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <FixedCostsEditor
+                          value={editForm.fixedCosts}
+                          onChange={(fixedCosts) => setEditForm({ ...editForm, fixedCosts })}
+                        />
                       </div>
                       <div className="space-y-2 md:col-span-2">
                         <Label>צוות משויך לפרויקט (ניתן לבחור כמה עובדים)</Label>
@@ -1455,6 +1490,22 @@ export function AdminConsole() {
                     </SelectContent>
                   </Select>
                   <RegionRates region={np.region} />
+                </div>
+                <div className="space-y-2">
+                  <Label>סכום מכירת הפרויקט (₪)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={np.saleAmount}
+                    onChange={(e) => setNp({ ...np, saleAmount: Number(e.target.value) })}
+                  />
+                </div>
+                <div className="md:col-span-3">
+                  <FixedCostsEditor
+                    value={np.fixedCosts}
+                    onChange={(fixedCosts) => setNp({ ...np, fixedCosts })}
+                  />
                 </div>
               </div>
               <Button type="submit" variant="brand" className="mt-5">

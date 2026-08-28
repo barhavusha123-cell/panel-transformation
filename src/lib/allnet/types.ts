@@ -19,6 +19,16 @@ export type Region = "צפון" | "דרום" | "מרכז";
 
 export const REGIONS: Region[] = ["צפון", "דרום", "מרכז"];
 
+/** סוגי עלויות קבועות לפרויקט */
+export const COST_TYPES = ["קבלן", "ציוד", "יעוץ", "אחר"] as const;
+
+export interface FixedCost {
+  id: string;
+  type: string;
+  description: string;
+  amount: number;
+}
+
 export interface Project {
   name: string;
   /** שם הלקוח */
@@ -33,7 +43,12 @@ export interface Project {
   budgetDays?: number;
   /** תוספת שעות עבודה חריגות באישור מנהל */
   extraHours?: number;
+  /** בכמה נמכר הפרויקט (הכנסה) */
+  saleAmount?: number;
+  /** עלויות קבועות לפרויקט */
+  fixedCosts?: FixedCost[];
 }
+
 
 /** תקציב שעות אפקטיבי כולל תוספת חריגה מאושרת */
 export const effectiveBudget = (p?: { budget?: number; extraHours?: number }) =>
