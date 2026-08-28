@@ -1096,7 +1096,7 @@ export function AdminConsole() {
               key={a.name}
               className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
             >
-              התרעת תקציב: פרויקט '{a.name}' הגיע ל-{a.pct}% מהתקציב ({a.reported} מתוך {a.budget}{" "}
+              התרעת ניצול שעות: פרויקט '{a.name}' הגיע ל-{a.pct}% מיעד השעות ({a.reported} מתוך {a.budget}{" "}
               שעות). נדרש מעקב.
             </div>
           ))}
