@@ -349,7 +349,7 @@ export function ProjectHoursDetail({
       </div>
 
       <div className="surface-panel rounded-2xl p-5">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
           <h3 className="flex items-center gap-2 text-lg font-semibold">
             <TrendingUp className="size-5 text-primary" />
             רווחיות הפרויקט
@@ -363,8 +363,11 @@ export function ProjectHoursDetail({
             </Badge>
           )}
         </div>
+        <p className="mb-4 text-sm font-medium text-muted-foreground">
+          {projectName}
+        </p>
         {saleAmount > 0 ? (
-          <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
+          <div className="grid gap-4 lg:grid-cols-[1.2fr_0.65fr_1fr]">
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -386,6 +389,23 @@ export function ProjectHoursDetail({
                   <Tooltip formatter={(v: number) => ils(Number(v))} />
                 </PieChart>
               </ResponsiveContainer>
+            </div>
+            <div className="self-center rounded-xl border border-border bg-surface/60 p-4">
+              <h4 className="mb-3 text-sm font-semibold">מקרא צבעים</h4>
+              <div className="space-y-3">
+                {profitData.map((d) => (
+                  <div key={d.name} className="flex items-center gap-3">
+                    <span
+                      className="inline-block size-4 shrink-0 rounded-full"
+                      style={{ backgroundColor: d.color }}
+                    />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium leading-tight">{d.name}</p>
+                      <p className="text-xs text-muted-foreground">{ils(d.value)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="space-y-2 self-center text-sm">
               <div className="flex items-center justify-between rounded-lg border border-border p-2">
