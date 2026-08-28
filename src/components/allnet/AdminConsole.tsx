@@ -804,7 +804,7 @@ export function AdminConsole() {
                   <TableHead className="text-right">שם פרויקט</TableHead>
                   <TableHead className="text-right">עלות פרויקט</TableHead>
                   <TableHead className="text-right">מנהל פרויקט</TableHead>
-                  <TableHead className="text-right">תקציב שעות</TableHead>
+                  <TableHead className="text-right">שעות מנהל פרויקט / עובד</TableHead>
                   <TableHead className="text-right">ניצול</TableHead>
                   <TableHead className="text-right">פעולות</TableHead>
                   <TableHead className="text-right">העבר לארכיון</TableHead>
