@@ -274,6 +274,22 @@ export function AdminConsole() {
     () => state.projects.filter((p) => p.archived),
     [state.projects],
   );
+  const categoryCounts = useMemo(() => {
+    const base: Record<ProjectCategory, number> = { warranty: 0, service: 0, noservice: 0 };
+    for (const p of state.projects) {
+      if (p.archived && p.category) base[p.category] += 1;
+      else if (p.archived) base.warranty += 1;
+    }
+    return base;
+  }, [state.projects]);
+  const categoryProjects = useMemo(
+    () =>
+      state.projects.filter(
+        (p) => p.archived && (p.category ?? "warranty") === categoryView,
+      ),
+    [state.projects, categoryView],
+  );
+
 
   const allProjectNames = useMemo(() => activeProjects.map((p) => p.name), [activeProjects]);
   const [excluded, setExcluded] = useState<string[]>([]);
