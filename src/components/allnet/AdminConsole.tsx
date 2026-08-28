@@ -212,6 +212,35 @@ export function AdminConsole() {
     () => state.projects.filter((p) => !p.archived),
     [state.projects],
   );
+  /** היסטוריית שמות לקוח ופרויקט למניעת כפילויות בכתיב */
+  const clientHistory = useMemo(
+    () =>
+      Array.from(
+        new Set(state.projects.map((p) => (p.client ?? "").trim()).filter(Boolean)),
+      ).sort((a, b) => a.localeCompare(b, "he")),
+    [state.projects],
+  );
+  const projectNameHistory = useMemo(
+    () =>
+      Array.from(new Set(state.projects.map((p) => p.name.trim()).filter(Boolean))).sort(
+        (a, b) => a.localeCompare(b, "he"),
+      ),
+    [state.projects],
+  );
+  const historyDatalists = (
+    <>
+      <datalist id="allnet-client-history">
+        {clientHistory.map((c) => (
+          <option key={c} value={c} />
+        ))}
+      </datalist>
+      <datalist id="allnet-project-history">
+        {projectNameHistory.map((n) => (
+          <option key={n} value={n} />
+        ))}
+      </datalist>
+    </>
+  );
   const archivedProjects = useMemo(
     () => state.projects.filter((p) => p.archived),
     [state.projects],
