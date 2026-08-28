@@ -97,6 +97,25 @@ export function EmployeePortal() {
     [state.hours, user],
   );
 
+  const activeProjects = useMemo(
+    () => state.projects.filter((p) => !p.archived),
+    [state.projects],
+  );
+
+  const clients = useMemo(
+    () =>
+      Array.from(
+        new Set(activeProjects.map((p) => (p.client ?? "").trim()).filter(Boolean)),
+      ).sort((a, b) => a.localeCompare(b, "he")),
+    [activeProjects],
+  );
+
+  const projectOptions = useMemo(
+    () =>
+      client ? activeProjects.filter((p) => (p.client ?? "").trim() === client) : activeProjects,
+    [activeProjects, client],
+  );
+
   const livePreview = from && to ? formatHoursMinutes(minutesBetween(from, to)) : "—";
 
 
