@@ -733,7 +733,7 @@ export function AdminConsole() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button type="submit" variant="brand">
                         שמור שינויים בפרויקט
                       </Button>
@@ -743,6 +743,27 @@ export function AdminConsole() {
                         onClick={() => setEditTarget(null)}
                       >
                         ביטול
+                      </Button>
+                    </div>
+                    <Separator />
+                    <div className="flex items-center justify-between rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+                      <div>
+                        <p className="font-semibold text-destructive">מחיקת פרויקט</p>
+                        <p className="text-xs text-muted-foreground">
+                          פעולה זו תמחק את הפרויקט, דיווחי השעות והקבצים שלו לצמיתות.
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={() => {
+                          if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט '${editForm.name}'?`)) {
+                            deleteProject(editForm.name);
+                          }
+                        }}
+                      >
+                        <Trash2 className="size-4" />
+                        מחק פרויקט
                       </Button>
                     </div>
                   </form>
