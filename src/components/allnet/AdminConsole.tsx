@@ -125,7 +125,7 @@ function KpiCard({
       className="animate-rise hover-lift surface-panel rounded-2xl p-5"
     >
       <div className="mb-3 flex items-center justify-between">
-        <span className={cn("text-xs font-semibold uppercase tracking-wide text-muted-foreground", titleClassName)}>
+        <span className={cn("text-base font-bold text-foreground", titleClassName)}>
           {title}
         </span>
         <span className="brand-gradient flex size-9 items-center justify-center rounded-lg text-primary-foreground">
