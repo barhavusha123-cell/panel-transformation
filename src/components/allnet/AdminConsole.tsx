@@ -1707,6 +1707,7 @@ export function AdminConsole() {
 
 
             <div className="surface-panel rounded-2xl p-5">
+              {hourEditDialog}
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold">יומן דיווחי שעות</h3>
                 <Button
@@ -1715,6 +1716,7 @@ export function AdminConsole() {
                     downloadCsv(
                       filteredHours.map((h) => ({
                         "שם המדווח": h.reporter,
+                        "שם לקוח": hourClient(h),
                         פרויקט: h.project,
                         תאריך: formatDateIL(h.date),
                         משעה: h.from,
@@ -1740,7 +1742,8 @@ export function AdminConsole() {
                         {(
                           [
                             ["reporter", "שם המדווח"],
-                            ["project", "פרויקט"],
+                            ["client", "שם לקוח"],
+                            ["project", "שם פרויקט"],
                             ["date", "תאריך"],
                             ["from", "משעה"],
                             ["to", "עד שעה"],
@@ -1759,13 +1762,14 @@ export function AdminConsole() {
                             />
                           </TableHead>
                         ))}
-
+                        <TableHead className="text-right">פעולות</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filteredHours.map((h) => (
                         <TableRow key={h.id} className="transition-colors hover:bg-surface-2/60">
                           <TableCell className="font-medium">{h.reporter}</TableCell>
+                          <TableCell>{hourClient(h)}</TableCell>
                           <TableCell>
                             <button
                               type="button"
@@ -1781,6 +1785,37 @@ export function AdminConsole() {
                           <TableCell className="text-primary">{h.worked}</TableCell>
                           <TableCell>{h.extras || "—"}</TableCell>
                           <TableCell className="max-w-48 truncate">{h.notes || "—"}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Button
+                                size="sm"
+                                variant="soft"
+                                onClick={() =>
+                                  setHourEdit({
+                                    id: h.id,
+                                    project: h.project,
+                                    date: h.date,
+                                    from: h.from,
+                                    to: h.to,
+                                    notes: h.notes ?? "",
+                                    extras: h.extras ?? "",
+                                  })
+                                }
+                              >
+                                <Pencil className="size-4" />
+                                ערוך
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-destructive hover:bg-destructive/10"
+                                onClick={() => deleteHour(h.id)}
+                              >
+                                <Trash2 className="size-4" />
+                                מחק
+                              </Button>
+                            </div>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
