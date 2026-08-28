@@ -163,16 +163,13 @@ function SliceLabel(props: {
       textAnchor="middle"
       dominantBaseline="central"
       className="pointer-events-none"
-      fill="#000000"
-      stroke="#ffffff"
-      strokeWidth={4}
-      paintOrder="stroke"
-      style={{ fontSize: 26, fontWeight: 900 }}
+      fill="#111111"
+      style={{ fontSize: 16, fontWeight: 700 }}
     >
       <tspan x={x} dy="-0.5em">
         {short}
       </tspan>
-      <tspan x={x} dy="1.25em" style={{ fontSize: 22, fontWeight: 800 }}>
+      <tspan x={x} dy="1.3em" style={{ fontSize: 14, fontWeight: 600 }}>
         {Math.round(payload.pct)}%
       </tspan>
     </text>
