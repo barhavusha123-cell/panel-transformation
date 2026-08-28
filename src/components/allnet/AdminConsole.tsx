@@ -611,9 +611,11 @@ export function AdminConsole() {
           </div>
                   <form onSubmit={saveProject} className="animate-fade space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
+                      {historyDatalists}
                       <div className="space-y-2">
                         <Label>שם לקוח</Label>
                         <Input
+                          list="allnet-client-history"
                           value={editForm.client}
                           onChange={(e) =>
                             setEditForm({ ...editForm, client: e.target.value })
@@ -624,6 +626,7 @@ export function AdminConsole() {
                       <div className="space-y-2">
                         <Label>שם הפרויקט</Label>
                         <Input
+                          list="allnet-project-history"
                           value={editForm.name}
                           onChange={(e) =>
                             setEditForm({ ...editForm, name: e.target.value })
