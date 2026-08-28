@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { ArrowRight, Download, HardHat, Pencil, Users } from "lucide-react";
 import { useAllNet } from "@/lib/allnet/store";
-import { downloadCsv, formatHoursMinutes } from "@/lib/allnet/utils";
+import { downloadCsv, formatDateIL, formatHoursMinutes } from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
