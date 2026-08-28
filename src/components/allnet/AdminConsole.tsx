@@ -1162,9 +1162,10 @@ export function AdminConsole() {
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
             {archivedProjects.length > 0
-              ? `בארכיון: ${archivedProjects.length} פרויקטים`
-              : "אין פרויקטים בארכיון"}
+              ? `פרויקטים סגורים: ${archivedProjects.length} (שנת שירות ${categoryCounts.warranty} · הסכם שירות ${categoryCounts.service} · לא בשירות ${categoryCounts.noservice})`
+              : "אין פרויקטים סגורים"}
           </p>
+
           <Button
             variant={activeProjects.length ? "brand" : "soft"}
             size="sm"
