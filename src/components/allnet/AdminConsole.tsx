@@ -249,13 +249,15 @@ export function AdminConsole() {
   const rowFor = (name: string) => {
     const p = state.projects.find((x) => x.name === name);
     const manager = p?.manager ?? "לא הוגדר";
+    const client = p?.client ?? "";
     const budget = p ? effectiveBudget(p) : 100;
+    const cost = calculateProjectCost(state, name);
     const minutes = state.hours
       .filter((h) => h.project === name)
       .reduce((a, h) => a + h.minutes, 0);
     const reported = Math.round((minutes / 60) * 100) / 100;
     const pct = budget > 0 ? Math.round((reported / budget) * 1000) / 10 : 0;
-    return { name, manager, budget, reported, pct };
+    return { name, client, manager, budget, cost, reported, pct };
   };
 
   const dashRows = selectedDash.map(rowFor);
