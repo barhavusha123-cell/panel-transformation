@@ -186,9 +186,15 @@ export function AdminConsole() {
 
 
 
-  // report filters
-  const [projFilter, setProjFilter] = useState<string[]>([]);
-  const [workerFilter, setWorkerFilter] = useState<string[]>([]);
+  // report filters (per-column)
+  const [colFilters, setColFilters] = useState<Record<string, string[]>>({});
+  const toggleColFilter = (col: string, v: string) =>
+    setColFilters((prev) => {
+      const cur = prev[col] ?? [];
+      return { ...prev, [col]: cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v] };
+    });
+  const clearColFilter = (col: string) => setColFilters((prev) => ({ ...prev, [col]: [] }));
+
 
   const activeProjects = useMemo(
     () => state.projects.filter((p) => !p.archived),
