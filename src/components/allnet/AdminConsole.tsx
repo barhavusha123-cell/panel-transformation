@@ -512,6 +512,164 @@ export function AdminConsole() {
     );
   }
 
+  if (editTarget) {
+    return (
+      <div className="mx-auto max-w-5xl px-5 pb-16">
+        <div className="animate-rise surface-panel rounded-2xl p-6">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="flex items-center gap-2 text-xl font-bold">
+              <Pencil className="size-5 text-primary" />
+              עריכת פרויקט · <span className="text-gradient">{editTarget}</span>
+            </h2>
+            <Button variant="soft" onClick={() => setEditTarget(null)}>
+              <ArrowRight className="size-4" />
+              חזרה
+            </Button>
+          </div>
+                  <form onSubmit={saveProject} className="animate-fade space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>שם הפרויקט</Label>
+                        <Input
+                          value={editForm.name}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, name: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>מנהל פרויקט אחראי</Label>
+                        <Select
+                          value={editForm.manager}
+                          onValueChange={(v) => setEditForm({ ...editForm, manager: v })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="בחר מנהל" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {managers.map((m) => (
+                              <SelectItem key={m} value={m}>
+                                {m}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>תקציב שעות מוקצה (1-1000)</Label>
+                        <Input
+                          type="number"
+                          min={MIN_BUDGET}
+                          max={MAX_BUDGET}
+                          step={1}
+                          value={editForm.budget}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, budget: Number(e.target.value) })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>תקציב ימי עבודה</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          step={1}
+                          value={editForm.budgetDays}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, budgetDays: Number(e.target.value) })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>תוספת שעות עבודה חריגות (באישור מנהל)</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          step={1}
+                          value={editForm.extraHours}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, extraHours: Number(e.target.value) })
+                          }
+                        />
+                        <p className="text-[11px] text-muted-foreground">
+                          השעות נוספות לתקציב הפרויקט לצורך חישוב הניצול.
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>מועד מסירה</Label>
+                        <Input
+                          type="date"
+                          className="w-full"
+                          value={editForm.deliveryDate}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, deliveryDate: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>איזור</Label>
+                        <Select
+                          value={editForm.region}
+                          onValueChange={(v) =>
+                            setEditForm({ ...editForm, region: v as Region })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="בחר איזור" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {REGIONS.map((r) => (
+                              <SelectItem key={r} value={r}>
+                                {r}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <RegionRates region={editForm.region} />
+                      </div>
+                      <div className="space-y-2 md:col-span-2">
+                        <Label>צוות משויך לפרויקט (ניתן לבחור כמה עובדים)</Label>
+                        <div className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-2 md:grid-cols-3">
+                          {state.users.map((u) => (
+                            <label
+                              key={u.username}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              <Checkbox
+                                checked={editForm.team.includes(u.full_name)}
+                                onCheckedChange={() =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    team: prev.team.includes(u.full_name)
+                                      ? prev.team.filter((x) => x !== u.full_name)
+                                      : [...prev.team, u.full_name],
+                                  }))
+                                }
+                              />
+                              {u.full_name}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button type="submit" variant="brand">
+                        שמור שינויים בפרויקט
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setEditTarget(null)}
+                      >
+                        ביטול
+                      </Button>
+                    </div>
+                  </form>
+        </div>
+      </div>
+    );
+  }
+
   if (view === "projects" || view === "archive") {
     const isArchive = view === "archive";
     const list = isArchive ? archivedProjects : activeProjects;
