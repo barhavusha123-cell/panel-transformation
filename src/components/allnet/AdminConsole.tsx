@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
 import {
   Archive,
   ArchiveRestore,
@@ -107,12 +108,16 @@ function KpiCard({
   icon,
   children,
   delay = 0,
+  titleClassName,
+  valueClassName,
 }: {
   title: string;
   value?: string;
   icon: React.ReactNode;
   children?: React.ReactNode;
   delay?: number;
+  titleClassName?: string;
+  valueClassName?: string;
 }) {
   return (
     <div
@@ -120,14 +125,14 @@ function KpiCard({
       className="animate-rise hover-lift surface-panel rounded-2xl p-5"
     >
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <span className={cn("text-xs font-semibold uppercase tracking-wide text-muted-foreground", titleClassName)}>
           {title}
         </span>
         <span className="brand-gradient flex size-9 items-center justify-center rounded-lg text-primary-foreground">
           {icon}
         </span>
       </div>
-      {value && <div className="text-2xl font-bold">{value}</div>}
+      {value && <div className={cn("text-2xl font-bold", valueClassName)}>{value}</div>}
       {children}
     </div>
   );
@@ -937,17 +942,19 @@ export function AdminConsole() {
           title="פרויקטים פעילים"
           value={String(activeProjects.length)}
           icon={<Briefcase className="size-4" />}
+          titleClassName="text-blue text-base"
+          valueClassName="text-blue text-5xl"
         >
-          <div className="mt-2 flex gap-3 text-xs">
+          <div className="mt-2 flex gap-3 text-sm text-blue">
             <button
               onClick={() => setView("projects")}
-              className="cursor-pointer text-primary underline-offset-4 hover:underline"
+              className="cursor-pointer underline-offset-4 hover:underline"
             >
               צפה בכל הפרויקטים
             </button>
             <button
               onClick={() => setView("archive")}
-              className="cursor-pointer text-muted-foreground underline-offset-4 hover:underline"
+              className="cursor-pointer text-blue/70 underline-offset-4 hover:underline"
             >
               ארכיון ({archivedProjects.length})
             </button>
