@@ -130,11 +130,7 @@
 
   --gradient-brand: linear-gradient(135deg, var(--primary) 0%, var(--primary-glow) 100%);
   --gradient-surface: linear-gradient(160deg, oklch(1 0 0) 0%, oklch(0.99 0 0) 100%);
-  --gradient-aurora: radial-gradient(
-      60rem 40rem at 85% -10%,
-      color-mix(in oklab, var(--primary) 6%, transparent) 0%,
-      transparent 62%
-    );
+  --gradient-aurora: none;
   --shadow-elegant: 0 22px 55px -30px color-mix(in oklab, oklch(0.2 0 0) 35%, transparent);
   --shadow-glow: 0 0 0 1px color-mix(in oklab, var(--primary) 45%, transparent),
     0 18px 40px -20px color-mix(in oklab, var(--primary) 40%, transparent);
