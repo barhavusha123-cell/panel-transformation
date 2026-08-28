@@ -255,11 +255,43 @@ export function AdminConsole() {
     .sort((a, b) => b.pct - a.pct);
 
   // reports
-  const filteredHours = state.hours.filter(
-    (h) =>
-      (!projFilter.length || projFilter.includes(h.project)) &&
-      (!workerFilter.length || workerFilter.includes(h.reporter)),
-  );
+  const hourColValue = (h: (typeof state.hours)[number], col: string): string => {
+    switch (col) {
+      case "reporter":
+        return h.reporter;
+      case "project":
+        return h.project;
+      case "date":
+        return h.date;
+      case "from":
+        return h.from;
+      case "to":
+        return h.to;
+      case "worked":
+        return h.worked;
+      case "extras":
+        return h.extras || "—";
+      case "notes":
+        return h.notes || "—";
+      default:
+        return "";
+    }
+  };
+
+  const hourColOptions = (col: string) =>
+    Array.from(new Set(state.hours.map((h) => hourColValue(h, col)))).sort((a, b) =>
+      a.localeCompare(b, "he"),
+    );
+
+  const filteredHours = state.hours
+    .filter((h) =>
+      Object.entries(colFilters).every(
+        ([col, vals]) => !vals.length || vals.includes(hourColValue(h, col)),
+      ),
+    )
+    .slice()
+    .sort((a, b) => (a.date === b.date ? b.id - a.id : a.date < b.date ? 1 : -1));
+
 
   const toggle = (arr: string[], v: string, set: (x: string[]) => void) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
