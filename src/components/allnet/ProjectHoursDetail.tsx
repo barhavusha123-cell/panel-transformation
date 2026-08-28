@@ -101,9 +101,11 @@ function HoursGroup({
 export function ProjectHoursDetail({
   projectName,
   onBack,
+  onEdit,
 }: {
   projectName: string;
   onBack: () => void;
+  onEdit?: () => void;
 }) {
   const { state } = useAllNet();
   const project = state.projects.find((p) => p.name === projectName);
