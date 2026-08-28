@@ -935,27 +935,30 @@ export function AdminConsole() {
       </h2>
 
       <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <KpiCard
-          title="פרויקטים פעילים"
-          value={String(activeProjects.length)}
-          icon={<Briefcase className="size-4" />}
-          titleClassName="text-blue text-base"
-          valueClassName="text-blue text-5xl"
-        >
-          <div className="mt-2 flex gap-3 text-sm text-blue">
-            <button
-              onClick={() => setView("projects")}
-              className="cursor-pointer underline-offset-4 hover:underline"
-            >
-              צפה בכל הפרויקטים
-            </button>
-            <button
-              onClick={() => setView("archive")}
-              className="cursor-pointer text-blue/70 underline-offset-4 hover:underline"
-            >
-              ארכיון ({archivedProjects.length})
-            </button>
+        <KpiCard title="פרויקטים פעילים" icon={<Briefcase className="size-4" />}>
+          <div className="flex items-center gap-2">
+            <span className={`text-2xl font-bold ${activeProjects.length ? "text-primary" : ""}`}>
+              {activeProjects.length}
+            </span>
+            {activeProjects.length > 0 && (
+              <Badge variant="default" className="animate-pulse">
+                פעילים
+              </Badge>
+            )}
           </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {archivedProjects.length > 0
+              ? `בארכיון: ${archivedProjects.length} פרויקטים`
+              : "אין פרויקטים בארכיון"}
+          </p>
+          <Button
+            variant={activeProjects.length ? "brand" : "soft"}
+            size="sm"
+            className="mt-3 w-full"
+            onClick={() => setView("projects")}
+          >
+            צפה בכל הפרויקטים
+          </Button>
         </KpiCard>
 
         <KpiCard title="פרויקטים לפני מסירה" icon={<CalendarClock className="size-4" />} delay={80}>
