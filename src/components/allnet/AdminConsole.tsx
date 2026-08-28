@@ -1459,16 +1459,16 @@ export function AdminConsole() {
               </h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
-                  <Label>שם הפרויקט</Label>
-                  <Input value={np.name} onChange={(e) => setNp({ ...np, name: e.target.value })} />
-                </div>
-                <div className="space-y-2">
                   <Label>שם לקוח</Label>
                   <Input
                     value={np.client}
                     onChange={(e) => setNp({ ...np, client: e.target.value })}
                     placeholder="שם הלקוח"
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label>שם הפרויקט</Label>
+                  <Input value={np.name} onChange={(e) => setNp({ ...np, name: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label>מנהל פרויקט אחראי</Label>
@@ -1486,7 +1486,7 @@ export function AdminConsole() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>תקציב שעות מוקצה</Label>
+                  <Label>שעות מנהל פרויקט / עובד</Label>
                   <Input
                     type="number"
                     min={MIN_BUDGET}
@@ -1496,7 +1496,7 @@ export function AdminConsole() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>תקציב ימי עבודה</Label>
+                  <Label>ימי עבודה קבלן משנה</Label>
                   <Input
                     type="number"
                     min={0}
