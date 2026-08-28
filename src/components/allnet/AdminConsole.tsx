@@ -199,10 +199,14 @@ export function AdminConsole() {
   const [categoryView, setCategoryView] = useState<ProjectCategory>("warranty");
   /** פרויקט שנמצא בתהליך סגירה (טופס 3 שאלות) */
   const [closeTarget, setCloseTarget] = useState<string | null>(null);
-  const [closeForm, setCloseForm] = useState({
-    hasDocFile: false,
-    equipmentOnSite: false,
-    invoiceIssued: false,
+  const [closeForm, setCloseForm] = useState<{
+    hasDocFile: boolean | null;
+    equipmentOnSite: boolean | null;
+    invoiceIssued: boolean | null;
+  }>({
+    hasDocFile: null,
+    equipmentOnSite: null,
+    invoiceIssued: null,
   });
 
   const [detailProject, setDetailProject] = useState<string | null>(null);
@@ -747,17 +751,18 @@ export function AdminConsole() {
   const openClosure = (name: string) => {
     const p = projectByName(name);
     setCloseForm({
-      hasDocFile: p?.closure?.hasDocFile ?? false,
-      equipmentOnSite: p?.closure?.equipmentOnSite ?? false,
-      invoiceIssued: p?.closure?.invoiceIssued ?? false,
+      hasDocFile: p?.closure?.hasDocFile ?? null,
+      equipmentOnSite: p?.closure?.equipmentOnSite ?? null,
+      invoiceIssued: p?.closure?.invoiceIssued ?? null,
     });
     setCloseTarget(name);
   };
 
   const saveClosure = () => {
     if (!closeTarget) return;
-    if (!closeForm.hasDocFile || !closeForm.equipmentOnSite || !closeForm.invoiceIssued) {
-      toast.error("יש לסמן את שלוש השאלות כדי להשלים את סגירת הפרויקט.");
+    const { hasDocFile, equipmentOnSite, invoiceIssued } = closeForm;
+    if (hasDocFile === null || equipmentOnSite === null || invoiceIssued === null) {
+      toast.error("יש לענות כן / לא על כל שלוש השאלות כדי להשלים את סגירת הפרויקט.");
       return;
     }
     const name = closeTarget;
@@ -765,7 +770,10 @@ export function AdminConsole() {
       ...prev,
       projects: prev.projects.map((p) =>
         p.name === name
-          ? { ...p, closure: { ...closeForm, closedAt: new Date().toISOString() } }
+          ? {
+              ...p,
+              closure: { hasDocFile, equipmentOnSite, invoiceIssued, closedAt: new Date().toISOString() },
+            }
           : p,
       ),
     }));
@@ -855,7 +863,7 @@ export function AdminConsole() {
             סגירת פרויקט — {closeTarget}
           </DialogTitle>
           <DialogDescription>
-            יש לסמן את שלוש השאלות. ללא סגירת פרויקט לא ניתן להעביר את הפרויקט לאף קטגוריה.
+            יש לענות כן / לא על כל שלוש השאלות. ללא סגירת פרויקט לא ניתן להעביר את הפרויקט לאף קטגוריה.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
@@ -866,16 +874,36 @@ export function AdminConsole() {
               ["invoiceIssued", "האם יצאה חשבונית"],
             ] as const
           ).map(([key, label]) => (
-            <label
+            <div
               key={key}
-              className="flex cursor-pointer items-center gap-3 rounded-xl border border-border p-3 text-sm transition-colors hover:bg-surface-2/60"
+              className="flex items-center justify-between gap-3 rounded-xl border border-border p-3 text-sm"
             >
-              <Checkbox
-                checked={closeForm[key]}
-                onCheckedChange={(v) => setCloseForm((prev) => ({ ...prev, [key]: !!v }))}
-              />
-              {label}
-            </label>
+              <span className="font-medium">{label}</span>
+              <div className="flex gap-2">
+                {(
+                  [
+                    [true, "כן"],
+                    [false, "לא"],
+                  ] as const
+                ).map(([val, text]) => (
+                  <button
+                    key={text}
+                    type="button"
+                    onClick={() => setCloseForm((prev) => ({ ...prev, [key]: val }))}
+                    className={cn(
+                      "min-w-12 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors",
+                      closeForm[key] === val
+                        ? val
+                          ? "border-emerald-500 bg-emerald-500 text-white"
+                          : "border-rose-500 bg-rose-500 text-white"
+                        : "border-border bg-background text-muted-foreground hover:bg-surface-2/60",
+                    )}
+                  >
+                    {text}
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
         <DialogFooter className="flex-row-reverse justify-start gap-2">
