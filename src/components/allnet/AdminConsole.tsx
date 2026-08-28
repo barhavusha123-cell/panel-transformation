@@ -784,12 +784,14 @@ export function AdminConsole() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-right">שם הפרויקט</TableHead>
+                  <TableHead className="text-right">שם לקוח</TableHead>
+                  <TableHead className="text-right">שם פרויקט</TableHead>
+                  <TableHead className="text-right">עלות פרויקט</TableHead>
                   <TableHead className="text-right">מנהל פרויקט</TableHead>
                   <TableHead className="text-right">תקציב שעות</TableHead>
-                  <TableHead className="text-right">צוות משויך</TableHead>
                   <TableHead className="text-right">ניצול</TableHead>
                   <TableHead className="text-right">פעולות</TableHead>
+                  <TableHead className="text-right">העבר לארכיון</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -797,6 +799,9 @@ export function AdminConsole() {
                   const r = rowFor(p.name);
                   return (
                     <TableRow key={p.name} className="transition-colors hover:bg-surface-2/60">
+                      <TableCell className="text-sm text-muted-foreground">
+                        {p.client || "—"}
+                      </TableCell>
                       <TableCell>
                         <button
                           type="button"
@@ -806,15 +811,15 @@ export function AdminConsole() {
                           {p.name}
                         </button>
                       </TableCell>
+                      <TableCell className="font-semibold">
+                        {Math.round(r.cost).toLocaleString("he-IL")} ₪
+                      </TableCell>
                       <TableCell>{p.manager}</TableCell>
                       <TableCell>{p.budget.toLocaleString()}</TableCell>
-                      <TableCell className="max-w-64 truncate text-xs text-muted-foreground">
-                        {p.team?.length ? p.team.join(", ") : "לא שויך"}
-                      </TableCell>
                       <TableCell>
                         <Badge variant={r.pct >= 80 ? "destructive" : "secondary"}>{r.pct}%</Badge>
                       </TableCell>
-                      <TableCell className="flex flex-wrap gap-1">
+                      <TableCell>
                         <Button
                           size="sm"
                           variant="soft"
@@ -822,11 +827,12 @@ export function AdminConsole() {
                             startEdit(p);
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
-
                         >
                           <Pencil className="size-4" />
                           ערוך
                         </Button>
+                      </TableCell>
+                      <TableCell>
                         <Button
                           size="sm"
                           variant="ghost"
