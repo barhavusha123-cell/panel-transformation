@@ -43,6 +43,8 @@ export interface Project {
   budgetDays?: number;
   /** תוספת שעות עבודה חריגות באישור מנהל */
   extraHours?: number;
+  /** סיבת אישור השעות החריגות */
+  extraHoursReason?: string;
   /** בכמה נמכר הפרויקט (הכנסה) */
   saleAmount?: number;
   /** עלויות קבועות לפרויקט */
