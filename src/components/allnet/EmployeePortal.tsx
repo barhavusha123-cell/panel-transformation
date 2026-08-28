@@ -80,6 +80,7 @@ export function EmployeePortal() {
   const { state, setState, session } = useAllNet();
   const user = session?.user;
 
+  const [client, setClient] = useState("");
   const [project, setProject] = useState("");
   const [reportDate, setReportDate] = useState(todayISO());
   const [dateOpen, setDateOpen] = useState(false);
@@ -94,6 +95,25 @@ export function EmployeePortal() {
   const myHours = useMemo(
     () => state.hours.filter((h) => h.username === user?.username).slice().reverse(),
     [state.hours, user],
+  );
+
+  const activeProjects = useMemo(
+    () => state.projects.filter((p) => !p.archived),
+    [state.projects],
+  );
+
+  const clients = useMemo(
+    () =>
+      Array.from(
+        new Set(activeProjects.map((p) => (p.client ?? "").trim()).filter(Boolean)),
+      ).sort((a, b) => a.localeCompare(b, "he")),
+    [activeProjects],
+  );
+
+  const projectOptions = useMemo(
+    () =>
+      client ? activeProjects.filter((p) => (p.client ?? "").trim() === client) : activeProjects,
+    [activeProjects, client],
   );
 
   const livePreview = from && to ? formatHoursMinutes(minutesBetween(from, to)) : "—";
@@ -136,6 +156,8 @@ export function EmployeePortal() {
       id: (state.hours.at(-1)?.id ?? 0) + 1,
       username: user.username,
       project,
+      client:
+        (state.projects.find((p) => p.name === project)?.client ?? "").trim() || client.trim(),
       reporter: user.full_name,
       role: user.role,
       from,
@@ -192,13 +214,43 @@ export function EmployeePortal() {
 
             <div className="grid gap-5 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>שם פרויקט ראשי</Label>
-                <Select value={project} onValueChange={setProject}>
+                <Label>שם לקוח</Label>
+                <Select
+                  value={client}
+                  onValueChange={(v) => {
+                    setClient(v);
+                    const p = state.projects.find((x) => x.name === project);
+                    if (p && (p.client ?? "").trim() !== v) setProject("");
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="בחר לקוח" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clients.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>שם פרויקט</Label>
+                <Select
+                  value={project}
+                  onValueChange={(v) => {
+                    setProject(v);
+                    const c = (state.projects.find((x) => x.name === v)?.client ?? "").trim();
+                    if (c) setClient(c);
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="בחר פרויקט" />
                   </SelectTrigger>
                   <SelectContent>
-                    {state.projects.filter((p) => !p.archived).map((p) => (
+                    {projectOptions.map((p) => (
                       <SelectItem key={p.name} value={p.name}>
                         {p.name}
                       </SelectItem>
