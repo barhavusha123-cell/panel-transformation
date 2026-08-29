@@ -221,6 +221,21 @@ export function ProjectHoursDetail({
   const budget = effectiveBudget(project);
   const pct = budget > 0 ? Math.round((reported / budget) * 1000) / 10 : 0;
 
+  /** תאריך המעבר לקטגוריה (עם נפילה חזרה לתאריך סגירת הפרויקט לפרויקטים ישנים) */
+  const categorizedAt = project?.categorizedAt ?? project?.closure?.closedAt;
+  const warranty = (() => {
+    if (!project?.archived) return null;
+    if ((project.category ?? "warranty") !== "warranty") return null;
+    if (!categorizedAt) return null;
+    const end = new Date(categorizedAt);
+    end.setFullYear(end.getFullYear() + 1);
+    return {
+      endsAt: end.toISOString(),
+      daysLeft: Math.ceil((end.getTime() - Date.now()) / 86400000),
+    };
+  })();
+
+
   return (
     <div className="animate-fade space-y-6">
       <div className="surface-panel rounded-2xl p-6">
