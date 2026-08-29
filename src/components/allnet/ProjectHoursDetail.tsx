@@ -236,6 +236,31 @@ export function ProjectHoursDetail({
                 : ""}
               {project?.budgetDays ? ` · תקציב ${project.budgetDays} ימי עבודה` : ""}
             </p>
+            {project?.archived && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Badge variant="secondary">
+                  {CATEGORY_LABELS[project.category ?? "warranty"]}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  תאריך מעבר לקטגוריה:{" "}
+                  {categorizedAt ? formatDateIL(categorizedAt.slice(0, 10)) : "לא תועד"}
+                </span>
+                {warranty && (
+                  <>
+                    <span className="text-xs text-muted-foreground">
+                      סיום שנת שירות: {formatDateIL(warranty.endsAt.slice(0, 10))}
+                    </span>
+                    <Badge variant={warranty.daysLeft <= 30 ? "destructive" : "secondary"}>
+                      {warranty.daysLeft <= 0
+                        ? "שנת השירות הסתיימה — יש לשלוח חידוש הסכם שירות"
+                        : warranty.daysLeft <= 30
+                          ? `מסיים שנת שירות בעוד ${warranty.daysLeft} ימים — יש לשלוח הסכם שירות`
+                          : `נותרו ${warranty.daysLeft} ימים לסיום שנת השירות`}
+                    </Badge>
+                  </>
+                )}
+              </div>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             {onEdit && (
