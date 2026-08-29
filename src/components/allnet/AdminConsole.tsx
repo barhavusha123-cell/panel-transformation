@@ -921,6 +921,21 @@ export function AdminConsole() {
             </div>
           ))}
         </div>
+        {(closeForm.hasDocFile === false ||
+          closeForm.equipmentOnSite === false ||
+          closeForm.invoiceIssued === false) && (
+          <div className="space-y-2">
+            <Label>
+              פירוט הסיבה <span className="text-rose-500">*</span>
+            </Label>
+            <Textarea
+              value={closeReason}
+              onChange={(e) => setCloseReason(e.target.value)}
+              placeholder="פרט מדוע סומנה תשובת 'לא'..."
+              rows={3}
+            />
+          </div>
+        )}
         <DialogFooter className="flex-row-reverse justify-start gap-2">
           <Button variant="brand" onClick={saveClosure}>
             אשר סגירת פרויקט
