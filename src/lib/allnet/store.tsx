@@ -1,5 +1,4 @@
 import {
-  createContext,
   useCallback,
   useContext,
   useEffect,
@@ -7,26 +6,13 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { defaultState, type AllNetState, type User } from "./types";
+import { defaultState, type AllNetState } from "./types";
+import { StoreContext, type Session } from "./store-context";
 
 const STORAGE_KEY = "allnet_ops_state_v1";
 const SESSION_KEY = "allnet_ops_session_v1";
 
-interface Session {
-  kind: "admin" | "employee";
-  user: User | null;
-}
-
-interface StoreValue {
-  state: AllNetState;
-  setState: (updater: (prev: AllNetState) => AllNetState) => void;
-  session: Session | null;
-  setSession: (s: Session | null) => void;
-  hydrated: boolean;
-  resetAll: () => void;
-}
-
-const StoreContext = createContext<StoreValue | null>(null);
+export type { Session };
 
 export function AllNetProvider({ children }: { children: ReactNode }) {
   const [state, setRaw] = useState<AllNetState>(defaultState);
