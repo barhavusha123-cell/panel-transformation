@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  CATEGORY_LABELS,
   EMPLOYEE_DAY_RATE,
   effectiveBudget,
   MIN_FULL_DAY_MINUTES,
@@ -220,6 +221,21 @@ export function ProjectHoursDetail({
   const budget = effectiveBudget(project);
   const pct = budget > 0 ? Math.round((reported / budget) * 1000) / 10 : 0;
 
+  /** תאריך המעבר לקטגוריה (עם נפילה חזרה לתאריך סגירת הפרויקט לפרויקטים ישנים) */
+  const categorizedAt = project?.categorizedAt ?? project?.closure?.closedAt;
+  const warranty = (() => {
+    if (!project?.archived) return null;
+    if ((project.category ?? "warranty") !== "warranty") return null;
+    if (!categorizedAt) return null;
+    const end = new Date(categorizedAt);
+    end.setFullYear(end.getFullYear() + 1);
+    return {
+      endsAt: end.toISOString(),
+      daysLeft: Math.ceil((end.getTime() - Date.now()) / 86400000),
+    };
+  })();
+
+
   return (
     <div className="animate-fade space-y-6">
       <div className="surface-panel rounded-2xl p-6">
@@ -235,6 +251,31 @@ export function ProjectHoursDetail({
                 : ""}
               {project?.budgetDays ? ` · תקציב ${project.budgetDays} ימי עבודה` : ""}
             </p>
+            {project?.archived && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Badge variant="secondary">
+                  {CATEGORY_LABELS[project.category ?? "warranty"]}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  תאריך מעבר לקטגוריה:{" "}
+                  {categorizedAt ? formatDateIL(categorizedAt.slice(0, 10)) : "לא תועד"}
+                </span>
+                {warranty && (
+                  <>
+                    <span className="text-xs text-muted-foreground">
+                      סיום שנת שירות: {formatDateIL(warranty.endsAt.slice(0, 10))}
+                    </span>
+                    <Badge variant={warranty.daysLeft <= 30 ? "destructive" : "secondary"}>
+                      {warranty.daysLeft <= 0
+                        ? "שנת השירות הסתיימה — יש לשלוח חידוש הסכם שירות"
+                        : warranty.daysLeft <= 30
+                          ? `מסיים שנת שירות בעוד ${warranty.daysLeft} ימים — יש לשלוח הסכם שירות`
+                          : `נותרו ${warranty.daysLeft} ימים לסיום שנת השירות`}
+                    </Badge>
+                  </>
+                )}
+              </div>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             {onEdit && (

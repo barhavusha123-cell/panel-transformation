@@ -296,15 +296,21 @@ export function AdminConsole() {
     const dayMs = 86400000;
     const now = Date.now();
     return state.projects
-      .filter((p) => p.archived && (p.category ?? "warranty") === "warranty" && p.categorizedAt)
+      .filter(
+        (p) =>
+          p.archived &&
+          (p.category ?? "warranty") === "warranty" &&
+          (p.categorizedAt ?? p.closure?.closedAt),
+      )
       .map((p) => {
-        const start = new Date(p.categorizedAt!);
+        const startedAt = (p.categorizedAt ?? p.closure?.closedAt)!;
+        const start = new Date(startedAt);
         const end = new Date(start);
         end.setFullYear(end.getFullYear() + 1);
         return {
           name: p.name,
           client: p.client ?? "",
-          startedAt: p.categorizedAt!,
+          startedAt,
           endsAt: end.toISOString(),
           daysLeft: Math.ceil((end.getTime() - now) / dayMs),
         };
