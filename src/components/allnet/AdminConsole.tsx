@@ -768,14 +768,26 @@ export function AdminConsole() {
       toast.error("יש לענות כן / לא על כל שלוש השאלות כדי להשלים את סגירת הפרויקט.");
       return;
     }
+    const hasNegative = !hasDocFile || !equipmentOnSite || !invoiceIssued;
+    if (hasNegative && !closeReason.trim()) {
+      toast.error("סומנה תשובת 'לא' — יש לפרט את הסיבה בתיבת הטקסט.");
+      return;
+    }
     const name = closeTarget;
+    const reason = closeReason.trim();
     setState((prev) => ({
       ...prev,
       projects: prev.projects.map((p) =>
         p.name === name
           ? {
               ...p,
-              closure: { hasDocFile, equipmentOnSite, invoiceIssued, closedAt: new Date().toISOString() },
+              closure: {
+                hasDocFile,
+                equipmentOnSite,
+                invoiceIssued,
+                ...(reason ? { reason } : {}),
+                closedAt: new Date().toISOString(),
+              },
             }
           : p,
       ),
