@@ -291,6 +291,28 @@ export function AdminConsole() {
     }
     return base;
   }, [state.projects]);
+  /** פרויקטים בשנת שירות שמסיימים את שנת האחריות בתוך 30 יום (11 חודשים מהמעבר) */
+  const warrantyEnding = useMemo(() => {
+    const dayMs = 86400000;
+    const now = Date.now();
+    return state.projects
+      .filter((p) => p.archived && (p.category ?? "warranty") === "warranty" && p.categorizedAt)
+      .map((p) => {
+        const start = new Date(p.categorizedAt!);
+        const end = new Date(start);
+        end.setFullYear(end.getFullYear() + 1);
+        return {
+          name: p.name,
+          client: p.client ?? "",
+          startedAt: p.categorizedAt!,
+          endsAt: end.toISOString(),
+          daysLeft: Math.ceil((end.getTime() - now) / dayMs),
+        };
+      })
+      .filter((p) => p.daysLeft <= 30)
+      .sort((a, b) => a.daysLeft - b.daysLeft);
+  }, [state.projects]);
+
   const categoryProjects = useMemo(
     () =>
       state.projects.filter(
@@ -805,7 +827,9 @@ export function AdminConsole() {
     setState((prev) => ({
       ...prev,
       projects: prev.projects.map((x) =>
-        x.name === name ? { ...x, archived: true, category } : x,
+        x.name === name
+          ? { ...x, archived: true, category, categorizedAt: new Date().toISOString() }
+          : x,
       ),
     }));
     toast.success(`הפרויקט '${name}' הועבר ל"${CATEGORY_LABELS[category]}".`);
@@ -1300,6 +1324,11 @@ export function AdminConsole() {
                   <TableHead className="text-right">מנהל פרויקט</TableHead>
                   <TableHead className="text-right">שעות מנהל פרויקט / עובד</TableHead>
                   <TableHead className="text-right">ניצול</TableHead>
+                  {isArchive && (
+                    <TableHead className="text-right">
+                      תאריך מעבר ל{CATEGORY_LABELS[categoryView]}
+                    </TableHead>
+                  )}
                   <TableHead className="text-right">פעולות</TableHead>
                 </TableRow>
               </TableHeader>
@@ -1328,6 +1357,35 @@ export function AdminConsole() {
                       <TableCell>
                         <Badge variant={r.pct >= 80 ? "destructive" : "secondary"}>{r.pct}%</Badge>
                       </TableCell>
+                      {isArchive && (
+                        <TableCell className="text-sm">
+                          {p.categorizedAt ? (
+                            <div className="flex flex-col gap-1">
+                              <span>{formatDateIL(p.categorizedAt.slice(0, 10))}</span>
+                              {categoryView === "warranty" &&
+                                (() => {
+                                  const end = new Date(p.categorizedAt!);
+                                  end.setFullYear(end.getFullYear() + 1);
+                                  const daysLeft = Math.ceil(
+                                    (end.getTime() - Date.now()) / 86400000,
+                                  );
+                                  return (
+                                    <Badge
+                                      variant={daysLeft <= 30 ? "destructive" : "secondary"}
+                                      className="w-fit"
+                                    >
+                                      {daysLeft <= 0
+                                        ? "שנת השירות הסתיימה"
+                                        : `סיום אחריות בעוד ${daysLeft} ימים`}
+                                    </Badge>
+                                  );
+                                })()}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                      )}
                       <TableCell>
                         <div className="flex flex-wrap gap-2">
                           <Button
@@ -1518,6 +1576,44 @@ export function AdminConsole() {
               אין פרויקטים שמועד המסירה שלהם בתוך 14 הימים הקרובים.
             </p>
           )}
+        </div>
+      )}
+
+      {warrantyEnding.length > 0 && (
+        <div className="animate-fade surface-panel mb-8 rounded-2xl border border-warning/40 p-6">
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <ShieldCheck className="size-5 text-warning" />
+            סיום שנת שירות — נדרש משלוח הסכם שירות
+            <Badge variant="destructive" className="animate-pulse">
+              {warrantyEnding.length}
+            </Badge>
+          </h3>
+          <div className="space-y-3">
+            {warrantyEnding.map((p) => (
+              <button
+                key={p.name}
+                type="button"
+                onClick={() => setDetailProject(p.name)}
+                className="hover-lift w-full cursor-pointer rounded-xl border border-border p-3 text-right transition-all hover:border-primary/50"
+              >
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-semibold">
+                    {p.client ? `${p.client} · ` : ""}
+                    {p.name}
+                  </span>
+                  <Badge variant={p.daysLeft <= 0 ? "destructive" : "secondary"}>
+                    {p.daysLeft <= 0
+                      ? "שנת השירות הסתיימה"
+                      : `מסיים שנת שירות בעוד ${p.daysLeft} ימים`}
+                  </Badge>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  הועבר לשנת שירות: {formatDateIL(p.startedAt.slice(0, 10))} · סיום אחריות:{" "}
+                  {formatDateIL(p.endsAt.slice(0, 10))} · יש לשלוח הסכם שירות ללקוח.
+                </p>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 

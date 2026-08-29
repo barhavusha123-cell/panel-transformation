@@ -78,6 +78,8 @@ export interface Project {
   category?: ProjectCategory;
   /** נתוני סגירת פרויקט */
   closure?: ProjectClosure;
+  /** תאריך ההעברה לקטגוריה הנוכחית (ISO) */
+  categorizedAt?: string;
 
 }
 

@@ -55,6 +55,7 @@ export function AllNetProvider({ children }: { children: ReactNode }) {
           fixedCosts: Array.isArray(p.fixedCosts) ? p.fixedCosts : [],
           ...(p.category ? { category: p.category } : {}),
           ...(p.closure ? { closure: p.closure } : {}),
+          ...(p.categorizedAt ? { categorizedAt: p.categorizedAt } : {}),
 
 
 
