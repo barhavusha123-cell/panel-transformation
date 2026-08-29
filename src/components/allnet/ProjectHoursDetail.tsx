@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  CATEGORY_LABELS,
   EMPLOYEE_DAY_RATE,
   effectiveBudget,
   MIN_FULL_DAY_MINUTES,
