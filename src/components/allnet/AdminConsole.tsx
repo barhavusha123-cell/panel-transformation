@@ -1545,6 +1545,44 @@ export function AdminConsole() {
         </div>
       )}
 
+      {warrantyEnding.length > 0 && (
+        <div className="animate-fade surface-panel mb-8 rounded-2xl border border-warning/40 p-6">
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <ShieldCheck className="size-5 text-warning" />
+            סיום שנת שירות — נדרש משלוח הסכם שירות
+            <Badge variant="destructive" className="animate-pulse">
+              {warrantyEnding.length}
+            </Badge>
+          </h3>
+          <div className="space-y-3">
+            {warrantyEnding.map((p) => (
+              <button
+                key={p.name}
+                type="button"
+                onClick={() => setDetailProject(p.name)}
+                className="hover-lift w-full cursor-pointer rounded-xl border border-border p-3 text-right transition-all hover:border-primary/50"
+              >
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-semibold">
+                    {p.client ? `${p.client} · ` : ""}
+                    {p.name}
+                  </span>
+                  <Badge variant={p.daysLeft <= 0 ? "destructive" : "secondary"}>
+                    {p.daysLeft <= 0
+                      ? "שנת השירות הסתיימה"
+                      : `מסיים שנת שירות בעוד ${p.daysLeft} ימים`}
+                  </Badge>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  הועבר לשנת שירות: {formatDateIL(p.startedAt.slice(0, 10))} · סיום אחריות:{" "}
+                  {formatDateIL(p.endsAt.slice(0, 10))} · יש לשלוח הסכם שירות ללקוח.
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {showOverruns && (
         <div className="animate-fade surface-panel mb-8 rounded-2xl p-6">
           <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
