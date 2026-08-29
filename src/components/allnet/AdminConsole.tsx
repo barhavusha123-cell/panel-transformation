@@ -291,6 +291,28 @@ export function AdminConsole() {
     }
     return base;
   }, [state.projects]);
+  /** פרויקטים בשנת שירות שמסיימים את שנת האחריות בתוך 30 יום (11 חודשים מהמעבר) */
+  const warrantyEnding = useMemo(() => {
+    const dayMs = 86400000;
+    const now = Date.now();
+    return state.projects
+      .filter((p) => p.archived && (p.category ?? "warranty") === "warranty" && p.categorizedAt)
+      .map((p) => {
+        const start = new Date(p.categorizedAt!);
+        const end = new Date(start);
+        end.setFullYear(end.getFullYear() + 1);
+        return {
+          name: p.name,
+          client: p.client ?? "",
+          startedAt: p.categorizedAt!,
+          endsAt: end.toISOString(),
+          daysLeft: Math.ceil((end.getTime() - now) / dayMs),
+        };
+      })
+      .filter((p) => p.daysLeft <= 30)
+      .sort((a, b) => a.daysLeft - b.daysLeft);
+  }, [state.projects]);
+
   const categoryProjects = useMemo(
     () =>
       state.projects.filter(
@@ -805,7 +827,9 @@ export function AdminConsole() {
     setState((prev) => ({
       ...prev,
       projects: prev.projects.map((x) =>
-        x.name === name ? { ...x, archived: true, category } : x,
+        x.name === name
+          ? { ...x, archived: true, category, categorizedAt: new Date().toISOString() }
+          : x,
       ),
     }));
     toast.success(`הפרויקט '${name}' הועבר ל"${CATEGORY_LABELS[category]}".`);
