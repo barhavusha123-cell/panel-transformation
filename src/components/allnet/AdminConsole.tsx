@@ -1357,6 +1357,35 @@ export function AdminConsole() {
                       <TableCell>
                         <Badge variant={r.pct >= 80 ? "destructive" : "secondary"}>{r.pct}%</Badge>
                       </TableCell>
+                      {isArchive && (
+                        <TableCell className="text-sm">
+                          {p.categorizedAt ? (
+                            <div className="flex flex-col gap-1">
+                              <span>{formatDateIL(p.categorizedAt.slice(0, 10))}</span>
+                              {categoryView === "warranty" &&
+                                (() => {
+                                  const end = new Date(p.categorizedAt!);
+                                  end.setFullYear(end.getFullYear() + 1);
+                                  const daysLeft = Math.ceil(
+                                    (end.getTime() - Date.now()) / 86400000,
+                                  );
+                                  return (
+                                    <Badge
+                                      variant={daysLeft <= 30 ? "destructive" : "secondary"}
+                                      className="w-fit"
+                                    >
+                                      {daysLeft <= 0
+                                        ? "שנת השירות הסתיימה"
+                                        : `סיום אחריות בעוד ${daysLeft} ימים`}
+                                    </Badge>
+                                  );
+                                })()}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                      )}
                       <TableCell>
                         <div className="flex flex-wrap gap-2">
                           <Button
