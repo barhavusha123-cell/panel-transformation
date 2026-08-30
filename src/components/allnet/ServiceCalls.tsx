@@ -280,9 +280,31 @@ export function ServiceCallsAdmin() {
   const clients = useMemo(
     () =>
       Array.from(
-        new Set(state.projects.map((p) => (p.client ?? "").trim()).filter(Boolean)),
+        new Set(
+          [
+            ...state.projects.map((p) => p.client ?? ""),
+            ...state.serviceCalls.map((c) => c.client ?? ""),
+          ]
+            .map((s) => s.trim())
+            .filter(Boolean),
+        ),
       ).sort((a, b) => a.localeCompare(b, "he")),
-    [state.projects],
+    [state.projects, state.serviceCalls],
+  );
+
+  const projectNames = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          [
+            ...state.projects.map((p) => p.name ?? ""),
+            ...state.serviceCalls.map((c) => c.project ?? ""),
+          ]
+            .map((s) => s.trim())
+            .filter(Boolean),
+        ),
+      ).sort((a, b) => a.localeCompare(b, "he")),
+    [state.projects, state.serviceCalls],
   );
 
   const calls = useMemo(() => {
@@ -404,20 +426,18 @@ export function ServiceCallsAdmin() {
             </div>
 
             <div className="space-y-2">
-              <Label>פרויקט משויך (לא חובה)</Label>
-              <Select value={project || "none"} onValueChange={(v) => setProject(v === "none" ? "" : v)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="בחר פרויקט" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">ללא פרויקט</SelectItem>
-                  {state.projects.map((p) => (
-                    <SelectItem key={p.name} value={p.name}>
-                      {p.client ? `${p.client} · ${p.name}` : p.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>אתר (לא חובה)</Label>
+              <Input
+                list="service-projects"
+                value={project}
+                onChange={(e) => setProject(e.target.value)}
+                placeholder="שם האתר / הפרויקט"
+              />
+              <datalist id="service-projects">
+                {projectNames.map((p) => (
+                  <option key={p} value={p} />
+                ))}
+              </datalist>
             </div>
 
             <div className="space-y-2 md:col-span-2">
