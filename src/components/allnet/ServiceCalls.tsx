@@ -741,6 +741,54 @@ export function ServiceCallsAdmin() {
             </SelectContent>
           </Select>
         </div>
+        <div className="min-w-40 flex-1 space-y-1">
+          <Label className="text-xs">סינון לפי שם לקוח</Label>
+          <Select value={clientFilter} onValueChange={setClientFilter}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל הלקוחות</SelectItem>
+              {clientOptions.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="min-w-40 flex-1 space-y-1">
+          <Label className="text-xs">סינון לפי שם אתר</Label>
+          <Select value={siteFilter} onValueChange={setSiteFilter}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל האתרים</SelectItem>
+              {siteOptions.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="min-w-40 flex-1 space-y-1">
+          <Label className="text-xs">סינון לפי תאריך קריאה</Label>
+          <Select value={dateFilter} onValueChange={setDateFilter}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל התאריכים</SelectItem>
+              {dateOptions.map((d) => (
+                <SelectItem key={d} value={d}>
+                  {formatDateIL(d)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {calls.length ? (
