@@ -141,6 +141,39 @@ function priorityBadge(p: ServiceCallPriority) {
   );
 }
 
+/** אזור גרירת קבצים מהמחשב */
+function DropArea({
+  onFiles,
+  children,
+}: {
+  onFiles: (files: FileList | null) => void;
+  children: React.ReactNode;
+}) {
+  const [over, setOver] = useState(false);
+  return (
+    <div
+      onDragOver={(e) => {
+        e.preventDefault();
+        setOver(true);
+      }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setOver(false);
+        onFiles(e.dataTransfer.files);
+      }}
+      className={`rounded-xl border-2 border-dashed p-3 transition-colors ${
+        over ? "border-primary bg-primary/5" : "border-border bg-surface/40"
+      }`}
+    >
+      <p className="mb-2 text-xs text-muted-foreground">
+        ניתן לגרור קבצים מהמחשב לכאן, או לצרף באמצעות הכפתורים
+      </p>
+      {children}
+    </div>
+  );
+}
+
 /** גלריית קבצים/תמונות של קריאה */
 function Attachments({
   items,
