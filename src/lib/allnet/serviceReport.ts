@@ -39,8 +39,8 @@ export function openServiceCallReport(call: ServiceCall, technicianName?: string
   const logoUrl = new URL(logo.url, window.location.origin).href;
   const images = call.attachments.filter((a) => a.isImage);
   const files = call.attachments.filter((a) => !a.isImage);
-  const statusC = STATUS_COLORS[call.status] ?? STATUS_COLORS.open;
-  const priorityC = PRIORITY_COLORS[call.priority] ?? PRIORITY_COLORS.normal;
+  const statusC = STATUS_COLORS[call.status] ?? STATUS_COLORS["open"]!;
+  const priorityC = PRIORITY_COLORS[call.priority] ?? PRIORITY_COLORS["normal"]!;
 
   const badge = (label: string, c: { bg: string; fg: string }) =>
     `<span class="badge" style="background:${c.bg};color:${c.fg}">${esc(label)}</span>`;
