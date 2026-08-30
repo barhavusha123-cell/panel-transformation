@@ -1327,7 +1327,8 @@ export function AdminConsole() {
                 <TableRow>
                   <TableHead className="text-right">שם לקוח</TableHead>
                   <TableHead className="text-right">שם פרויקט</TableHead>
-                  <TableHead className="text-right">עלות פרויקט</TableHead>
+                  <TableHead className="text-right">רווח פרויקט</TableHead>
+                  <TableHead className="text-right">שווי פרויקט</TableHead>
                   <TableHead className="text-right">מנהל פרויקט</TableHead>
                   <TableHead className="text-right">שעות מנהל פרויקט / עובד</TableHead>
                   <TableHead className="text-right">ניצול</TableHead>
@@ -1763,7 +1764,7 @@ export function AdminConsole() {
                             שווי פרויקטים בעבודה
                           </p>
                           <p className="text-xl font-bold text-foreground">
-                            {Math.round(dashRows.reduce((sum, r) => sum + r.cost, 0)).toLocaleString("he-IL")} ₪
+                            {Math.round(dashRows.reduce((sum, r) => sum + r.sale, 0)).toLocaleString("he-IL")} ₪
                           </p>
                         </div>
                       </div>
