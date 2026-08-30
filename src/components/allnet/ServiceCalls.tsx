@@ -394,6 +394,9 @@ export function ServiceCallsAdmin() {
   const [attachments, setAttachments] = useState<ServiceAttachment[]>([]);
   const [statusFilter, setStatusFilter] = useState<"all" | ServiceCallStatus>("all");
   const [techFilter, setTechFilter] = useState("all");
+  const [clientFilter, setClientFilter] = useState("all");
+  const [siteFilter, setSiteFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
   const [editing, setEditing] = useState<ServiceCall | null>(null);
   const editFileRef = useRef<HTMLInputElement>(null);
   const editCameraRef = useRef<HTMLInputElement>(null);
