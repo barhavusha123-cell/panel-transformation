@@ -1073,7 +1073,7 @@ export function ServiceCallsTechnician() {
                 <Eye className="size-4" />
                 בטיפול
               </Button>
-              <Button variant="outline" size="sm" onClick={() => respond(call, "done")}>
+              <Button variant="outline" size="sm" onClick={() => setConfirmCloseId(call.id)}>
                 <CheckCircle2 className="size-4" />
                 סיום טיפול
               </Button>
