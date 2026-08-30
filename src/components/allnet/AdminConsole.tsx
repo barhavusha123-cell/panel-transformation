@@ -1397,14 +1397,12 @@ export function AdminConsole() {
                   <TableHead className="text-right">שם לקוח</TableHead>
                   <TableHead className="text-right">שם פרויקט</TableHead>
                   <TableHead className="text-right">שווי פרויקט</TableHead>
-                  <TableHead className="text-right">רווח פרויקט</TableHead>
                   <TableHead className="text-right">מנהל פרויקט</TableHead>
-                  <TableHead className="text-right">שעות מנהל פרויקט / עובד</TableHead>
-                  <TableHead className="text-right">ניצול</TableHead>
                   {isArchive && (
                     <>
                       <TableHead className="text-right">תאריך מסירה</TableHead>
                       <TableHead className="text-right">סיום שירות</TableHead>
+                      <TableHead className="text-right">ימים לסיום שירות</TableHead>
                     </>
                   )}
                   <TableHead className="text-right">פעולות</TableHead>
