@@ -209,7 +209,7 @@ export function AdminConsole() {
     { key: "deliveredToClient", label: "האם הפרויקט נמסר ללקוח?" },
     { key: "docFileSaved", label: "האם הוכן תיק תיעוד ונשמר בשרתי החברה?" },
     { key: "docFileSentToClient", label: "האם נשלח תיק תיעוד ללקוח?" },
-    { key: "equipmentOnSite", label: "האם נשאר ציוד באתר?" },
+    { key: "equipmentOnSite", label: "האם כל הציוד פונה מהאתר?" },
     { key: "invoiceIssued", label: "האם יצאה חשבונית גמר חשבון?" },
   ];
   const emptyCloseForm = (): Record<ClosureKey, boolean | null> => ({
