@@ -53,15 +53,15 @@ export function openServiceCallReport(call: ServiceCall, technicianName?: string
 <style>
   @page { size: A4; margin: 12mm; }
   * { box-sizing: border-box; }
-  body { font-family: "Heebo", "Segoe UI", Arial, sans-serif; color: #334155; margin: 0; background: #f8fafc; }
+  body { font-family: "Heebo", "Segoe UI", Arial, sans-serif; color: #334155; margin: 0; background: #fff; }
   .sheet { background: #fff; max-width: 800px; margin: 0 auto; padding: 0; }
-  .top { background: linear-gradient(135deg, #b1341f 0%, #e2604a 60%, #f08a5c 100%);
-         color: #fff; padding: 26px 32px; display: flex; align-items: center;
-         justify-content: space-between; gap: 20px; }
-  .top img { height: 84px; background: #fff; border-radius: 12px; padding: 8px 12px; }
+  .top { background: #fff; color: #334155; padding: 22px 32px 16px; display: flex;
+         align-items: center; justify-content: space-between; gap: 20px;
+         border-bottom: 1px solid #e5e7eb; }
+  .top img { height: 72px; }
   .top .meta { text-align: left; }
-  .top h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: .5px; }
-  .top .sub { margin-top: 6px; font-size: 13px; opacity: .92; }
+  .top h1 { margin: 0; font-size: 22px; font-weight: 700; color: #1f2937; letter-spacing: .3px; }
+  .top .sub { margin-top: 6px; font-size: 12px; color: #64748b; }
   .badges { margin-top: 10px; display: flex; gap: 8px; justify-content: flex-start; }
   .badge { display: inline-block; padding: 3px 12px; border-radius: 999px;
            font-size: 12px; font-weight: 700; }
