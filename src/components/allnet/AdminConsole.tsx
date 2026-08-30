@@ -156,6 +156,22 @@ function KpiCard({
   );
 }
 
+/** תאריך מסירה בפועל (YYYY-MM-DD) */
+const handoverOf = (p: Project): string | undefined =>
+  p.handoverDate ??
+  p.closure?.deliveryDate ??
+  (p.categorizedAt ?? p.closure?.closedAt)?.slice(0, 10);
+
+/** תאריך סיום שירות (YYYY-MM-DD) — ידני, אחרת שנה מתאריך המסירה */
+const serviceEndOf = (p: Project): string | undefined => {
+  if (p.serviceEndDate) return p.serviceEndDate;
+  const h = handoverOf(p);
+  if (!h) return undefined;
+  const d = new Date(`${h}T00:00:00`);
+  d.setFullYear(d.getFullYear() + 1);
+  return d.toISOString().slice(0, 10);
+};
+
 const RAD = Math.PI / 180;
 
 function SliceLabel(props: {
