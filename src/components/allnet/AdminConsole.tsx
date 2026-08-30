@@ -1442,6 +1442,24 @@ export function AdminConsole() {
             </p>
 
           )}
+          {!isArchive && list.length > 0 && (
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface-2/60 p-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  שווי כולל של כל הפרויקטים הפעילים
+                </p>
+                <p className="text-2xl font-bold">
+                  {Math.round(list.reduce((a, p) => a + (Number(p.saleAmount) || 0), 0)).toLocaleString("he-IL")} ₪
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">רווח כולל צפוי</p>
+                <p className="text-xl font-bold">
+                  {Math.round(list.reduce((a, p) => a + (Number(p.saleAmount) || 0) - calculateProjectCost(state, p.name), 0)).toLocaleString("he-IL")} ₪
+                </p>
+              </div>
+            </div>
+          )}
           {!isArchive && (
             <div className="mt-6 flex justify-center border-t border-border pt-5">
               <Button variant="brand" size="lg" onClick={goToProjectsTab}>
