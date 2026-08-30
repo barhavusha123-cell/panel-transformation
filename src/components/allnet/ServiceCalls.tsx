@@ -713,7 +713,7 @@ export function ServiceCallsTechnician() {
     );
 
   return (
-    <div className="space-y-4">
+    <div className="service-green space-y-4">
       {myCalls.map((call) => (
         <CallCard key={call.id} call={call} technicianName={user?.full_name ?? ""}>
           <div className="space-y-3">

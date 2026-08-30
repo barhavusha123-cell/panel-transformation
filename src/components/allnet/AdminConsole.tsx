@@ -1609,7 +1609,12 @@ export function AdminConsole() {
           </Button>
         </KpiCard>
 
-        <KpiCard title="קריאות שירות" icon={<Headset className="size-4" />} delay={40}>
+        <KpiCard
+          title="קריאות שירות"
+          icon={<Headset className="size-4" />}
+          delay={40}
+          className="service-green"
+        >
           <div className="flex items-center gap-2">
             <span
               className={`text-2xl font-bold ${openServiceCalls ? "text-primary" : ""}`}
