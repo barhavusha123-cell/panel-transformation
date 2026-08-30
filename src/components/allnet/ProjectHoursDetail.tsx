@@ -188,7 +188,18 @@ export function ProjectHoursDetail({
       const names = Array.from(
         new Set(dayRows.map((h) => h.workerNames).filter(Boolean) as string[]),
       ).join(", ");
-      return { date, workers, names, rate: subDayRate(region, workers) };
+      const approved = dayRows.length > 0 && dayRows.every((h) => h.approved);
+      const approvedAt = approved
+        ? dayRows
+            .map((h) => h.approvedAt)
+            .filter(Boolean)
+            .sort()
+            .pop()
+        : undefined;
+      const approvedBy = approved
+        ? dayRows.find((h) => h.approvedBy)?.approvedBy
+        : undefined;
+      return { date, workers, names, rate: subDayRate(region, workers), approved, approvedAt, approvedBy };
     });
   const subCost = subBreakdown.reduce((sum, d) => sum + d.rate, 0);
   // עלות עובדי חברה: 1,200 ₪ ליום עבודה לעובד
