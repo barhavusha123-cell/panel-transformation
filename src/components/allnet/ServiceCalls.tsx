@@ -496,13 +496,15 @@ export function ServiceCallsAdmin() {
       .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
       .filter((c) => (siteFilter === "all" ? true : c.project === siteFilter))
       .filter((c) => {
-        if (!dateFilter) return true;
-        const key = `${dateFilter.getFullYear()}-${String(dateFilter.getMonth() + 1).padStart(2, "0")}-${String(dateFilter.getDate()).padStart(2, "0")}`;
-        return c.createdAt.startsWith(key);
+        if (!dateFrom && !dateTo) return true;
+        const key = c.createdAt.slice(0, 10);
+        if (dateFrom && key < dayKey(dateFrom)) return false;
+        if (dateTo && key > dayKey(dateTo)) return false;
+        return true;
       })
       .slice()
       .sort((a, b) => b.number - a.number);
-  }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, dateFilter]);
+  }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, dateFrom, dateTo]);
 
   const clientOptions = useMemo(
     () => Array.from(new Set(state.serviceCalls.map((c) => c.client).filter((v): v is string => !!v))).sort((a, b) => a.localeCompare(b, "he")),
