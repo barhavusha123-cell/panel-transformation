@@ -271,6 +271,8 @@ function CallCard({
       )}
 
       {children && <div className="mt-4 border-t border-border pt-3">{children}</div>}
+        </>
+      )}
     </div>
   );
 }
