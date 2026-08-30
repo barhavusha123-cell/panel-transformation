@@ -24,7 +24,7 @@ export function DocumentList({
   const [preview, setPreview] = useState<FileRecord | null>(null);
 
   const files = state.files.filter((f) =>
-    projectFilter ? f.project === projectFilter || f.project === "כללי" : true,
+    projectFilter ? f.project === projectFilter : true,
   );
 
   if (!state.files.length)
