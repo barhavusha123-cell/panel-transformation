@@ -290,6 +290,14 @@ function CallCard({
             {call.workFrom || "—"} - {call.workTo || "—"}
           </p>
         )}
+        {call.additionalTechnician !== undefined && (
+          <p>
+            <span className="text-muted-foreground">טכנאי נוסף באתר: </span>
+            {call.additionalTechnician
+              ? `כן${call.additionalTechnicianName ? ` — ${call.additionalTechnicianName}` : ""}`
+              : "לא"}
+          </p>
+        )}
         {call.equipmentSupplied && (
           <p className="sm:col-span-2">
             <span className="text-muted-foreground">ציוד שסופק: </span>
@@ -1109,6 +1117,49 @@ export function ServiceCallsTechnician() {
                     anchorTime="16:00"
                   />
                 </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">טכנאי נוסף באתר?</Label>
+                <div className="flex gap-2">
+                  {(
+                    [
+                      { v: true, label: "כן" },
+                      { v: false, label: "לא" },
+                    ] as const
+                  ).map((o) => (
+                    <button
+                      key={o.label}
+                      type="button"
+                      onClick={() =>
+                        patch(call.id, (c) => ({
+                          ...c,
+                          additionalTechnician: o.v,
+                          ...(o.v ? {} : { additionalTechnicianName: undefined }),
+                        }))
+                      }
+                      className={`rounded-lg border px-4 py-1.5 text-xs font-semibold transition-all ${
+                        call.additionalTechnician === o.v
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-background text-muted-foreground hover:border-primary/40"
+                      }`}
+                    >
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+                {call.additionalTechnician === true && (
+                  <Input
+                    className="mt-2"
+                    placeholder="שם הטכנאי הנוסף"
+                    value={call.additionalTechnicianName ?? ""}
+                    onChange={(e) =>
+                      patch(call.id, (c) => ({
+                        ...c,
+                        additionalTechnicianName: e.target.value,
+                      }))
+                    }
+                  />
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">ציוד שסופק</Label>

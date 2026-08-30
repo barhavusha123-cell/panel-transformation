@@ -227,6 +227,10 @@ export interface ServiceCall {
   equipmentSupplied?: string | undefined;
   /** נושאים להמשך טיפול / הצעת מחיר — מלל חופשי */
   followUp?: string | undefined;
+  /** האם היה טכנאי נוסף באתר */
+  additionalTechnician?: boolean | undefined;
+  /** שם הטכנאי הנוסף */
+  additionalTechnicianName?: string | undefined;
 }
 
 export interface AllNetState {
