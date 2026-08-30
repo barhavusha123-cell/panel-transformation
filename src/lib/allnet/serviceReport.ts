@@ -32,25 +32,10 @@ const PRIORITY_COLORS: Record<string, { bg: string; fg: string }> = {
   low: { bg: "#f1f5f9", fg: "#475569" },
 };
 
-/**
- * מפיק דוח שירות מעוצב (HTML) ופותח חלון הדפסה — ניתן לשמור כ-PDF ולשלוח ללקוח.
- */
-export function openServiceCallReport(call: ServiceCall, technicianName?: string) {
-  const logoUrl = new URL(logo.url, window.location.origin).href;
-  const images = call.attachments.filter((a) => a.isImage);
-  const files = call.attachments.filter((a) => !a.isImage);
-  const statusC = STATUS_COLORS[call.status] ?? STATUS_COLORS["open"]!;
-  const priorityC = PRIORITY_COLORS[call.priority] ?? PRIORITY_COLORS["normal"]!;
+const badge = (label: string, c: { bg: string; fg: string }) =>
+  `<span class="badge" style="background:${c.bg};color:${c.fg}">${esc(label)}</span>`;
 
-  const badge = (label: string, c: { bg: string; fg: string }) =>
-    `<span class="badge" style="background:${c.bg};color:${c.fg}">${esc(label)}</span>`;
-
-  const html = `<!doctype html>
-<html lang="he" dir="rtl">
-<head>
-<meta charset="utf-8" />
-<title>דוח שירות #${call.number} - ${esc(call.client)}</title>
-<style>
+const BASE_CSS = `
   @page { size: A4; margin: 12mm; }
   * { box-sizing: border-box; }
   body { font-family: "Heebo", "Segoe UI", Arial, sans-serif; color: #334155; margin: 0; background: #fff; }
@@ -77,6 +62,9 @@ export function openServiceCallReport(call: ServiceCall, technicianName?: string
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
   th, td { border: 1px solid #eceff3; padding: 6px 10px; text-align: right; vertical-align: top; }
   th { background: #fafbfc; width: 190px; font-weight: 600; color: #64748b; }
+  .summary th { width: auto; }
+  .summary td { text-align: center; }
+  .summary thead th { text-align: center; background: #f8fafc; }
   .empty { color: #cbd5e1; }
   .box { border: 1px solid #eceff3; border-radius: 8px; padding: 10px 12px; font-size: 12px;
          white-space: pre-wrap; background: #fff; line-height: 1.65; }
@@ -91,15 +79,68 @@ export function openServiceCallReport(call: ServiceCall, technicianName?: string
   .sign img { width: 100%; height: 96px; object-fit: contain; }
   footer { margin-top: 16px; border-top: 1px solid #eceff3; padding: 8px 32px;
            font-size: 10px; color: #94a3b8; display: flex; justify-content: space-between; }
+  .call-page { page-break-before: always; break-before: page; }
+  .call-page .call-head { display: flex; align-items: center; justify-content: space-between;
+           gap: 12px; padding: 14px 0 10px; border-bottom: 1px solid #e5e7eb; margin-bottom: 4px; }
+  .call-page .call-head img { height: 44px; }
+  .call-page .call-head h2 { margin: 0; }
+  .call-page .call-head h2::before { display: none; }
   @media print {
     body { background: #fff; }
     .noprint { display: none; }
     .card, th, .box, .badge, .top { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
-</style>
+`;
+
+const PRINT_BUTTON = `
+<div class="noprint" style="margin:20px 0;text-align:center">
+  <button onclick="window.print()" style="padding:11px 26px;font-size:14px;font-weight:700;border-radius:10px;border:0;background:#e2604a;color:#fff;cursor:pointer">
+    הדפסה / שמירה כ-PDF
+  </button>
+</div>`;
+
+function openPrintWindow(title: string, body: string): boolean {
+  const html = `<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<title>${esc(title)}</title>
+<style>${BASE_CSS}</style>
 </head>
 <body>
-<div class="sheet">
+${body}
+${PRINT_BUTTON}
+</body>
+</html>`;
+
+  const win = window.open("", "_blank");
+  if (!win) return false;
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => {
+    try {
+      win.print();
+    } catch {
+      /* המשתמש יוכל להדפיס ידנית */
+    }
+  }, 700);
+  return true;
+}
+
+/** גוף פרטי קריאה בודדת (ללא כותרת עליונה) */
+function callContentHtml(
+  call: ServiceCall,
+  logoUrl: string,
+  technicianName?: string,
+): string {
+  const images = call.attachments.filter((a) => a.isImage);
+  const files = call.attachments.filter((a) => !a.isImage);
+  const statusC = STATUS_COLORS[call.status] ?? STATUS_COLORS["open"]!;
+  const priorityC = PRIORITY_COLORS[call.priority] ?? PRIORITY_COLORS["normal"]!;
+
+  return `
   <div class="top">
     <img src="${logoUrl}" alt="AllNet" />
     <div class="meta">
@@ -191,29 +232,83 @@ export function openServiceCallReport(call: ServiceCall, technicianName?: string
   <footer>
     <span>AllNet · דוח שירות מס' ${call.number}</span>
     <span>מסמך זה הופק ממערכת הניהול והתפעול של AllNet</span>
-  </footer>
-</div>
+  </footer>`;
+}
 
-<div class="noprint" style="margin:20px 0;text-align:center">
-  <button onclick="window.print()" style="padding:11px 26px;font-size:14px;font-weight:700;border-radius:10px;border:0;background:#e2604a;color:#fff;cursor:pointer">
-    הדפסה / שמירה כ-PDF
-  </button>
-</div>
-</body>
-</html>`;
+/**
+ * מפיק דוח שירות מעוצב (HTML) ופותח חלון הדפסה — ניתן לשמור כ-PDF ולשלוח ללקוח.
+ */
+export function openServiceCallReport(call: ServiceCall, technicianName?: string) {
+  const logoUrl = new URL(logo.url, window.location.origin).href;
+  return openPrintWindow(
+    `דוח שירות #${call.number} - ${call.client}`,
+    `<div class="sheet">${callContentHtml(call, logoUrl, technicianName)}</div>`,
+  );
+}
 
-  const win = window.open("", "_blank");
-  if (!win) return false;
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  win.focus();
-  setTimeout(() => {
-    try {
-      win.print();
-    } catch {
-      /* המשתמש יוכל להדפיס ידנית */
-    }
-  }, 700);
-  return true;
+/**
+ * מפיק דוח שירות מרוכז עבור מספר קריאות נבחרות — עמוד סיכום + עמוד מפורט לכל קריאה.
+ */
+export function openServiceCallsBulkReport(
+  calls: ServiceCall[],
+  technicianName: (username?: string) => string,
+) {
+  if (!calls.length) return false;
+  const logoUrl = new URL(logo.url, window.location.origin).href;
+  const sorted = calls.slice().sort((a, b) => a.number - b.number);
+
+  const summaryRows = sorted
+    .map((c) => {
+      const statusC = STATUS_COLORS[c.status] ?? STATUS_COLORS["open"]!;
+      return `<tr>
+        <td>#${c.number}</td>
+        <td>${esc(c.client) || "—"}</td>
+        <td>${esc(c.project) || "—"}</td>
+        <td>${formatDateIL(c.createdAt)}</td>
+        <td>${esc(c.subject) || "—"}</td>
+        <td>${esc(technicianName(c.technician))}</td>
+        <td>${badge(SERVICE_STATUS_LABELS[c.status], statusC)}</td>
+      </tr>`;
+    })
+    .join("");
+
+  const cover = `
+  <div class="sheet">
+    <div class="top">
+      <img src="${logoUrl}" alt="AllNet" />
+      <div class="meta">
+        <h1>דוח קריאות שירות מרוכז</h1>
+        <div class="sub">${sorted.length} קריאות · הופק בתאריך ${formatDateIL(new Date().toISOString())}</div>
+      </div>
+    </div>
+    <div class="content">
+      <h2>סיכום קריאות נבחרות</h2>
+      <table class="summary">
+        <thead>
+          <tr>
+            <th>מס' קריאה</th><th>לקוח</th><th>אתר</th><th>תאריך</th><th>נושא</th><th>טכנאי</th><th>סטטוס</th>
+          </tr>
+        </thead>
+        <tbody>${summaryRows}</tbody>
+      </table>
+    </div>
+    <footer>
+      <span>AllNet · דוח קריאות שירות מרוכז</span>
+      <span>מסמך זה הופק ממערכת הניהול והתפעול של AllNet</span>
+    </footer>
+  </div>`;
+
+  const pages = sorted
+    .map(
+      (c) => `
+  <div class="sheet call-page">
+    ${callContentHtml(c, logoUrl, technicianName(c.technician))}
+  </div>`,
+    )
+    .join("");
+
+  return openPrintWindow(
+    `דוח קריאות שירות מרוכז - ${sorted.length} קריאות`,
+    cover + pages,
+  );
 }
