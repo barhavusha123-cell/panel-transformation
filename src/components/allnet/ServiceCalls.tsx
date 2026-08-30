@@ -774,6 +774,17 @@ export function ServiceCallsAdmin() {
                   ערוך קריאה
                 </Button>
                 <Button
+                  variant="outline"
+                  onClick={() => {
+                    const ok = openServiceCallReport(call, techName(call.technician));
+                    if (ok) toast.success("דוח השירות הופק — ניתן לשמור כ-PDF ולשלוח ללקוח.");
+                    else toast.error("החלון נחסם על ידי הדפדפן. יש לאשר חלונות קופצים.");
+                  }}
+                >
+                  <FileText className="size-4" />
+                  הפק דוח שירות (PDF)
+                </Button>
+                <Button
                   variant="ghost"
                   className="text-destructive hover:bg-destructive/10"
                   onClick={() => {
