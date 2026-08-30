@@ -1428,14 +1428,7 @@ export function AdminConsole() {
                       <TableCell className="font-semibold">
                         {Math.round(r.sale).toLocaleString("he-IL")} ₪
                       </TableCell>
-                      <TableCell className={`font-semibold ${r.profit < 0 ? "text-destructive" : ""}`}>
-                        {Math.round(r.profit).toLocaleString("he-IL")} ₪
-                      </TableCell>
                       <TableCell>{p.manager}</TableCell>
-                      <TableCell>{p.budget.toLocaleString()}</TableCell>
-                      <TableCell>
-                        <Badge variant={r.pct >= 80 ? "destructive" : "secondary"}>{r.pct}%</Badge>
-                      </TableCell>
                       {isArchive && (
                         <>
                           <TableCell className="text-sm">
@@ -1449,32 +1442,32 @@ export function AdminConsole() {
                             />
                           </TableCell>
                           <TableCell className="text-sm">
+                            <Input
+                              type="date"
+                              className="w-[9.5rem]"
+                              value={serviceEndOf(p) ?? ""}
+                              onChange={(e) =>
+                                setProjectDate(p.name, "serviceEndDate", e.target.value)
+                              }
+                            />
+                          </TableCell>
+                          <TableCell className="text-sm">
                             {(() => {
                               const end = serviceEndOf(p);
-                              const daysLeft = end
-                                ? Math.ceil(
-                                    (new Date(`${end}T00:00:00`).getTime() - Date.now()) /
-                                      86400000,
-                                  )
-                                : null;
+                              if (!end)
+                                return <span className="text-muted-foreground">—</span>;
+                              const daysLeft = Math.ceil(
+                                (new Date(`${end}T00:00:00`).getTime() - Date.now()) / 86400000,
+                              );
                               return (
-                                <div className="flex flex-col gap-1">
-                                  <Input
-                                    type="date"
-                                    className="w-[9.5rem]"
-                                    value={end ?? ""}
-                                    onChange={(e) =>
-                                      setProjectDate(p.name, "serviceEndDate", e.target.value)
-                                    }
-                                  />
-                                  {daysLeft !== null && daysLeft <= 30 && (
-                                    <Badge variant="destructive" className="w-fit">
-                                      {daysLeft <= 0
-                                        ? "השירות הסתיים — יש לשלוח הסכם שירות"
-                                        : `סיום שירות בעוד ${daysLeft} ימים`}
-                                    </Badge>
-                                  )}
-                                </div>
+                                <Badge
+                                  variant={daysLeft <= 30 ? "destructive" : "secondary"}
+                                  className="w-fit"
+                                >
+                                  {daysLeft <= 0
+                                    ? "השירות הסתיים — יש לשלוח הסכם שירות"
+                                    : `${daysLeft} ימים`}
+                                </Badge>
                               );
                             })()}
                           </TableCell>
