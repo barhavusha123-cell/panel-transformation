@@ -1717,13 +1717,13 @@ export function AdminConsole() {
                   </span>
                   <Badge variant={p.daysLeft <= 0 ? "destructive" : "secondary"}>
                     {p.daysLeft <= 0
-                      ? "שנת השירות הסתיימה"
-                      : `מסיים שנת שירות בעוד ${p.daysLeft} ימים`}
+                      ? "השירות הסתיים"
+                      : `סיום שירות בעוד ${p.daysLeft} ימים`}
                   </Badge>
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  הועבר לשנת שירות: {formatDateIL(p.startedAt.slice(0, 10))} · סיום אחריות:{" "}
-                  {formatDateIL(p.endsAt.slice(0, 10))} · יש לשלוח הסכם שירות ללקוח.
+                  {p.startedAt ? `תאריך מסירה: ${formatDateIL(p.startedAt)} · ` : ""}
+                  סיום שירות: {formatDateIL(p.endsAt)} · יש לשלוח ללקוח הסכם שירות.
                 </p>
               </button>
             ))}
