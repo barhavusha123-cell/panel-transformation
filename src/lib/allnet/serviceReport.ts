@@ -151,25 +151,6 @@ export function openServiceCallReport(call: ServiceCall, technicianName?: string
         : ""
     }
 
-    ${
-      images.length
-        ? `<h2>תמונות מהשטח</h2><div class="imgs">${images
-            .map(
-              (a) =>
-                `<figure><img src="${a.dataUrl}" alt="${esc(a.name)}" /><figcaption>${esc(
-                  a.name,
-                )}</figcaption></figure>`,
-            )
-            .join("")}</div>`
-        : ""
-    }
-
-    ${
-      files.length
-        ? `<h2>קבצים מצורפים</h2><ul>${files.map((f) => `<li>${esc(f.name)}</li>`).join("")}</ul>`
-        : ""
-    }
-
     <h2>אישור הלקוח</h2>
     <table>
       ${row("שם הלקוח המאשר", call.approverName)}
@@ -177,8 +158,33 @@ export function openServiceCallReport(call: ServiceCall, technicianName?: string
     </table>
     ${
       call.approverSignature
-        ? `<div class="sign"><div style="font-size:12px;color:#9a3412;font-weight:700">חתימת הלקוח</div><img src="${call.approverSignature}" alt="חתימה" /></div>`
+        ? `<div class="sign"><div style="font-size:11px;color:#64748b;font-weight:600">חתימת הלקוח</div><img src="${call.approverSignature}" alt="חתימה" /></div>`
         : `<p style="font-size:12px;color:#94a3b8">לא נקלטה חתימה דיגיטלית עבור קריאה זו.</p>`
+    }
+
+    ${
+      images.length || files.length
+        ? `<div class="attachments">
+      <h2>נספחים · קריאה מס' ${call.number}</h2>
+      ${
+        images.length
+          ? `<div class="imgs">${images
+              .map(
+                (a) =>
+                  `<figure><img src="${a.dataUrl}" alt="${esc(a.name)}" /><figcaption>${esc(
+                    a.name,
+                  )}</figcaption></figure>`,
+              )
+              .join("")}</div>`
+          : ""
+      }
+      ${
+        files.length
+          ? `<h2>קבצים מצורפים</h2><ul>${files.map((f) => `<li>${esc(f.name)}</li>`).join("")}</ul>`
+          : ""
+      }
+    </div>`
+        : ""
     }
   </div>
 
