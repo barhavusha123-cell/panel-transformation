@@ -1357,8 +1357,11 @@ export function AdminConsole() {
                           {p.name}
                         </button>
                       </TableCell>
+                      <TableCell className={`font-semibold ${r.profit < 0 ? "text-destructive" : ""}`}>
+                        {Math.round(r.profit).toLocaleString("he-IL")} ₪
+                      </TableCell>
                       <TableCell className="font-semibold">
-                        {Math.round(r.cost).toLocaleString("he-IL")} ₪
+                        {Math.round(r.sale).toLocaleString("he-IL")} ₪
                       </TableCell>
                       <TableCell>{p.manager}</TableCell>
                       <TableCell>{p.budget.toLocaleString()}</TableCell>
