@@ -150,7 +150,7 @@ function DateFilterButton({
   onChange,
   placeholder,
 }: {
-  value?: Date;
+  value: Date | undefined;
   onChange: (d: Date | undefined) => void;
   placeholder: string;
 }) {
