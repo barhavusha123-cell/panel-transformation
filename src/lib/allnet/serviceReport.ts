@@ -256,6 +256,11 @@ export function openServiceCallsBulkReport(
   if (!calls.length) return false;
   const logoUrl = new URL(logo.url, window.location.origin).href;
   const sorted = calls.slice().sort((a, b) => a.number - b.number);
+  const uniqueClients = Array.from(
+    new Set(sorted.map((c) => (c.client ?? "").trim()).filter(Boolean)),
+  );
+  const clientTitle =
+    uniqueClients.length === 1 ? uniqueClients[0]! : uniqueClients.length > 1 ? "מספר לקוחות" : "";
 
   const summaryRows = sorted
     .map((c) => {
@@ -277,8 +282,8 @@ export function openServiceCallsBulkReport(
     <div class="top">
       <img src="${logoUrl}" alt="AllNet" />
       <div class="meta">
-        <h1>דוח קריאות שירות מרוכז</h1>
-        <div class="sub">${sorted.length} קריאות · הופק בתאריך ${formatDateIL(new Date().toISOString())}</div>
+        <h1>דוח קריאות מרכז${clientTitle ? ` · ${esc(clientTitle)}` : ""}</h1>
+        <div class="sub">${clientTitle ? `שם לקוח: ${esc(clientTitle)} · ` : ""}${sorted.length} קריאות · הופק בתאריך ${formatDateIL(new Date().toISOString())}</div>
       </div>
     </div>
     <div class="content">
@@ -293,7 +298,7 @@ export function openServiceCallsBulkReport(
       </table>
     </div>
     <footer>
-      <span>AllNet · דוח קריאות שירות מרוכז</span>
+      <span>AllNet · דוח קריאות מרכז${clientTitle ? ` · ` + esc(clientTitle) : ""}</span>
       <span>מסמך זה הופק ממערכת הניהול והתפעול של AllNet</span>
     </footer>
   </div>`;
@@ -308,7 +313,7 @@ export function openServiceCallsBulkReport(
     .join("");
 
   return openPrintWindow(
-    `דוח קריאות שירות מרוכז - ${sorted.length} קריאות`,
+    `דוח קריאות מרכז${clientTitle ? " - " + clientTitle : ""} - ${sorted.length} קריאות`,
     cover + pages,
   );
 }

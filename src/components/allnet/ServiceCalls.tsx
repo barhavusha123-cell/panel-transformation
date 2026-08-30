@@ -141,6 +141,84 @@ function priorityBadge(p: ServiceCallPriority) {
   );
 }
 
+const dayKey = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+/** בורר תאריך לסינון (בחירה מלוח שנה בלבד) */
+function DateFilterButton({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: Date | undefined;
+  onChange: (d: Date | undefined) => void;
+  placeholder: string;
+}) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="w-full justify-start text-right font-normal">
+          <CalendarIcon className="size-4" />
+          {value ? (
+            formatDateIL(dayKey(value))
+          ) : (
+            <span className="text-muted-foreground">{placeholder}</span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={value}
+          onSelect={onChange}
+          initialFocus
+          className="pointer-events-auto p-3"
+        />
+        {value && (
+          <div className="border-t border-border p-2">
+            <Button variant="ghost" size="sm" className="w-full" onClick={() => onChange(undefined)}>
+              נקה תאריך
+            </Button>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+/** אזור גרירת קבצים מהמחשב */
+function DropArea({
+  onFiles,
+  children,
+}: {
+  onFiles: (files: FileList | null) => void;
+  children: React.ReactNode;
+}) {
+  const [over, setOver] = useState(false);
+  return (
+    <div
+      onDragOver={(e) => {
+        e.preventDefault();
+        setOver(true);
+      }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setOver(false);
+        onFiles(e.dataTransfer.files);
+      }}
+      className={`rounded-xl border-2 border-dashed p-3 transition-colors ${
+        over ? "border-primary bg-primary/5" : "border-border bg-surface/40"
+      }`}
+    >
+      <p className="mb-2 text-xs text-muted-foreground">
+        ניתן לגרור קבצים מהמחשב לכאן, או לצרף באמצעות הכפתורים
+      </p>
+      {children}
+    </div>
+  );
+}
+
 /** גלריית קבצים/תמונות של קריאה */
 function Attachments({
   items,
@@ -407,7 +485,8 @@ export function ServiceCallsAdmin() {
   const [techFilter, setTechFilter] = useState("all");
   const [clientFilter, setClientFilter] = useState("all");
   const [siteFilter, setSiteFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editing, setEditing] = useState<ServiceCall | null>(null);
   const editFileRef = useRef<HTMLInputElement>(null);
@@ -462,13 +541,15 @@ export function ServiceCallsAdmin() {
       .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
       .filter((c) => (siteFilter === "all" ? true : c.project === siteFilter))
       .filter((c) => {
-        if (!dateFilter) return true;
-        const key = `${dateFilter.getFullYear()}-${String(dateFilter.getMonth() + 1).padStart(2, "0")}-${String(dateFilter.getDate()).padStart(2, "0")}`;
-        return c.createdAt.startsWith(key);
+        if (!dateFrom && !dateTo) return true;
+        const key = c.createdAt.slice(0, 10);
+        if (dateFrom && key < dayKey(dateFrom)) return false;
+        if (dateTo && key > dayKey(dateTo)) return false;
+        return true;
       })
       .slice()
       .sort((a, b) => b.number - a.number);
-  }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, dateFilter]);
+  }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, dateFrom, dateTo]);
 
   const clientOptions = useMemo(
     () => Array.from(new Set(state.serviceCalls.map((c) => c.client).filter((v): v is string => !!v))).sort((a, b) => a.localeCompare(b, "he")),
@@ -673,16 +754,18 @@ export function ServiceCallsAdmin() {
 
             <div className="space-y-3 md:col-span-2">
               <Label>תמונות וקבצים</Label>
-              <div className="flex flex-wrap gap-2">
-                <Button type="button" variant="soft" onClick={() => cameraRef.current?.click()}>
-                  <Camera className="size-4" />
-                  צילום ממצלמה
-                </Button>
-                <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
-                  <Paperclip className="size-4" />
-                  צירוף קבצים
-                </Button>
-              </div>
+              <DropArea onFiles={(f) => void addFiles(f)}>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="soft" onClick={() => cameraRef.current?.click()}>
+                    <Camera className="size-4" />
+                    צילום ממצלמה
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
+                    <Paperclip className="size-4" />
+                    צירוף קבצים
+                  </Button>
+                </div>
+              </DropArea>
               <input
                 ref={cameraRef}
                 type="file"
@@ -786,45 +869,12 @@ export function ServiceCallsAdmin() {
           </Select>
         </div>
         <div className="min-w-40 flex-1 space-y-1">
-          <Label className="text-xs">סינון לפי תאריך קריאה</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-start text-right font-normal"
-              >
-                <CalendarIcon className="size-4" />
-                {dateFilter ? (
-                  formatDateIL(
-                    `${dateFilter.getFullYear()}-${String(dateFilter.getMonth() + 1).padStart(2, "0")}-${String(dateFilter.getDate()).padStart(2, "0")}`,
-                  )
-                ) : (
-                  <span className="text-muted-foreground">כל התאריכים</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={dateFilter}
-                onSelect={setDateFilter}
-                initialFocus
-                className="pointer-events-auto p-3"
-              />
-              {dateFilter && (
-                <div className="border-t border-border p-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => setDateFilter(undefined)}
-                  >
-                    נקה סינון תאריך
-                  </Button>
-                </div>
-              )}
-            </PopoverContent>
-          </Popover>
+          <Label className="text-xs">מתאריך קריאה</Label>
+          <DateFilterButton value={dateFrom} onChange={setDateFrom} placeholder="מתאריך" />
+        </div>
+        <div className="min-w-40 flex-1 space-y-1">
+          <Label className="text-xs">עד תאריך קריאה</Label>
+          <DateFilterButton value={dateTo} onChange={setDateTo} placeholder="עד תאריך" />
         </div>
       </div>
 
@@ -1070,16 +1120,18 @@ export function ServiceCallsAdmin() {
               </div>
               <div className="space-y-3 md:col-span-2">
                 <Label>תמונות וקבצים</Label>
-                <div className="flex flex-wrap gap-2">
-                  <Button type="button" variant="soft" onClick={() => editCameraRef.current?.click()}>
-                    <Camera className="size-4" />
-                    צילום ממצלמה
-                  </Button>
-                  <Button type="button" variant="outline" onClick={() => editFileRef.current?.click()}>
-                    <Paperclip className="size-4" />
-                    צירוף קבצים
-                  </Button>
-                </div>
+                <DropArea onFiles={(f) => void addEditFiles(f)}>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="soft" onClick={() => editCameraRef.current?.click()}>
+                      <Camera className="size-4" />
+                      צילום ממצלמה
+                    </Button>
+                    <Button type="button" variant="outline" onClick={() => editFileRef.current?.click()}>
+                      <Paperclip className="size-4" />
+                      צירוף קבצים
+                    </Button>
+                  </div>
+                </DropArea>
                 <input
                   ref={editCameraRef}
                   type="file"
