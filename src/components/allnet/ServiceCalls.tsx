@@ -447,9 +447,27 @@ export function ServiceCallsAdmin() {
     return state.serviceCalls
       .filter((c) => (statusFilter === "all" ? true : c.status === statusFilter))
       .filter((c) => (techFilter === "all" ? true : c.technician === techFilter))
+      .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
+      .filter((c) => (siteFilter === "all" ? true : c.project === siteFilter))
+      .filter((c) => (dateFilter === "all" ? true : c.createdAt === dateFilter))
       .slice()
       .sort((a, b) => b.number - a.number);
-  }, [state.serviceCalls, statusFilter, techFilter]);
+  }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, dateFilter]);
+
+  const clientOptions = useMemo(
+    () => Array.from(new Set(state.serviceCalls.map((c) => c.client).filter(Boolean))).sort((a, b) => a.localeCompare(b, "he")),
+    [state.serviceCalls],
+  );
+
+  const siteOptions = useMemo(
+    () => Array.from(new Set(state.serviceCalls.map((c) => c.project).filter(Boolean))).sort((a, b) => a.localeCompare(b, "he")),
+    [state.serviceCalls],
+  );
+
+  const dateOptions = useMemo(
+    () => Array.from(new Set(state.serviceCalls.map((c) => c.createdAt))).sort((a, b) => b.localeCompare(a)),
+    [state.serviceCalls],
+  );
 
   const techName = (username?: string) =>
     technicians.find((u) => u.username === username)?.full_name ?? "לא שויך";
