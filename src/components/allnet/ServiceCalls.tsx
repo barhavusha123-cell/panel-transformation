@@ -1075,6 +1075,52 @@ export function ServiceCallsTechnician() {
       {myCalls.map((call) => (
         <CallCard key={call.id} call={call} technicianName={user?.full_name ?? ""}>
           <div className="space-y-3">
+            <div className="space-y-3 rounded-xl border border-border bg-surface-2/50 p-3">
+              <p className="text-xs font-semibold text-muted-foreground">שעות עבודה באתר</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">משעה</Label>
+                  <TimeSelect
+                    value={call.workFrom ?? ""}
+                    onChange={(v) => patch(call.id, (c) => ({ ...c, workFrom: v }))}
+                    placeholder="בחר שעה"
+                    anchorTime="07:00"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">עד שעה</Label>
+                  <TimeSelect
+                    value={call.workTo ?? ""}
+                    onChange={(v) => patch(call.id, (c) => ({ ...c, workTo: v }))}
+                    placeholder="בחר שעה"
+                    anchorTime="16:00"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">ציוד שסופק</Label>
+                <Textarea
+                  rows={2}
+                  placeholder="פרט את הציוד שסופק ללקוח (מלל חופשי)"
+                  value={call.equipmentSupplied ?? ""}
+                  onChange={(e) =>
+                    patch(call.id, (c) => ({ ...c, equipmentSupplied: e.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">נושאים להמשך טיפול / הצעת מחיר</Label>
+                <Textarea
+                  rows={2}
+                  placeholder="מה נותר לטיפול? האם נדרשת הצעת מחיר? (מלל חופשי)"
+                  value={call.followUp ?? ""}
+                  onChange={(e) =>
+                    patch(call.id, (c) => ({ ...c, followUp: e.target.value }))
+                  }
+                />
+              </div>
+            </div>
+
             <Textarea
               rows={3}
               placeholder="עדכון טיפול / תשובה למנהל"
