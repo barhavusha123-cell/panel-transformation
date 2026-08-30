@@ -329,6 +329,20 @@ export function ServiceCallsAdmin() {
   const [statusFilter, setStatusFilter] = useState<"all" | ServiceCallStatus>("all");
   const [techFilter, setTechFilter] = useState("all");
   const [editing, setEditing] = useState<ServiceCall | null>(null);
+  const editFileRef = useRef<HTMLInputElement>(null);
+  const editCameraRef = useRef<HTMLInputElement>(null);
+
+  const addEditFiles = async (files: FileList | null) => {
+    if (!files?.length) return;
+    try {
+      const loaded = await Promise.all(Array.from(files).map(readFile));
+      setEditing((prev) =>
+        prev ? { ...prev, attachments: [...prev.attachments, ...loaded] } : prev,
+      );
+    } catch {
+      toast.error("אירעה שגיאה בטעינת הקובץ.");
+    }
+  };
 
   const clients = useMemo(
     () =>
