@@ -262,7 +262,85 @@ export function EmployeePortal() {
               </span>
             )}
           </TabsTrigger>
+          {isManager && (
+            <TabsTrigger
+              value="subs"
+              className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
+            >
+              <ClipboardCheck className="size-4" />
+              אישור שעות קבלני משנה
+              {pendingSubHours > 0 && (
+                <span className="ms-1 rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
+                  {pendingSubHours}
+                </span>
+              )}
+            </TabsTrigger>
+          )}
         </TabsList>
+
+        {isManager && (
+          <TabsContent value="subs" className="animate-fade mt-6">
+            <div className="surface-panel rounded-2xl p-6">
+              <h3 className="mb-1 text-lg font-semibold">דיווחי שעות של קבלני משנה</h3>
+              <p className="mb-4 text-sm text-muted-foreground">
+                מוצגים דיווחים בפרויקטים שבניהולך בלבד. סמן את התיבה לאישור השעות.
+              </p>
+              {subHours.length ? (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-right">אישור</TableHead>
+                        <TableHead className="text-right">תאריך</TableHead>
+                        <TableHead className="text-right">פרויקט</TableHead>
+                        <TableHead className="text-right">קבלן</TableHead>
+                        <TableHead className="text-right">עובדים</TableHead>
+                        <TableHead className="text-right">משעה</TableHead>
+                        <TableHead className="text-right">עד שעה</TableHead>
+                        <TableHead className="text-right">זמן עבודה</TableHead>
+                        <TableHead className="text-right">סטטוס</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {subHours.map((h) => (
+                        <TableRow key={h.id} className="transition-colors hover:bg-surface-2/60">
+                          <TableCell>
+                            <Checkbox
+                              checked={Boolean(h.approved)}
+                              onCheckedChange={(c) => toggleApproval(h.id, Boolean(c))}
+                            />
+                          </TableCell>
+                          <TableCell>{formatDateIL(h.date)}</TableCell>
+                          <TableCell className="font-medium">{h.project}</TableCell>
+                          <TableCell>{h.reporter}</TableCell>
+                          <TableCell>{h.workerNames || h.workers || "—"}</TableCell>
+                          <TableCell>{h.from}</TableCell>
+                          <TableCell>{h.to}</TableCell>
+                          <TableCell className="text-primary">{h.worked}</TableCell>
+                          <TableCell>
+                            {h.approved ? (
+                              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600">
+                                אושר{h.approvedBy ? ` · ${h.approvedBy}` : ""}
+                              </span>
+                            ) : (
+                              <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs text-muted-foreground">
+                                ממתין לאישור
+                              </span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                  אין דיווחי קבלני משנה בפרויקטים שלך.
+                </p>
+              )}
+            </div>
+          </TabsContent>
+        )}
 
         <TabsContent value="service" className="animate-fade mt-6">
           <ServiceCallsTechnician />
