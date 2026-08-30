@@ -320,8 +320,14 @@ export function ServiceCallsAdmin() {
 
   const create = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!client.trim()) return toast.error("אנא הזן שם לקוח.");
-    if (!subject.trim()) return toast.error("אנא הזן את מהות קריאת השירות.");
+    if (!client.trim()) {
+      toast.error("אנא הזן שם לקוח.");
+      return;
+    }
+    if (!subject.trim()) {
+      toast.error("אנא הזן את מהות קריאת השירות.");
+      return;
+    }
 
     const call: ServiceCall = {
       id: uid(),
@@ -666,7 +672,10 @@ export function ServiceCallsTechnician() {
 
   const respond = (call: ServiceCall, status?: ServiceCallStatus) => {
     const text = (drafts[call.id] ?? "").trim();
-    if (!text && !status) return toast.error("אנא כתוב עדכון טיפול.");
+    if (!text && !status) {
+      toast.error("אנא כתוב עדכון טיפול.");
+      return;
+    }
     patch(call.id, (c) => ({
       ...c,
       status: status ?? c.status,

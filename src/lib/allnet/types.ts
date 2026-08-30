@@ -190,7 +190,7 @@ export interface ServiceUpdate {
   at: string;
   by: string;
   text: string;
-  status?: ServiceCallStatus;
+  status?: ServiceCallStatus | undefined;
 }
 
 export interface ServiceCall {
@@ -198,17 +198,17 @@ export interface ServiceCall {
   /** מספר קריאה רץ לתצוגה */
   number: number;
   client: string;
-  project?: string;
+  project?: string | undefined;
   subject: string;
   description: string;
   priority: ServiceCallPriority;
   /** שם משתמש של הטכנאי המשויך */
-  technician?: string;
+  technician?: string | undefined;
   status: ServiceCallStatus;
   createdAt: string;
   createdBy: string;
-  contact?: string;
-  address?: string;
+  contact?: string | undefined;
+  address?: string | undefined;
   attachments: ServiceAttachment[];
   updates: ServiceUpdate[];
 }
