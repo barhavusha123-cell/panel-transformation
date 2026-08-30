@@ -35,14 +35,20 @@ export const CATEGORY_LABELS: Record<ProjectCategory, string> = {
 
 /** טופס סגירת פרויקט — חובה לפני סיווג לקטגוריה */
 export interface ProjectClosure {
-  /** האם יש תיק תיעוד */
-  hasDocFile: boolean;
+  /** האם הפרויקט נמסר ללקוח */
+  deliveredToClient: boolean;
+  /** תאריך מסירת הפרויקט — משמש כתאריך תחילת שירות בשנת השירות */
+  deliveryDate?: string;
+  /** האם הוכן תיק תיעוד ונשמר בשרתי החברה */
+  docFileSaved: boolean;
+  /** האם נשלח תיק תיעוד ללקוח */
+  docFileSentToClient: boolean;
   /** האם נשאר ציוד באתר */
   equipmentOnSite: boolean;
-  /** האם יצאה חשבונית */
+  /** האם יצאה חשבונית גמר חשבון */
   invoiceIssued: boolean;
-  /** פירוט הסיבה כאשר אחת התשובות היא "לא" */
-  reason?: string;
+  /** פירוט סיבה לכל שאלה שסומנה "לא" (מפתח = שם השדה) */
+  reasons?: Partial<Record<"deliveredToClient" | "docFileSaved" | "docFileSentToClient" | "equipmentOnSite" | "invoiceIssued", string>>;
   closedAt: string;
 }
 

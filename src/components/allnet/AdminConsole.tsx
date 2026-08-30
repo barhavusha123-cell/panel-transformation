@@ -198,18 +198,31 @@ export function AdminConsole() {
   const { state, setState } = useAllNet();
   const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive">("console");
   const [categoryView, setCategoryView] = useState<ProjectCategory>("warranty");
-  /** פרויקט שנמצא בתהליך סגירה (טופס 3 שאלות) */
-  const [closeTarget, setCloseTarget] = useState<string | null>(null);
-  const [closeForm, setCloseForm] = useState<{
-    hasDocFile: boolean | null;
-    equipmentOnSite: boolean | null;
-    invoiceIssued: boolean | null;
-  }>({
-    hasDocFile: null,
+  /** פרויקט שנמצא בתהליך סגירה (טופס שאלות סגירה) */
+  type ClosureKey =
+    | "deliveredToClient"
+    | "docFileSaved"
+    | "docFileSentToClient"
+    | "equipmentOnSite"
+    | "invoiceIssued";
+  const CLOSURE_QUESTIONS: { key: ClosureKey; label: string }[] = [
+    { key: "deliveredToClient", label: "האם הפרויקט נמסר ללקוח?" },
+    { key: "docFileSaved", label: "האם הוכן תיק תיעוד ונשמר בשרתי החברה?" },
+    { key: "docFileSentToClient", label: "האם נשלח תיק תיעוד ללקוח?" },
+    { key: "equipmentOnSite", label: "האם נשאר ציוד באתר?" },
+    { key: "invoiceIssued", label: "האם יצאה חשבונית גמר חשבון?" },
+  ];
+  const emptyCloseForm = (): Record<ClosureKey, boolean | null> => ({
+    deliveredToClient: null,
+    docFileSaved: null,
+    docFileSentToClient: null,
     equipmentOnSite: null,
     invoiceIssued: null,
   });
-  const [closeReason, setCloseReason] = useState("");
+  const [closeTarget, setCloseTarget] = useState<string | null>(null);
+  const [closeForm, setCloseForm] = useState<Record<ClosureKey, boolean | null>>(emptyCloseForm());
+  const [closeReasons, setCloseReasons] = useState<Partial<Record<ClosureKey, string>>>({});
+  const [closeDeliveryDate, setCloseDeliveryDate] = useState("");
 
   const [detailProject, setDetailProject] = useState<string | null>(null);
   const [tab, setTab] = useState("reports");
@@ -781,29 +794,43 @@ export function AdminConsole() {
 
   const openClosure = (name: string) => {
     const p = projectByName(name);
+    const c = p?.closure;
     setCloseForm({
-      hasDocFile: p?.closure?.hasDocFile ?? null,
-      equipmentOnSite: p?.closure?.equipmentOnSite ?? null,
-      invoiceIssued: p?.closure?.invoiceIssued ?? null,
+      deliveredToClient: c?.deliveredToClient ?? null,
+      docFileSaved: c?.docFileSaved ?? null,
+      docFileSentToClient: c?.docFileSentToClient ?? null,
+      equipmentOnSite: c?.equipmentOnSite ?? null,
+      invoiceIssued: c?.invoiceIssued ?? null,
     });
-    setCloseReason(p?.closure?.reason ?? "");
+    setCloseReasons({ ...(c?.reasons ?? {}) });
+    setCloseDeliveryDate(c?.deliveryDate ?? "");
     setCloseTarget(name);
   };
 
   const saveClosure = () => {
     if (!closeTarget) return;
-    const { hasDocFile, equipmentOnSite, invoiceIssued } = closeForm;
-    if (hasDocFile === null || equipmentOnSite === null || invoiceIssued === null) {
-      toast.error("יש לענות כן / לא על כל שלוש השאלות כדי להשלים את סגירת הפרויקט.");
+    const unanswered = CLOSURE_QUESTIONS.some((q) => closeForm[q.key] === null);
+    if (unanswered) {
+      toast.error("יש לענות כן / לא על כל השאלות כדי להשלים את סגירת הפרויקט.");
       return;
     }
-    const hasNegative = !hasDocFile || !equipmentOnSite || !invoiceIssued;
-    if (hasNegative && !closeReason.trim()) {
-      toast.error("סומנה תשובת 'לא' — יש לפרט את הסיבה בתיבת הטקסט.");
+    if (closeForm.deliveredToClient && !closeDeliveryDate) {
+      toast.error("יש לבחור תאריך מסירת הפרויקט (תאריך תחילת שירות).");
+      return;
+    }
+    const missingReason = CLOSURE_QUESTIONS.find(
+      (q) => closeForm[q.key] === false && !(closeReasons[q.key] ?? "").trim(),
+    );
+    if (missingReason) {
+      toast.error(`סומנה תשובת 'לא' בשאלה "${missingReason.label}" — יש לפרט את הסיבה.`);
       return;
     }
     const name = closeTarget;
-    const reason = closeReason.trim();
+    const reasons: Partial<Record<ClosureKey, string>> = {};
+    CLOSURE_QUESTIONS.forEach((q) => {
+      const r = (closeReasons[q.key] ?? "").trim();
+      if (closeForm[q.key] === false && r) reasons[q.key] = r;
+    });
     setState((prev) => ({
       ...prev,
       projects: prev.projects.map((p) =>
@@ -811,10 +838,13 @@ export function AdminConsole() {
           ? {
               ...p,
               closure: {
-                hasDocFile,
-                equipmentOnSite,
-                invoiceIssued,
-                ...(reason ? { reason } : {}),
+                deliveredToClient: closeForm.deliveredToClient!,
+                ...(closeDeliveryDate ? { deliveryDate: closeDeliveryDate } : {}),
+                docFileSaved: closeForm.docFileSaved!,
+                docFileSentToClient: closeForm.docFileSentToClient!,
+                equipmentOnSite: closeForm.equipmentOnSite!,
+                invoiceIssued: closeForm.invoiceIssued!,
+                ...(Object.keys(reasons).length ? { reasons } : {}),
                 closedAt: new Date().toISOString(),
               },
             }
@@ -835,7 +865,16 @@ export function AdminConsole() {
       ...prev,
       projects: prev.projects.map((x) =>
         x.name === name
-          ? { ...x, archived: true, category, categorizedAt: new Date().toISOString() }
+          ? {
+              ...x,
+              archived: true,
+              category,
+              // בשנת שירות — תאריך תחילת השירות הוא תאריך מסירת הפרויקט מטופס הסגירה
+              categorizedAt:
+                category === "warranty" && x.closure?.deliveryDate
+                  ? new Date(x.closure.deliveryDate).toISOString()
+                  : new Date().toISOString(),
+            }
           : x,
       ),
     }));
@@ -909,64 +948,72 @@ export function AdminConsole() {
             סגירת פרויקט — {closeTarget}
           </DialogTitle>
           <DialogDescription>
-            יש לענות כן / לא על כל שלוש השאלות. ללא סגירת פרויקט לא ניתן להעביר את הפרויקט לאף קטגוריה.
+            יש לענות כן / לא על כל השאלות. על כל תשובת 'לא' יש לפרט את הסיבה. ללא סגירת פרויקט לא ניתן להעביר את הפרויקט לאף קטגוריה.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
-          {(
-            [
-              ["hasDocFile", "האם יש תיק תיעוד"],
-              ["equipmentOnSite", "האם נשאר ציוד באתר"],
-              ["invoiceIssued", "האם יצאה חשבונית"],
-            ] as const
-          ).map(([key, label]) => (
-            <div
-              key={key}
-              className="flex items-center justify-between gap-3 rounded-xl border border-border p-3 text-sm"
-            >
-              <span className="font-medium">{label}</span>
-              <div className="flex gap-2">
-                {(
-                  [
-                    [true, "כן"],
-                    [false, "לא"],
-                  ] as const
-                ).map(([val, text]) => (
-                  <button
-                    key={text}
-                    type="button"
-                    onClick={() => setCloseForm((prev) => ({ ...prev, [key]: val }))}
-                    className={cn(
-                      "min-w-12 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors",
-                      closeForm[key] === val
-                        ? val
-                          ? "border-emerald-500 bg-emerald-500 text-white"
-                          : "border-rose-500 bg-rose-500 text-white"
-                        : "border-border bg-background text-muted-foreground hover:bg-surface-2/60",
-                    )}
-                  >
-                    {text}
-                  </button>
-                ))}
+          {CLOSURE_QUESTIONS.map(({ key, label }) => (
+            <div key={key} className="space-y-2 rounded-xl border border-border p-3 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-medium">{label}</span>
+                <div className="flex gap-2">
+                  {(
+                    [
+                      [true, "כן"],
+                      [false, "לא"],
+                    ] as const
+                  ).map(([val, text]) => (
+                    <button
+                      key={text}
+                      type="button"
+                      onClick={() => setCloseForm((prev) => ({ ...prev, [key]: val }))}
+                      className={cn(
+                        "min-w-12 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors",
+                        closeForm[key] === val
+                          ? val
+                            ? "border-emerald-500 bg-emerald-500 text-white"
+                            : "border-rose-500 bg-rose-500 text-white"
+                          : "border-border bg-background text-muted-foreground hover:bg-surface-2/60",
+                      )}
+                    >
+                      {text}
+                    </button>
+                  ))}
+                </div>
               </div>
+              {key === "deliveredToClient" && closeForm.deliveredToClient === true && (
+                <div className="space-y-1.5 border-t border-border/60 pt-2">
+                  <Label className="text-xs">
+                    תאריך מסירת הפרויקט (תאריך תחילת שירות) <span className="text-rose-500">*</span>
+                  </Label>
+                  <Input
+                    type="date"
+                    dir="ltr"
+                    className="text-left"
+                    value={closeDeliveryDate}
+                    onChange={(e) => setCloseDeliveryDate(e.target.value)}
+                    onKeyDown={(e) => e.preventDefault()}
+                  />
+                </div>
+              )}
+              {closeForm[key] === false && (
+                <div className="space-y-1.5 border-t border-border/60 pt-2">
+                  <Label className="text-xs">
+                    פירוט הסיבה <span className="text-rose-500">*</span>
+                  </Label>
+                  <Textarea
+                    value={closeReasons[key] ?? ""}
+                    onChange={(e) =>
+                      setCloseReasons((prev) => ({ ...prev, [key]: e.target.value }))
+                    }
+                    placeholder="פרט מדוע סומנה תשובת 'לא'..."
+                    rows={2}
+                  />
+                </div>
+              )}
             </div>
           ))}
         </div>
-        {(closeForm.hasDocFile === false ||
-          closeForm.equipmentOnSite === false ||
-          closeForm.invoiceIssued === false) && (
-          <div className="space-y-2">
-            <Label>
-              פירוט הסיבה <span className="text-rose-500">*</span>
-            </Label>
-            <Textarea
-              value={closeReason}
-              onChange={(e) => setCloseReason(e.target.value)}
-              placeholder="פרט מדוע סומנה תשובת 'לא'..."
-              rows={3}
-            />
-          </div>
-        )}
         <DialogFooter className="flex-row-reverse justify-start gap-2">
           <Button variant="brand" onClick={saveClosure}>
             אשר סגירת פרויקט
