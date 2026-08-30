@@ -141,6 +141,51 @@ function priorityBadge(p: ServiceCallPriority) {
   );
 }
 
+const dayKey = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+/** בורר תאריך לסינון (בחירה מלוח שנה בלבד) */
+function DateFilterButton({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value?: Date;
+  onChange: (d: Date | undefined) => void;
+  placeholder: string;
+}) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="w-full justify-start text-right font-normal">
+          <CalendarIcon className="size-4" />
+          {value ? (
+            formatDateIL(dayKey(value))
+          ) : (
+            <span className="text-muted-foreground">{placeholder}</span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={value}
+          onSelect={onChange}
+          initialFocus
+          className="pointer-events-auto p-3"
+        />
+        {value && (
+          <div className="border-t border-border p-2">
+            <Button variant="ghost" size="sm" className="w-full" onClick={() => onChange(undefined)}>
+              נקה תאריך
+            </Button>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 /** אזור גרירת קבצים מהמחשב */
 function DropArea({
   onFiles,
