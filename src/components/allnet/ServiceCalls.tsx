@@ -271,6 +271,30 @@ function CallCard({
         </div>
       )}
 
+      {(call.approverName || call.approverSignature) && (
+        <div className="mt-4 space-y-2 border-t border-border pt-3">
+          <p className="text-xs font-semibold text-muted-foreground">אישור לקוח</p>
+          {call.approverName && (
+            <p className="text-sm">
+              <span className="text-muted-foreground">שם הלקוח המאשר: </span>
+              <span className="font-semibold">{call.approverName}</span>
+            </p>
+          )}
+          {call.approverSignature && (
+            <div className="max-w-xs rounded-xl border border-border bg-white p-2">
+              <img
+                src={call.approverSignature}
+                alt="חתימת הלקוח המאשר"
+                className="h-24 w-full object-contain"
+              />
+            </div>
+          )}
+          {call.approvedAt && (
+            <p className="text-xs text-muted-foreground">נחתם בתאריך {formatDateIL(call.approvedAt)}</p>
+          )}
+        </div>
+      )}
+
       {children && <div className="mt-4 border-t border-border pt-3">{children}</div>}
         </>
       )}
