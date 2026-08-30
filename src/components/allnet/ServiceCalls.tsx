@@ -461,7 +461,11 @@ export function ServiceCallsAdmin() {
       .filter((c) => (techFilter === "all" ? true : c.technician === techFilter))
       .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
       .filter((c) => (siteFilter === "all" ? true : c.project === siteFilter))
-      .filter((c) => (dateFilter === "all" ? true : c.createdAt === dateFilter))
+      .filter((c) => {
+        if (!dateFilter) return true;
+        const key = `${dateFilter.getFullYear()}-${String(dateFilter.getMonth() + 1).padStart(2, "0")}-${String(dateFilter.getDate()).padStart(2, "0")}`;
+        return c.createdAt.startsWith(key);
+      })
       .slice()
       .sort((a, b) => b.number - a.number);
   }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, dateFilter]);
@@ -476,10 +480,6 @@ export function ServiceCallsAdmin() {
     [state.serviceCalls],
   );
 
-  const dateOptions = useMemo(
-    () => Array.from(new Set(state.serviceCalls.map((c) => c.createdAt))).sort((a, b) => b.localeCompare(a)),
-    [state.serviceCalls],
-  );
 
   const techName = (username?: string) =>
     technicians.find((u) => u.username === username)?.full_name ?? "לא שויך";
