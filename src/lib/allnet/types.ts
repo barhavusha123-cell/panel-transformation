@@ -240,6 +240,7 @@ export const defaultState = (): AllNetState => ({
   projects: [],
   hours: [],
   files: [],
+  serviceCalls: [],
   adminPassword: DEFAULT_ADMIN_PASSWORD,
   adminEmail: "",
   admin2fa: false,
