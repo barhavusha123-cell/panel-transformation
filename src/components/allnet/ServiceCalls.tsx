@@ -954,7 +954,7 @@ export function ServiceCallsTechnician() {
   const myCalls = useMemo(
     () =>
       state.serviceCalls
-        .filter((c) => c.technician === user?.username)
+        .filter((c) => c.technician === user?.username && c.status !== "done")
         .slice()
         .sort((a, b) => b.number - a.number),
     [state.serviceCalls, user],
