@@ -939,64 +939,72 @@ export function AdminConsole() {
             סגירת פרויקט — {closeTarget}
           </DialogTitle>
           <DialogDescription>
-            יש לענות כן / לא על כל שלוש השאלות. ללא סגירת פרויקט לא ניתן להעביר את הפרויקט לאף קטגוריה.
+            יש לענות כן / לא על כל השאלות. על כל תשובת 'לא' יש לפרט את הסיבה. ללא סגירת פרויקט לא ניתן להעביר את הפרויקט לאף קטגוריה.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
-          {(
-            [
-              ["hasDocFile", "האם יש תיק תיעוד"],
-              ["equipmentOnSite", "האם נשאר ציוד באתר"],
-              ["invoiceIssued", "האם יצאה חשבונית"],
-            ] as const
-          ).map(([key, label]) => (
-            <div
-              key={key}
-              className="flex items-center justify-between gap-3 rounded-xl border border-border p-3 text-sm"
-            >
-              <span className="font-medium">{label}</span>
-              <div className="flex gap-2">
-                {(
-                  [
-                    [true, "כן"],
-                    [false, "לא"],
-                  ] as const
-                ).map(([val, text]) => (
-                  <button
-                    key={text}
-                    type="button"
-                    onClick={() => setCloseForm((prev) => ({ ...prev, [key]: val }))}
-                    className={cn(
-                      "min-w-12 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors",
-                      closeForm[key] === val
-                        ? val
-                          ? "border-emerald-500 bg-emerald-500 text-white"
-                          : "border-rose-500 bg-rose-500 text-white"
-                        : "border-border bg-background text-muted-foreground hover:bg-surface-2/60",
-                    )}
-                  >
-                    {text}
-                  </button>
-                ))}
+          {CLOSURE_QUESTIONS.map(({ key, label }) => (
+            <div key={key} className="space-y-2 rounded-xl border border-border p-3 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-medium">{label}</span>
+                <div className="flex gap-2">
+                  {(
+                    [
+                      [true, "כן"],
+                      [false, "לא"],
+                    ] as const
+                  ).map(([val, text]) => (
+                    <button
+                      key={text}
+                      type="button"
+                      onClick={() => setCloseForm((prev) => ({ ...prev, [key]: val }))}
+                      className={cn(
+                        "min-w-12 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors",
+                        closeForm[key] === val
+                          ? val
+                            ? "border-emerald-500 bg-emerald-500 text-white"
+                            : "border-rose-500 bg-rose-500 text-white"
+                          : "border-border bg-background text-muted-foreground hover:bg-surface-2/60",
+                      )}
+                    >
+                      {text}
+                    </button>
+                  ))}
+                </div>
               </div>
+              {key === "deliveredToClient" && closeForm.deliveredToClient === true && (
+                <div className="space-y-1.5 border-t border-border/60 pt-2">
+                  <Label className="text-xs">
+                    תאריך מסירת הפרויקט (תאריך תחילת שירות) <span className="text-rose-500">*</span>
+                  </Label>
+                  <Input
+                    type="date"
+                    dir="ltr"
+                    className="text-left"
+                    value={closeDeliveryDate}
+                    onChange={(e) => setCloseDeliveryDate(e.target.value)}
+                    onKeyDown={(e) => e.preventDefault()}
+                  />
+                </div>
+              )}
+              {closeForm[key] === false && (
+                <div className="space-y-1.5 border-t border-border/60 pt-2">
+                  <Label className="text-xs">
+                    פירוט הסיבה <span className="text-rose-500">*</span>
+                  </Label>
+                  <Textarea
+                    value={closeReasons[key] ?? ""}
+                    onChange={(e) =>
+                      setCloseReasons((prev) => ({ ...prev, [key]: e.target.value }))
+                    }
+                    placeholder="פרט מדוע סומנה תשובת 'לא'..."
+                    rows={2}
+                  />
+                </div>
+              )}
             </div>
           ))}
         </div>
-        {(closeForm.hasDocFile === false ||
-          closeForm.equipmentOnSite === false ||
-          closeForm.invoiceIssued === false) && (
-          <div className="space-y-2">
-            <Label>
-              פירוט הסיבה <span className="text-rose-500">*</span>
-            </Label>
-            <Textarea
-              value={closeReason}
-              onChange={(e) => setCloseReason(e.target.value)}
-              placeholder="פרט מדוע סומנה תשובת 'לא'..."
-              rows={3}
-            />
-          </div>
-        )}
         <DialogFooter className="flex-row-reverse justify-start gap-2">
           <Button variant="brand" onClick={saveClosure}>
             אשר סגירת פרויקט
