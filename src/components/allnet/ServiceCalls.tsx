@@ -6,6 +6,7 @@ import {
   Eye,
   Headset,
   Paperclip,
+  Pencil,
   Plus,
   Send,
   Trash2,
@@ -19,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { SignaturePad } from "@/components/allnet/SignaturePad";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -271,6 +273,30 @@ function CallCard({
         </div>
       )}
 
+      {(call.approverName || call.approverSignature) && (
+        <div className="mt-4 space-y-2 border-t border-border pt-3">
+          <p className="text-xs font-semibold text-muted-foreground">אישור לקוח</p>
+          {call.approverName && (
+            <p className="text-sm">
+              <span className="text-muted-foreground">שם הלקוח המאשר: </span>
+              <span className="font-semibold">{call.approverName}</span>
+            </p>
+          )}
+          {call.approverSignature && (
+            <div className="max-w-xs rounded-xl border border-border bg-white p-2">
+              <img
+                src={call.approverSignature}
+                alt="חתימת הלקוח המאשר"
+                className="h-24 w-full object-contain"
+              />
+            </div>
+          )}
+          {call.approvedAt && (
+            <p className="text-xs text-muted-foreground">נחתם בתאריך {formatDateIL(call.approvedAt)}</p>
+          )}
+        </div>
+      )}
+
       {children && <div className="mt-4 border-t border-border pt-3">{children}</div>}
         </>
       )}
@@ -302,6 +328,7 @@ export function ServiceCallsAdmin() {
   const [attachments, setAttachments] = useState<ServiceAttachment[]>([]);
   const [statusFilter, setStatusFilter] = useState<"all" | ServiceCallStatus>("all");
   const [techFilter, setTechFilter] = useState("all");
+  const [editing, setEditing] = useState<ServiceCall | null>(null);
 
   const clients = useMemo(
     () =>
@@ -672,6 +699,10 @@ export function ServiceCallsAdmin() {
                     </SelectContent>
                   </Select>
                 </div>
+                <Button variant="soft" onClick={() => setEditing(call)}>
+                  <Pencil className="size-4" />
+                  ערוך קריאה
+                </Button>
                 <Button
                   variant="ghost"
                   className="text-destructive hover:bg-destructive/10"
@@ -694,6 +725,163 @@ export function ServiceCallsAdmin() {
           אין קריאות שירות להצגה.
         </p>
       )}
+
+      {/* עריכת קריאת שירות קיימת */}
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent className="service-green max-h-[85vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-right">
+              עריכת קריאת שירות #{editing?.number}
+            </DialogTitle>
+          </DialogHeader>
+          {editing && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label>שם לקוח</Label>
+                <Input
+                  list="service-clients"
+                  value={editing.client}
+                  onChange={(e) => setEditing({ ...editing, client: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>אתר (לא חובה)</Label>
+                <Input
+                  list="service-projects"
+                  value={editing.project ?? ""}
+                  onChange={(e) => setEditing({ ...editing, project: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>מהות קריאת השירות</Label>
+                <Input
+                  value={editing.subject}
+                  onChange={(e) => setEditing({ ...editing, subject: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>תיאור מפורט</Label>
+                <Textarea
+                  rows={3}
+                  value={editing.description}
+                  onChange={(e) => setEditing({ ...editing, description: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>דחיפות</Label>
+                <Select
+                  value={editing.priority}
+                  onValueChange={(v) =>
+                    setEditing({ ...editing, priority: v as ServiceCallPriority })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SERVICE_PRIORITIES.map((p) => (
+                      <SelectItem key={p} value={p}>
+                        {SERVICE_PRIORITY_LABELS[p]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>שיוך טכנאי</Label>
+                <Select
+                  value={editing.technician || "none"}
+                  onValueChange={(v) =>
+                    setEditing({ ...editing, technician: v === "none" ? undefined : v })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">ללא שיוך</SelectItem>
+                    {technicians.map((u) => (
+                      <SelectItem key={u.username} value={u.username}>
+                        {u.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>איש קשר בשטח</Label>
+                <Input
+                  value={editing.contact ?? ""}
+                  onChange={(e) => setEditing({ ...editing, contact: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>כתובת האתר</Label>
+                <Input
+                  value={editing.address ?? ""}
+                  onChange={(e) => setEditing({ ...editing, address: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>שם הלקוח המאשר</Label>
+                <Input
+                  value={editing.approverName ?? ""}
+                  onChange={(e) => setEditing({ ...editing, approverName: e.target.value })}
+                  placeholder="שם מלא של הלקוח שאישר את הטיפול"
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>חתימת הלקוח המאשר</Label>
+                <SignaturePad
+                  value={editing.approverSignature}
+                  onSave={(dataUrl) =>
+                    setEditing({
+                      ...editing,
+                      approverSignature: dataUrl,
+                      approvedAt: nowStamp(),
+                    })
+                  }
+                  onClear={() =>
+                    setEditing({
+                      ...editing,
+                      approverSignature: undefined,
+                      approvedAt: undefined,
+                    })
+                  }
+                />
+              </div>
+              <div className="flex justify-end gap-2 md:col-span-2">
+                <Button variant="outline" onClick={() => setEditing(null)}>
+                  ביטול
+                </Button>
+                <Button
+                  variant="brand"
+                  onClick={() => {
+                    if (!editing.client.trim() || !editing.subject.trim()) {
+                      toast.error("שם לקוח ומהות הקריאה הם שדות חובה.");
+                      return;
+                    }
+                    const next: ServiceCall = {
+                      ...editing,
+                      client: editing.client.trim(),
+                      subject: editing.subject.trim(),
+                      project: editing.project?.trim() || undefined,
+                      contact: editing.contact?.trim() || undefined,
+                      address: editing.address?.trim() || undefined,
+                      approverName: editing.approverName?.trim() || undefined,
+                    };
+                    patch(next.id, () => next);
+                    setEditing(null);
+                    toast.success("קריאת השירות עודכנה בהצלחה.");
+                  }}
+                >
+                  שמור שינויים
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -779,6 +967,45 @@ export function ServiceCallsTechnician() {
               value={drafts[call.id] ?? ""}
               onChange={(e) => setDrafts((d) => ({ ...d, [call.id]: e.target.value }))}
             />
+
+            <div className="space-y-3 rounded-xl border border-border bg-surface-2/50 p-3">
+              <p className="text-xs font-semibold text-muted-foreground">אישור לקוח בשטח</p>
+              <div className="space-y-2">
+                <Label className="text-xs">שם הלקוח המאשר</Label>
+                <Input
+                  value={call.approverName ?? ""}
+                  onChange={(e) =>
+                    patch(call.id, (c) => ({ ...c, approverName: e.target.value }))
+                  }
+                  placeholder="שם מלא של הלקוח המאשר"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">חתימת הלקוח המאשר</Label>
+                <SignaturePad
+                  value={call.approverSignature}
+                  onSave={(dataUrl) => {
+                    patch(call.id, (c) => ({
+                      ...c,
+                      approverSignature: dataUrl,
+                      approvedAt: nowStamp(),
+                    }));
+                    toast.success("חתימת הלקוח נשמרה.");
+                  }}
+                  onClear={() =>
+                    patch(call.id, (c) => ({
+                      ...c,
+                      approverSignature: undefined,
+                      approvedAt: undefined,
+                    }))
+                  }
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  ניתן לחתום ישירות במסך הטלפון באמצעות האצבע.
+                </p>
+              </div>
+            </div>
+
             <div className="flex flex-wrap gap-2">
               <Button variant="brand" size="sm" onClick={() => respond(call)}>
                 <Send className="size-4" />

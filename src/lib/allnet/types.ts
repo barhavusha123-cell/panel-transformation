@@ -213,6 +213,12 @@ export interface ServiceCall {
   address?: string | undefined;
   attachments: ServiceAttachment[];
   updates: ServiceUpdate[];
+  /** שם הלקוח המאשר את סיום הטיפול */
+  approverName?: string | undefined;
+  /** חתימת הלקוח המאשר (תמונת PNG כ-dataURL) */
+  approverSignature?: string | undefined;
+  /** מועד החתימה */
+  approvedAt?: string | undefined;
 }
 
 export interface AllNetState {
