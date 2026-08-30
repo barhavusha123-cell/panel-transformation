@@ -214,7 +214,7 @@ export function EmployeePortal() {
           </TabsTrigger>
           <TabsTrigger
             value="service"
-            className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
+            className="rounded-lg text-emerald-600 data-[state=active]:service-green data-[state=active]:brand-gradient data-[state=active]:text-primary-foreground"
           >
             <Headset className="size-4" />
             קריאות שירות
