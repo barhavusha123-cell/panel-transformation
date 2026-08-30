@@ -329,6 +329,20 @@ export function ServiceCallsAdmin() {
   const [statusFilter, setStatusFilter] = useState<"all" | ServiceCallStatus>("all");
   const [techFilter, setTechFilter] = useState("all");
   const [editing, setEditing] = useState<ServiceCall | null>(null);
+  const editFileRef = useRef<HTMLInputElement>(null);
+  const editCameraRef = useRef<HTMLInputElement>(null);
+
+  const addEditFiles = async (files: FileList | null) => {
+    if (!files?.length) return;
+    try {
+      const loaded = await Promise.all(Array.from(files).map(readFile));
+      setEditing((prev) =>
+        prev ? { ...prev, attachments: [...prev.attachments, ...loaded] } : prev,
+      );
+    } catch {
+      toast.error("אירעה שגיאה בטעינת הקובץ.");
+    }
+  };
 
   const clients = useMemo(
     () =>
@@ -820,6 +834,49 @@ export function ServiceCallsAdmin() {
                 <Input
                   value={editing.address ?? ""}
                   onChange={(e) => setEditing({ ...editing, address: e.target.value })}
+                />
+              </div>
+              <div className="space-y-3 md:col-span-2">
+                <Label>תמונות וקבצים</Label>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="soft" onClick={() => editCameraRef.current?.click()}>
+                    <Camera className="size-4" />
+                    צילום ממצלמה
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => editFileRef.current?.click()}>
+                    <Paperclip className="size-4" />
+                    צירוף קבצים
+                  </Button>
+                </div>
+                <input
+                  ref={editCameraRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => {
+                    void addEditFiles(e.target.files);
+                    e.target.value = "";
+                  }}
+                />
+                <input
+                  ref={editFileRef}
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    void addEditFiles(e.target.files);
+                    e.target.value = "";
+                  }}
+                />
+                <Attachments
+                  items={editing.attachments}
+                  onRemove={(id) =>
+                    setEditing({
+                      ...editing,
+                      attachments: editing.attachments.filter((a) => a.id !== id),
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2 md:col-span-2">
