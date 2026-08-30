@@ -754,16 +754,18 @@ export function ServiceCallsAdmin() {
 
             <div className="space-y-3 md:col-span-2">
               <Label>תמונות וקבצים</Label>
-              <div className="flex flex-wrap gap-2">
-                <Button type="button" variant="soft" onClick={() => cameraRef.current?.click()}>
-                  <Camera className="size-4" />
-                  צילום ממצלמה
-                </Button>
-                <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
-                  <Paperclip className="size-4" />
-                  צירוף קבצים
-                </Button>
-              </div>
+              <DropArea onFiles={(f) => void addFiles(f)}>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="soft" onClick={() => cameraRef.current?.click()}>
+                    <Camera className="size-4" />
+                    צילום ממצלמה
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
+                    <Paperclip className="size-4" />
+                    צירוף קבצים
+                  </Button>
+                </div>
+              </DropArea>
               <input
                 ref={cameraRef}
                 type="file"
