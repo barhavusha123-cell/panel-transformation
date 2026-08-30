@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import {
+  CalendarIcon,
   Camera,
   CheckCircle2,
   ChevronDown,
@@ -17,7 +18,10 @@ import {
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { formatDateIL, getAllTimeOptions, nowStamp } from "@/lib/allnet/utils";
-import { openServiceCallReport } from "@/lib/allnet/serviceReport";
+import {
+  openServiceCallReport,
+  openServiceCallsBulkReport,
+} from "@/lib/allnet/serviceReport";
 
 const TIME_OPTIONS = getAllTimeOptions();
 
@@ -75,6 +79,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   SERVICE_PRIORITIES,
   SERVICE_PRIORITY_LABELS,
