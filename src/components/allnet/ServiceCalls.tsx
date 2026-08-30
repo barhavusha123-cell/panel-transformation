@@ -15,7 +15,45 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
-import { formatDateIL, nowStamp } from "@/lib/allnet/utils";
+import { formatDateIL, getAllTimeOptions, nowStamp } from "@/lib/allnet/utils";
+
+const TIME_OPTIONS = getAllTimeOptions();
+
+/** בורר שעה עם גלילה — עוגן התחלה 07:00 / סיום 16:00 */
+function TimeSelect({
+  value,
+  onChange,
+  placeholder,
+  anchorTime = "07:00",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  anchorTime?: string;
+}) {
+  const handleOpen = (open: boolean) => {
+    if (!open) return;
+    setTimeout(() => {
+      document
+        .querySelector<HTMLElement>(`[data-time-option="${anchorTime}"]`)
+        ?.scrollIntoView({ block: "start" });
+    }, 30);
+  };
+  return (
+    <Select value={value} onValueChange={onChange} onOpenChange={handleOpen}>
+      <SelectTrigger>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent className="max-h-64">
+        {TIME_OPTIONS.map((t) => (
+          <SelectItem key={t} value={t} data-time-option={t}>
+            {t}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -242,6 +280,24 @@ function CallCard({
           <p className="sm:col-span-2">
             <span className="text-muted-foreground">כתובת: </span>
             {call.address}
+          </p>
+        )}
+        {(call.workFrom || call.workTo) && (
+          <p>
+            <span className="text-muted-foreground">שעות עבודה באתר: </span>
+            {call.workFrom || "—"} - {call.workTo || "—"}
+          </p>
+        )}
+        {call.equipmentSupplied && (
+          <p className="sm:col-span-2">
+            <span className="text-muted-foreground">ציוד שסופק: </span>
+            <span className="whitespace-pre-wrap">{call.equipmentSupplied}</span>
+          </p>
+        )}
+        {call.followUp && (
+          <p className="sm:col-span-2">
+            <span className="text-muted-foreground">נושאים להמשך טיפול / הצעת מחיר: </span>
+            <span className="whitespace-pre-wrap">{call.followUp}</span>
           </p>
         )}
       </div>
