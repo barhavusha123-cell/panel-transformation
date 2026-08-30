@@ -519,6 +519,72 @@ export function ProjectHoursDetail({
         markPartialDays
         showWorkers
       />
+
+      <ProjectFiles projectName={projectName} />
     </div>
   );
 }
+
+function ProjectFiles({ projectName }: { projectName: string }) {
+  const { setState } = useAllNet();
+  const [busy, setBusy] = useState(false);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const list = Array.from(e.target.files ?? []);
+    if (!list.length) return;
+    setBusy(true);
+    try {
+      const records = await Promise.all(
+        list.map(
+          (file) =>
+            new Promise<FileRecord>((resolve) => {
+              const reader = new FileReader();
+              reader.onload = () =>
+                resolve({
+                  id: crypto.randomUUID(),
+                  name: file.name,
+                  dataUrl: String(reader.result),
+                  uploadedBy: "מנהל מערכת",
+                  uploadedAt: nowStamp(),
+                  size: `${Math.round((file.size / (1024 * 1024)) * 100) / 100} MB`,
+                  project: projectName,
+                });
+              reader.readAsDataURL(file);
+            }),
+        ),
+      );
+      setState((prev) => ({ ...prev, files: [...prev.files, ...records] }));
+      toast.success(
+        records.length === 1
+          ? `הקובץ '${records[0]!.name}' שויך לפרויקט '${projectName}'.`
+          : `${records.length} קבצים שויכו לפרויקט '${projectName}'.`,
+      );
+    } finally {
+      setBusy(false);
+      e.target.value = "";
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-border bg-surface/70 p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="flex items-center gap-2 text-base font-bold">
+          <Paperclip className="size-5 text-primary" />
+          קבצים ומסמכים של הפרויקט
+        </h3>
+        <Button asChild size="sm" disabled={busy}>
+          <label className="cursor-pointer">
+            <Upload className="size-4" />
+            {busy ? "מעלה..." : "הוסף קבצים"}
+            <input type="file" multiple className="hidden" onChange={handleUpload} />
+          </label>
+        </Button>
+      </div>
+      <p className="mb-3 text-xs text-muted-foreground">
+        הקבצים שיועלו כאן משויכים אוטומטית לפרויקט "{projectName}".
+      </p>
+      <DocumentList projectFilter={projectName} isAdmin />
+    </div>
+  );
+}
+
