@@ -277,8 +277,8 @@ export function openServiceCallsBulkReport(
     <div class="top">
       <img src="${logoUrl}" alt="AllNet" />
       <div class="meta">
-        <h1>דוח קריאות שירות מרוכז</h1>
-        <div class="sub">${sorted.length} קריאות · הופק בתאריך ${formatDateIL(new Date().toISOString())}</div>
+        <h1>דוח קריאות מרכז${clientTitle ? ` · ${esc(clientTitle)}` : ""}</h1>
+        <div class="sub">${clientTitle ? `שם לקוח: ${esc(clientTitle)} · ` : ""}${sorted.length} קריאות · הופק בתאריך ${formatDateIL(new Date().toISOString())}</div>
       </div>
     </div>
     <div class="content">
