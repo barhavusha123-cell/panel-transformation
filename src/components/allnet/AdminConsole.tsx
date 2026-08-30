@@ -1390,9 +1390,10 @@ export function AdminConsole() {
                   <TableHead className="text-right">שעות מנהל פרויקט / עובד</TableHead>
                   <TableHead className="text-right">ניצול</TableHead>
                   {isArchive && (
-                    <TableHead className="text-right">
-                      תאריך מעבר ל{CATEGORY_LABELS[categoryView]}
-                    </TableHead>
+                    <>
+                      <TableHead className="text-right">תאריך מסירה</TableHead>
+                      <TableHead className="text-right">סיום שירות</TableHead>
+                    </>
                   )}
                   <TableHead className="text-right">פעולות</TableHead>
                 </TableRow>
