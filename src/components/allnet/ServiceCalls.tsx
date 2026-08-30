@@ -948,6 +948,7 @@ export function ServiceCallsTechnician() {
   const { state, setState, session } = useAllNet();
   const user = session?.user;
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [confirmCloseId, setConfirmCloseId] = useState<string | null>(null);
   const cameraRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const myCalls = useMemo(
@@ -1072,7 +1073,7 @@ export function ServiceCallsTechnician() {
                 <Eye className="size-4" />
                 בטיפול
               </Button>
-              <Button variant="outline" size="sm" onClick={() => respond(call, "done")}>
+              <Button variant="outline" size="sm" onClick={() => setConfirmCloseId(call.id)}>
                 <CheckCircle2 className="size-4" />
                 סיום טיפול
               </Button>
@@ -1101,6 +1102,35 @@ export function ServiceCallsTechnician() {
           </div>
         </CallCard>
       ))}
+
+      <Dialog open={!!confirmCloseId} onOpenChange={(open) => !open && setConfirmCloseId(null)}>
+        <DialogContent className="sm:max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="text-right">סגירת קריאת שירות</DialogTitle>
+          </DialogHeader>
+          <p className="text-right text-sm text-muted-foreground">
+            האם לסגור את קריאת השירות?
+          </p>
+          <div className="flex flex-row-reverse justify-end gap-2">
+            <Button
+              variant="brand"
+              onClick={() => {
+                const call = myCalls.find((c) => c.id === confirmCloseId);
+                if (call) {
+                  respond(call, "done");
+                  toast.success("הטופס נשלח למנהל בהצלחה", { duration: 3000 });
+                }
+                setConfirmCloseId(null);
+              }}
+            >
+              כן
+            </Button>
+            <Button variant="outline" onClick={() => setConfirmCloseId(null)}>
+              לא
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
