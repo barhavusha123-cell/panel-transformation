@@ -948,6 +948,7 @@ export function ServiceCallsTechnician() {
   const { state, setState, session } = useAllNet();
   const user = session?.user;
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [confirmCloseId, setConfirmCloseId] = useState<string | null>(null);
   const cameraRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const myCalls = useMemo(
