@@ -865,7 +865,16 @@ export function AdminConsole() {
       ...prev,
       projects: prev.projects.map((x) =>
         x.name === name
-          ? { ...x, archived: true, category, categorizedAt: new Date().toISOString() }
+          ? {
+              ...x,
+              archived: true,
+              category,
+              // בשנת שירות — תאריך תחילת השירות הוא תאריך מסירת הפרויקט מטופס הסגירה
+              categorizedAt:
+                category === "warranty" && x.closure?.deliveryDate
+                  ? new Date(x.closure.deliveryDate).toISOString()
+                  : new Date().toISOString(),
+            }
           : x,
       ),
     }));
