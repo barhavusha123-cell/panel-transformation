@@ -127,6 +127,44 @@ export function EmployeePortal() {
 
   const livePreview = from && to ? formatHoursMinutes(minutesBetween(from, to)) : "—";
 
+  /** פרויקטים שמנוהלים על ידי המשתמש הנוכחי */
+  const managedProjects = useMemo(
+    () =>
+      user ? state.projects.filter((p) => p.manager === user.full_name).map((p) => p.name) : [],
+    [state.projects, user],
+  );
+
+  const isManager = managedProjects.length > 0 && user?.role !== "קבלן משנה";
+
+  /** דיווחי קבלני המשנה בפרויקטים של מנהל הפרויקט בלבד */
+  const subHours = useMemo(
+    () =>
+      state.hours
+        .filter((h) => h.role === "קבלן משנה" && managedProjects.includes(h.project))
+        .slice()
+        .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id)),
+    [state.hours, managedProjects],
+  );
+
+  const pendingSubHours = subHours.filter((h) => !h.approved).length;
+
+  const toggleApproval = (id: number, approved: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      hours: prev.hours.map((h) =>
+        h.id === id
+          ? {
+              ...h,
+              approved,
+              approvedBy: approved ? (user?.full_name ?? "") : "",
+              approvedAt: approved ? new Date().toISOString() : "",
+            }
+          : h,
+      ),
+    }));
+    toast.success(approved ? "השעות אושרו." : "האישור בוטל.");
+  };
+
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
