@@ -156,6 +156,22 @@ function KpiCard({
   );
 }
 
+/** תאריך מסירה בפועל (YYYY-MM-DD) */
+const handoverOf = (p: Project): string | undefined =>
+  p.handoverDate ??
+  p.closure?.deliveryDate ??
+  (p.categorizedAt ?? p.closure?.closedAt)?.slice(0, 10);
+
+/** תאריך סיום שירות (YYYY-MM-DD) — ידני, אחרת שנה מתאריך המסירה */
+const serviceEndOf = (p: Project): string | undefined => {
+  if (p.serviceEndDate) return p.serviceEndDate;
+  const h = handoverOf(p);
+  if (!h) return undefined;
+  const d = new Date(`${h}T00:00:00`);
+  d.setFullYear(d.getFullYear() + 1);
+  return d.toISOString().slice(0, 10);
+};
+
 const RAD = Math.PI / 180;
 
 function SliceLabel(props: {
@@ -304,28 +320,34 @@ export function AdminConsole() {
     }
     return base;
   }, [state.projects]);
-  /** פרויקטים בשנת שירות שמסיימים את שנת האחריות בתוך 30 יום (11 חודשים מהמעבר) */
+  const setProjectDate = (
+    name: string,
+    field: "handoverDate" | "serviceEndDate",
+    value: string,
+  ) =>
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.map((x) =>
+        x.name === name ? { ...x, [field]: value } : x,
+      ),
+    }));
+
+  /** פרויקטים שמסיימים את השירות בתוך 30 יום */
   const warrantyEnding = useMemo(() => {
     const dayMs = 86400000;
     const now = Date.now();
     return state.projects
-      .filter(
-        (p) =>
-          p.archived &&
-          (p.category ?? "warranty") === "warranty" &&
-          (p.categorizedAt ?? p.closure?.closedAt),
-      )
+      .filter((p) => p.archived && !!serviceEndOf(p))
       .map((p) => {
-        const startedAt = (p.categorizedAt ?? p.closure?.closedAt)!;
-        const start = new Date(startedAt);
-        const end = new Date(start);
-        end.setFullYear(end.getFullYear() + 1);
+        const endsAt = serviceEndOf(p)!;
         return {
           name: p.name,
           client: p.client ?? "",
-          startedAt,
-          endsAt: end.toISOString(),
-          daysLeft: Math.ceil((end.getTime() - now) / dayMs),
+          startedAt: handoverOf(p) ?? "",
+          endsAt,
+          daysLeft: Math.ceil(
+            (new Date(`${endsAt}T00:00:00`).getTime() - now) / dayMs,
+          ),
         };
       })
       .filter((p) => p.daysLeft <= 30)
@@ -1380,9 +1402,10 @@ export function AdminConsole() {
                   <TableHead className="text-right">שעות מנהל פרויקט / עובד</TableHead>
                   <TableHead className="text-right">ניצול</TableHead>
                   {isArchive && (
-                    <TableHead className="text-right">
-                      תאריך מעבר ל{CATEGORY_LABELS[categoryView]}
-                    </TableHead>
+                    <>
+                      <TableHead className="text-right">תאריך מסירה</TableHead>
+                      <TableHead className="text-right">סיום שירות</TableHead>
+                    </>
                   )}
                   <TableHead className="text-right">פעולות</TableHead>
                 </TableRow>
@@ -1416,33 +1439,48 @@ export function AdminConsole() {
                         <Badge variant={r.pct >= 80 ? "destructive" : "secondary"}>{r.pct}%</Badge>
                       </TableCell>
                       {isArchive && (
-                        <TableCell className="text-sm">
-                          {p.categorizedAt ? (
-                            <div className="flex flex-col gap-1">
-                              <span>{formatDateIL(p.categorizedAt.slice(0, 10))}</span>
-                              {categoryView === "warranty" &&
-                                (() => {
-                                  const end = new Date(p.categorizedAt!);
-                                  end.setFullYear(end.getFullYear() + 1);
-                                  const daysLeft = Math.ceil(
-                                    (end.getTime() - Date.now()) / 86400000,
-                                  );
-                                  return (
-                                    <Badge
-                                      variant={daysLeft <= 30 ? "destructive" : "secondary"}
-                                      className="w-fit"
-                                    >
+                        <>
+                          <TableCell className="text-sm">
+                            <Input
+                              type="date"
+                              className="w-[9.5rem]"
+                              value={handoverOf(p) ?? ""}
+                              onChange={(e) =>
+                                setProjectDate(p.name, "handoverDate", e.target.value)
+                              }
+                            />
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {(() => {
+                              const end = serviceEndOf(p);
+                              const daysLeft = end
+                                ? Math.ceil(
+                                    (new Date(`${end}T00:00:00`).getTime() - Date.now()) /
+                                      86400000,
+                                  )
+                                : null;
+                              return (
+                                <div className="flex flex-col gap-1">
+                                  <Input
+                                    type="date"
+                                    className="w-[9.5rem]"
+                                    value={end ?? ""}
+                                    onChange={(e) =>
+                                      setProjectDate(p.name, "serviceEndDate", e.target.value)
+                                    }
+                                  />
+                                  {daysLeft !== null && daysLeft <= 30 && (
+                                    <Badge variant="destructive" className="w-fit">
                                       {daysLeft <= 0
-                                        ? "שנת השירות הסתיימה"
-                                        : `סיום אחריות בעוד ${daysLeft} ימים`}
+                                        ? "השירות הסתיים — יש לשלוח הסכם שירות"
+                                        : `סיום שירות בעוד ${daysLeft} ימים`}
                                     </Badge>
-                                  );
-                                })()}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
+                                  )}
+                                </div>
+                              );
+                            })()}
+                          </TableCell>
+                        </>
                       )}
                       <TableCell>
                         <div className="flex flex-wrap gap-2">
@@ -1659,7 +1697,7 @@ export function AdminConsole() {
         <div className="animate-fade surface-panel mb-8 rounded-2xl border border-warning/40 p-6">
           <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
             <ShieldCheck className="size-5 text-warning" />
-            סיום שנת שירות — נדרש משלוח הסכם שירות
+            התראת סיום שירות (30 יום) — יש לשלוח ללקוח הסכם שירות
             <Badge variant="destructive" className="animate-pulse">
               {warrantyEnding.length}
             </Badge>
@@ -1679,13 +1717,13 @@ export function AdminConsole() {
                   </span>
                   <Badge variant={p.daysLeft <= 0 ? "destructive" : "secondary"}>
                     {p.daysLeft <= 0
-                      ? "שנת השירות הסתיימה"
-                      : `מסיים שנת שירות בעוד ${p.daysLeft} ימים`}
+                      ? "השירות הסתיים"
+                      : `סיום שירות בעוד ${p.daysLeft} ימים`}
                   </Badge>
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  הועבר לשנת שירות: {formatDateIL(p.startedAt.slice(0, 10))} · סיום אחריות:{" "}
-                  {formatDateIL(p.endsAt.slice(0, 10))} · יש לשלוח הסכם שירות ללקוח.
+                  {p.startedAt ? `תאריך מסירה: ${formatDateIL(p.startedAt)} · ` : ""}
+                  סיום שירות: {formatDateIL(p.endsAt)} · יש לשלוח ללקוח הסכם שירות.
                 </p>
               </button>
             ))}

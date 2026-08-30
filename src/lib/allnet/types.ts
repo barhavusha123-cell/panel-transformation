@@ -86,6 +86,10 @@ export interface Project {
   closure?: ProjectClosure;
   /** תאריך ההעברה לקטגוריה הנוכחית (ISO) */
   categorizedAt?: string;
+  /** תאריך מסירה בפועל (YYYY-MM-DD) — ניתן לעריכה ידנית */
+  handoverDate?: string;
+  /** תאריך סיום שירות (YYYY-MM-DD) — ניתן לעריכה ידנית */
+  serviceEndDate?: string;
 
 }
 
