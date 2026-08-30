@@ -794,29 +794,43 @@ export function AdminConsole() {
 
   const openClosure = (name: string) => {
     const p = projectByName(name);
+    const c = p?.closure;
     setCloseForm({
-      hasDocFile: p?.closure?.hasDocFile ?? null,
-      equipmentOnSite: p?.closure?.equipmentOnSite ?? null,
-      invoiceIssued: p?.closure?.invoiceIssued ?? null,
+      deliveredToClient: c?.deliveredToClient ?? null,
+      docFileSaved: c?.docFileSaved ?? null,
+      docFileSentToClient: c?.docFileSentToClient ?? null,
+      equipmentOnSite: c?.equipmentOnSite ?? null,
+      invoiceIssued: c?.invoiceIssued ?? null,
     });
-    setCloseReason(p?.closure?.reason ?? "");
+    setCloseReasons({ ...(c?.reasons ?? {}) });
+    setCloseDeliveryDate(c?.deliveryDate ?? "");
     setCloseTarget(name);
   };
 
   const saveClosure = () => {
     if (!closeTarget) return;
-    const { hasDocFile, equipmentOnSite, invoiceIssued } = closeForm;
-    if (hasDocFile === null || equipmentOnSite === null || invoiceIssued === null) {
-      toast.error("יש לענות כן / לא על כל שלוש השאלות כדי להשלים את סגירת הפרויקט.");
+    const unanswered = CLOSURE_QUESTIONS.some((q) => closeForm[q.key] === null);
+    if (unanswered) {
+      toast.error("יש לענות כן / לא על כל השאלות כדי להשלים את סגירת הפרויקט.");
       return;
     }
-    const hasNegative = !hasDocFile || !equipmentOnSite || !invoiceIssued;
-    if (hasNegative && !closeReason.trim()) {
-      toast.error("סומנה תשובת 'לא' — יש לפרט את הסיבה בתיבת הטקסט.");
+    if (closeForm.deliveredToClient && !closeDeliveryDate) {
+      toast.error("יש לבחור תאריך מסירת הפרויקט (תאריך תחילת שירות).");
+      return;
+    }
+    const missingReason = CLOSURE_QUESTIONS.find(
+      (q) => closeForm[q.key] === false && !(closeReasons[q.key] ?? "").trim(),
+    );
+    if (missingReason) {
+      toast.error(`סומנה תשובת 'לא' בשאלה "${missingReason.label}" — יש לפרט את הסיבה.`);
       return;
     }
     const name = closeTarget;
-    const reason = closeReason.trim();
+    const reasons: Partial<Record<ClosureKey, string>> = {};
+    CLOSURE_QUESTIONS.forEach((q) => {
+      const r = (closeReasons[q.key] ?? "").trim();
+      if (closeForm[q.key] === false && r) reasons[q.key] = r;
+    });
     setState((prev) => ({
       ...prev,
       projects: prev.projects.map((p) =>
@@ -824,10 +838,13 @@ export function AdminConsole() {
           ? {
               ...p,
               closure: {
-                hasDocFile,
-                equipmentOnSite,
-                invoiceIssued,
-                ...(reason ? { reason } : {}),
+                deliveredToClient: closeForm.deliveredToClient!,
+                ...(closeDeliveryDate ? { deliveryDate: closeDeliveryDate } : {}),
+                docFileSaved: closeForm.docFileSaved!,
+                docFileSentToClient: closeForm.docFileSentToClient!,
+                equipmentOnSite: closeForm.equipmentOnSite!,
+                invoiceIssued: closeForm.invoiceIssued!,
+                ...(Object.keys(reasons).length ? { reasons } : {}),
                 closedAt: new Date().toISOString(),
               },
             }
