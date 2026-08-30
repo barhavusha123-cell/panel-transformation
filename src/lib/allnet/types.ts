@@ -219,6 +219,14 @@ export interface ServiceCall {
   approverSignature?: string | undefined;
   /** מועד החתימה */
   approvedAt?: string | undefined;
+  /** שעת התחלת עבודה באתר (HH:MM) */
+  workFrom?: string | undefined;
+  /** שעת סיום עבודה באתר (HH:MM) */
+  workTo?: string | undefined;
+  /** ציוד שסופק — מלל חופשי */
+  equipmentSupplied?: string | undefined;
+  /** נושאים להמשך טיפול / הצעת מחיר — מלל חופשי */
+  followUp?: string | undefined;
 }
 
 export interface AllNetState {
