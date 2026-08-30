@@ -188,7 +188,18 @@ export function ProjectHoursDetail({
       const names = Array.from(
         new Set(dayRows.map((h) => h.workerNames).filter(Boolean) as string[]),
       ).join(", ");
-      return { date, workers, names, rate: subDayRate(region, workers) };
+      const approved = dayRows.length > 0 && dayRows.every((h) => h.approved);
+      const approvedAt = approved
+        ? dayRows
+            .map((h) => h.approvedAt)
+            .filter(Boolean)
+            .sort()
+            .pop()
+        : undefined;
+      const approvedBy = approved
+        ? dayRows.find((h) => h.approvedBy)?.approvedBy
+        : undefined;
+      return { date, workers, names, rate: subDayRate(region, workers), approved, approvedAt, approvedBy };
     });
   const subCost = subBreakdown.reduce((sum, d) => sum + d.rate, 0);
   // עלות עובדי חברה: 1,200 ₪ ליום עבודה לעובד
@@ -370,11 +381,23 @@ export function ProjectHoursDetail({
               <div className="rounded-lg border border-primary/20 bg-background/50 p-2 text-[11px]">
                 <p className="mb-1 font-semibold">פירוט חישוב קבלני משנה</p>
                 {subBreakdown.map((d) => (
-                  <div key={d.date} className="flex items-center justify-between gap-2 py-0.5">
-                    <span className="text-muted-foreground">
-                      {formatDateIL(d.date)} · {d.workers} עובדים{d.names ? ` (${d.names})` : ""} × יום עבודה
-                    </span>
-                    <span className="font-medium">{ils(d.rate)}</span>
+                  <div key={d.date} className="flex flex-col gap-0.5 py-0.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-muted-foreground">
+                        {formatDateIL(d.date)} · {d.workers} עובדים{d.names ? ` (${d.names})` : ""} × יום עבודה
+                      </span>
+                      <span className="font-medium">{ils(d.rate)}</span>
+                    </div>
+                    {d.approved ? (
+                      <span className="text-[11px] font-medium text-emerald-700">
+                        ✓ השעות אושרו ע״י מנהל הפרויקט{d.approvedBy ? ` (${d.approvedBy})` : ""}
+                        {d.approvedAt ? ` · ${formatDateIL(d.approvedAt.slice(0, 10))} ${d.approvedAt.slice(11, 16)}` : ""}
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-medium text-blue-600">
+                        ממתין לאישור מנהל הפרויקט
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
