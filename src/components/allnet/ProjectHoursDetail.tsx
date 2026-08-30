@@ -33,6 +33,7 @@ import {
   MIN_FULL_DAY_MINUTES,
   SUB_CREW_SIZE,
   subDayRate,
+  type FileRecord,
   type HoursEntry,
 } from "@/lib/allnet/types";
 
