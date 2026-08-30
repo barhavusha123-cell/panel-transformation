@@ -787,19 +787,44 @@ export function ServiceCallsAdmin() {
         </div>
         <div className="min-w-40 flex-1 space-y-1">
           <Label className="text-xs">סינון לפי תאריך קריאה</Label>
-          <Select value={dateFilter} onValueChange={setDateFilter}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">כל התאריכים</SelectItem>
-              {dateOptions.map((d) => (
-                <SelectItem key={d} value={d}>
-                  {formatDateIL(d)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-right font-normal"
+              >
+                <CalendarIcon className="size-4" />
+                {dateFilter ? (
+                  formatDateIL(
+                    `${dateFilter.getFullYear()}-${String(dateFilter.getMonth() + 1).padStart(2, "0")}-${String(dateFilter.getDate()).padStart(2, "0")}`,
+                  )
+                ) : (
+                  <span className="text-muted-foreground">כל התאריכים</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={dateFilter}
+                onSelect={setDateFilter}
+                initialFocus
+                className="pointer-events-auto p-3"
+              />
+              {dateFilter && (
+                <div className="border-t border-border p-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => setDateFilter(undefined)}
+                  >
+                    נקה סינון תאריך
+                  </Button>
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
