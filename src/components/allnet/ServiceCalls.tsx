@@ -327,6 +327,7 @@ export function ServiceCallsAdmin() {
   const [attachments, setAttachments] = useState<ServiceAttachment[]>([]);
   const [statusFilter, setStatusFilter] = useState<"all" | ServiceCallStatus>("all");
   const [techFilter, setTechFilter] = useState("all");
+  const [editing, setEditing] = useState<ServiceCall | null>(null);
 
   const clients = useMemo(
     () =>
