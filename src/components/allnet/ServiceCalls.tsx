@@ -290,6 +290,14 @@ function CallCard({
             {call.workFrom || "—"} - {call.workTo || "—"}
           </p>
         )}
+        {call.additionalTechnician !== undefined && (
+          <p>
+            <span className="text-muted-foreground">טכנאי נוסף באתר: </span>
+            {call.additionalTechnician
+              ? `כן${call.additionalTechnicianName ? ` — ${call.additionalTechnicianName}` : ""}`
+              : "לא"}
+          </p>
+        )}
         {call.equipmentSupplied && (
           <p className="sm:col-span-2">
             <span className="text-muted-foreground">ציוד שסופק: </span>
