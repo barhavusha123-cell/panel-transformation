@@ -6,6 +6,7 @@ import {
   Eye,
   Headset,
   Paperclip,
+  Pencil,
   Plus,
   Send,
   Trash2,
