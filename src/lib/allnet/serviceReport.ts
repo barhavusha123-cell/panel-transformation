@@ -131,6 +131,14 @@ export function openServiceCallReport(call: ServiceCall, technicianName?: string
       ${row("נושא הקריאה", call.subject)}
       ${row("תאריך סגירה", call.closedAt ? formatDateIL(call.closedAt) : "")}
       ${row("שעות עבודה באתר", call.workFrom && call.workTo ? `${call.workFrom} - ${call.workTo}` : "")}
+      ${row(
+        "טכנאי נוסף באתר",
+        call.additionalTechnician === undefined
+          ? ""
+          : call.additionalTechnician
+            ? `כן${call.additionalTechnicianName ? ` — ${call.additionalTechnicianName}` : ""}`
+            : "לא",
+      )}
     </table>
 
     <h2>תיאור התקלה / מהות הקריאה</h2>
