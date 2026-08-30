@@ -298,7 +298,7 @@ export function openServiceCallsBulkReport(
       </table>
     </div>
     <footer>
-      <span>AllNet · דוח קריאות שירות מרוכז</span>
+      <span>AllNet · דוח קריאות מרכז${clientTitle ? ` · ` + esc(clientTitle) : ""}</span>
       <span>מסמך זה הופק ממערכת הניהול והתפעול של AllNet</span>
     </footer>
   </div>`;
@@ -313,7 +313,7 @@ export function openServiceCallsBulkReport(
     .join("");
 
   return openPrintWindow(
-    `דוח קריאות שירות מרוכז - ${sorted.length} קריאות`,
+    `דוח קריאות מרכז${clientTitle ? " - " + clientTitle : ""} - ${sorted.length} קריאות`,
     cover + pages,
   );
 }
