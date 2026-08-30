@@ -169,6 +169,7 @@ export async function readBackupFile(file: File): Promise<AllNetState> {
     projects: state.projects ?? [],
     hours: state.hours ?? [],
     files: state.files ?? [],
+    serviceCalls: state.serviceCalls ?? [],
     adminPassword: state.adminPassword ?? "admin123",
     adminEmail: state.adminEmail ?? "",
   };
