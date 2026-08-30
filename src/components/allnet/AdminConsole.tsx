@@ -1697,7 +1697,7 @@ export function AdminConsole() {
         <div className="animate-fade surface-panel mb-8 rounded-2xl border border-warning/40 p-6">
           <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
             <ShieldCheck className="size-5 text-warning" />
-            סיום שנת שירות — נדרש משלוח הסכם שירות
+            התראת סיום שירות (30 יום) — יש לשלוח ללקוח הסכם שירות
             <Badge variant="destructive" className="animate-pulse">
               {warrantyEnding.length}
             </Badge>
