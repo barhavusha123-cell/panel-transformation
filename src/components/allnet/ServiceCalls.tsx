@@ -653,7 +653,11 @@ export function ServiceCallsAdmin() {
                   <Select
                     value={call.status}
                     onValueChange={(v) =>
-                      patch(call.id, (c) => ({ ...c, status: v as ServiceCallStatus }))
+                      patch(call.id, (c) => ({
+                        ...c,
+                        status: v as ServiceCallStatus,
+                        closedAt: v === "done" ? (c.closedAt ?? nowStamp()) : undefined,
+                      }))
                     }
                   >
                     <SelectTrigger>
@@ -725,6 +729,12 @@ export function ServiceCallsTechnician() {
     patch(call.id, (c) => ({
       ...c,
       status: status ?? c.status,
+      closedAt:
+        status === "done"
+          ? (c.closedAt ?? nowStamp())
+          : status
+            ? undefined
+            : c.closedAt,
       updates: [
         ...c.updates,
         {
