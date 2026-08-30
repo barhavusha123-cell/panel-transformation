@@ -304,28 +304,22 @@ export function AdminConsole() {
     }
     return base;
   }, [state.projects]);
-  /** פרויקטים בשנת שירות שמסיימים את שנת האחריות בתוך 30 יום (11 חודשים מהמעבר) */
+  /** פרויקטים שמסיימים את השירות בתוך 30 יום */
   const warrantyEnding = useMemo(() => {
     const dayMs = 86400000;
     const now = Date.now();
     return state.projects
-      .filter(
-        (p) =>
-          p.archived &&
-          (p.category ?? "warranty") === "warranty" &&
-          (p.categorizedAt ?? p.closure?.closedAt),
-      )
+      .filter((p) => p.archived && !!serviceEndOf(p))
       .map((p) => {
-        const startedAt = (p.categorizedAt ?? p.closure?.closedAt)!;
-        const start = new Date(startedAt);
-        const end = new Date(start);
-        end.setFullYear(end.getFullYear() + 1);
+        const endsAt = serviceEndOf(p)!;
         return {
           name: p.name,
           client: p.client ?? "",
-          startedAt,
-          endsAt: end.toISOString(),
-          daysLeft: Math.ceil((end.getTime() - now) / dayMs),
+          startedAt: handoverOf(p) ?? "",
+          endsAt,
+          daysLeft: Math.ceil(
+            (new Date(`${endsAt}T00:00:00`).getTime() - now) / dayMs,
+          ),
         };
       })
       .filter((p) => p.daysLeft <= 30)
