@@ -256,6 +256,11 @@ export function openServiceCallsBulkReport(
   if (!calls.length) return false;
   const logoUrl = new URL(logo.url, window.location.origin).href;
   const sorted = calls.slice().sort((a, b) => a.number - b.number);
+  const uniqueClients = Array.from(
+    new Set(sorted.map((c) => (c.client ?? "").trim()).filter(Boolean)),
+  );
+  const clientTitle =
+    uniqueClients.length === 1 ? uniqueClients[0]! : uniqueClients.length > 1 ? "מספר לקוחות" : "";
 
   const summaryRows = sorted
     .map((c) => {
