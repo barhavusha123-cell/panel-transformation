@@ -455,12 +455,12 @@ export function ServiceCallsAdmin() {
   }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, dateFilter]);
 
   const clientOptions = useMemo(
-    () => Array.from(new Set(state.serviceCalls.map((c) => c.client).filter(Boolean))).sort((a, b) => a.localeCompare(b, "he")),
+    () => Array.from(new Set(state.serviceCalls.map((c) => c.client).filter((v): v is string => !!v))).sort((a, b) => a.localeCompare(b, "he")),
     [state.serviceCalls],
   );
 
   const siteOptions = useMemo(
-    () => Array.from(new Set(state.serviceCalls.map((c) => c.project).filter(Boolean))).sort((a, b) => a.localeCompare(b, "he")),
+    () => Array.from(new Set(state.serviceCalls.map((c) => c.project).filter((v): v is string => !!v))).sort((a, b) => a.localeCompare(b, "he")),
     [state.serviceCalls],
   );
 
