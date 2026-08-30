@@ -15,7 +15,45 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
-import { formatDateIL, nowStamp } from "@/lib/allnet/utils";
+import { formatDateIL, getAllTimeOptions, nowStamp } from "@/lib/allnet/utils";
+
+const TIME_OPTIONS = getAllTimeOptions();
+
+/** בורר שעה עם גלילה — עוגן התחלה 07:00 / סיום 16:00 */
+function TimeSelect({
+  value,
+  onChange,
+  placeholder,
+  anchorTime = "07:00",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  anchorTime?: string;
+}) {
+  const handleOpen = (open: boolean) => {
+    if (!open) return;
+    setTimeout(() => {
+      document
+        .querySelector<HTMLElement>(`[data-time-option="${anchorTime}"]`)
+        ?.scrollIntoView({ block: "start" });
+    }, 30);
+  };
+  return (
+    <Select value={value} onValueChange={onChange} onOpenChange={handleOpen}>
+      <SelectTrigger>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent className="max-h-64">
+        {TIME_OPTIONS.map((t) => (
+          <SelectItem key={t} value={t} data-time-option={t}>
+            {t}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -242,6 +280,24 @@ function CallCard({
           <p className="sm:col-span-2">
             <span className="text-muted-foreground">כתובת: </span>
             {call.address}
+          </p>
+        )}
+        {(call.workFrom || call.workTo) && (
+          <p>
+            <span className="text-muted-foreground">שעות עבודה באתר: </span>
+            {call.workFrom || "—"} - {call.workTo || "—"}
+          </p>
+        )}
+        {call.equipmentSupplied && (
+          <p className="sm:col-span-2">
+            <span className="text-muted-foreground">ציוד שסופק: </span>
+            <span className="whitespace-pre-wrap">{call.equipmentSupplied}</span>
+          </p>
+        )}
+        {call.followUp && (
+          <p className="sm:col-span-2">
+            <span className="text-muted-foreground">נושאים להמשך טיפול / הצעת מחיר: </span>
+            <span className="whitespace-pre-wrap">{call.followUp}</span>
           </p>
         )}
       </div>
@@ -1019,6 +1075,52 @@ export function ServiceCallsTechnician() {
       {myCalls.map((call) => (
         <CallCard key={call.id} call={call} technicianName={user?.full_name ?? ""}>
           <div className="space-y-3">
+            <div className="space-y-3 rounded-xl border border-border bg-surface-2/50 p-3">
+              <p className="text-xs font-semibold text-muted-foreground">שעות עבודה באתר</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">משעה</Label>
+                  <TimeSelect
+                    value={call.workFrom ?? ""}
+                    onChange={(v) => patch(call.id, (c) => ({ ...c, workFrom: v }))}
+                    placeholder="בחר שעה"
+                    anchorTime="07:00"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">עד שעה</Label>
+                  <TimeSelect
+                    value={call.workTo ?? ""}
+                    onChange={(v) => patch(call.id, (c) => ({ ...c, workTo: v }))}
+                    placeholder="בחר שעה"
+                    anchorTime="16:00"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">ציוד שסופק</Label>
+                <Textarea
+                  rows={2}
+                  placeholder="פרט את הציוד שסופק ללקוח (מלל חופשי)"
+                  value={call.equipmentSupplied ?? ""}
+                  onChange={(e) =>
+                    patch(call.id, (c) => ({ ...c, equipmentSupplied: e.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">נושאים להמשך טיפול / הצעת מחיר</Label>
+                <Textarea
+                  rows={2}
+                  placeholder="מה נותר לטיפול? האם נדרשת הצעת מחיר? (מלל חופשי)"
+                  value={call.followUp ?? ""}
+                  onChange={(e) =>
+                    patch(call.id, (c) => ({ ...c, followUp: e.target.value }))
+                  }
+                />
+              </div>
+            </div>
+
             <Textarea
               rows={3}
               placeholder="עדכון טיפול / תשובה למנהל"
