@@ -1327,7 +1327,8 @@ export function AdminConsole() {
                 <TableRow>
                   <TableHead className="text-right">שם לקוח</TableHead>
                   <TableHead className="text-right">שם פרויקט</TableHead>
-                  <TableHead className="text-right">עלות פרויקט</TableHead>
+                  <TableHead className="text-right">רווח פרויקט</TableHead>
+                  <TableHead className="text-right">שווי פרויקט</TableHead>
                   <TableHead className="text-right">מנהל פרויקט</TableHead>
                   <TableHead className="text-right">שעות מנהל פרויקט / עובד</TableHead>
                   <TableHead className="text-right">ניצול</TableHead>
@@ -1356,8 +1357,11 @@ export function AdminConsole() {
                           {p.name}
                         </button>
                       </TableCell>
+                      <TableCell className={`font-semibold ${r.profit < 0 ? "text-destructive" : ""}`}>
+                        {Math.round(r.profit).toLocaleString("he-IL")} ₪
+                      </TableCell>
                       <TableCell className="font-semibold">
-                        {Math.round(r.cost).toLocaleString("he-IL")} ₪
+                        {Math.round(r.sale).toLocaleString("he-IL")} ₪
                       </TableCell>
                       <TableCell>{p.manager}</TableCell>
                       <TableCell>{p.budget.toLocaleString()}</TableCell>
@@ -1437,6 +1441,24 @@ export function AdminConsole() {
                 : "אין פרויקטים רשומים במערכת כרגע."}
             </p>
 
+          )}
+          {!isArchive && list.length > 0 && (
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface-2/60 p-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  שווי כולל של כל הפרויקטים הפעילים
+                </p>
+                <p className="text-2xl font-bold">
+                  {Math.round(list.reduce((a, p) => a + (Number(p.saleAmount) || 0), 0)).toLocaleString("he-IL")} ₪
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">רווח כולל צפוי</p>
+                <p className="text-xl font-bold">
+                  {Math.round(list.reduce((a, p) => a + (Number(p.saleAmount) || 0) - calculateProjectCost(state, p.name), 0)).toLocaleString("he-IL")} ₪
+                </p>
+              </div>
+            </div>
           )}
           {!isArchive && (
             <div className="mt-6 flex justify-center border-t border-border pt-5">
@@ -1763,7 +1785,7 @@ export function AdminConsole() {
                             שווי פרויקטים בעבודה
                           </p>
                           <p className="text-xl font-bold text-foreground">
-                            {Math.round(dashRows.reduce((sum, r) => sum + r.cost, 0)).toLocaleString("he-IL")} ₪
+                            {Math.round(dashRows.reduce((sum, r) => sum + r.sale, 0)).toLocaleString("he-IL")} ₪
                           </p>
                         </div>
                       </div>
