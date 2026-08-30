@@ -724,6 +724,163 @@ export function ServiceCallsAdmin() {
           אין קריאות שירות להצגה.
         </p>
       )}
+
+      {/* עריכת קריאת שירות קיימת */}
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent className="service-green max-h-[85vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-right">
+              עריכת קריאת שירות #{editing?.number}
+            </DialogTitle>
+          </DialogHeader>
+          {editing && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label>שם לקוח</Label>
+                <Input
+                  list="service-clients"
+                  value={editing.client}
+                  onChange={(e) => setEditing({ ...editing, client: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>אתר (לא חובה)</Label>
+                <Input
+                  list="service-projects"
+                  value={editing.project ?? ""}
+                  onChange={(e) => setEditing({ ...editing, project: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>מהות קריאת השירות</Label>
+                <Input
+                  value={editing.subject}
+                  onChange={(e) => setEditing({ ...editing, subject: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>תיאור מפורט</Label>
+                <Textarea
+                  rows={3}
+                  value={editing.description}
+                  onChange={(e) => setEditing({ ...editing, description: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>דחיפות</Label>
+                <Select
+                  value={editing.priority}
+                  onValueChange={(v) =>
+                    setEditing({ ...editing, priority: v as ServiceCallPriority })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SERVICE_PRIORITIES.map((p) => (
+                      <SelectItem key={p} value={p}>
+                        {SERVICE_PRIORITY_LABELS[p]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>שיוך טכנאי</Label>
+                <Select
+                  value={editing.technician || "none"}
+                  onValueChange={(v) =>
+                    setEditing({ ...editing, technician: v === "none" ? undefined : v })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">ללא שיוך</SelectItem>
+                    {technicians.map((u) => (
+                      <SelectItem key={u.username} value={u.username}>
+                        {u.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>איש קשר בשטח</Label>
+                <Input
+                  value={editing.contact ?? ""}
+                  onChange={(e) => setEditing({ ...editing, contact: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>כתובת האתר</Label>
+                <Input
+                  value={editing.address ?? ""}
+                  onChange={(e) => setEditing({ ...editing, address: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>שם הלקוח המאשר</Label>
+                <Input
+                  value={editing.approverName ?? ""}
+                  onChange={(e) => setEditing({ ...editing, approverName: e.target.value })}
+                  placeholder="שם מלא של הלקוח שאישר את הטיפול"
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>חתימת הלקוח המאשר</Label>
+                <SignaturePad
+                  value={editing.approverSignature}
+                  onSave={(dataUrl) =>
+                    setEditing({
+                      ...editing,
+                      approverSignature: dataUrl,
+                      approvedAt: nowStamp(),
+                    })
+                  }
+                  onClear={() =>
+                    setEditing({
+                      ...editing,
+                      approverSignature: undefined,
+                      approvedAt: undefined,
+                    })
+                  }
+                />
+              </div>
+              <div className="flex justify-end gap-2 md:col-span-2">
+                <Button variant="outline" onClick={() => setEditing(null)}>
+                  ביטול
+                </Button>
+                <Button
+                  variant="brand"
+                  onClick={() => {
+                    if (!editing.client.trim() || !editing.subject.trim()) {
+                      toast.error("שם לקוח ומהות הקריאה הם שדות חובה.");
+                      return;
+                    }
+                    const next: ServiceCall = {
+                      ...editing,
+                      client: editing.client.trim(),
+                      subject: editing.subject.trim(),
+                      project: editing.project?.trim() || undefined,
+                      contact: editing.contact?.trim() || undefined,
+                      address: editing.address?.trim() || undefined,
+                      approverName: editing.approverName?.trim() || undefined,
+                    };
+                    patch(next.id, () => next);
+                    setEditing(null);
+                    toast.success("קריאת השירות עודכנה בהצלחה.");
+                  }}
+                >
+                  שמור שינויים
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
