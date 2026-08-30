@@ -198,18 +198,31 @@ export function AdminConsole() {
   const { state, setState } = useAllNet();
   const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive">("console");
   const [categoryView, setCategoryView] = useState<ProjectCategory>("warranty");
-  /** פרויקט שנמצא בתהליך סגירה (טופס 3 שאלות) */
-  const [closeTarget, setCloseTarget] = useState<string | null>(null);
-  const [closeForm, setCloseForm] = useState<{
-    hasDocFile: boolean | null;
-    equipmentOnSite: boolean | null;
-    invoiceIssued: boolean | null;
-  }>({
-    hasDocFile: null,
+  /** פרויקט שנמצא בתהליך סגירה (טופס שאלות סגירה) */
+  type ClosureKey =
+    | "deliveredToClient"
+    | "docFileSaved"
+    | "docFileSentToClient"
+    | "equipmentOnSite"
+    | "invoiceIssued";
+  const CLOSURE_QUESTIONS: { key: ClosureKey; label: string }[] = [
+    { key: "deliveredToClient", label: "האם הפרויקט נמסר ללקוח?" },
+    { key: "docFileSaved", label: "האם הוכן תיק תיעוד ונשמר בשרתי החברה?" },
+    { key: "docFileSentToClient", label: "האם נשלח תיק תיעוד ללקוח?" },
+    { key: "equipmentOnSite", label: "האם נשאר ציוד באתר?" },
+    { key: "invoiceIssued", label: "האם יצאה חשבונית גמר חשבון?" },
+  ];
+  const emptyCloseForm = (): Record<ClosureKey, boolean | null> => ({
+    deliveredToClient: null,
+    docFileSaved: null,
+    docFileSentToClient: null,
     equipmentOnSite: null,
     invoiceIssued: null,
   });
-  const [closeReason, setCloseReason] = useState("");
+  const [closeTarget, setCloseTarget] = useState<string | null>(null);
+  const [closeForm, setCloseForm] = useState<Record<ClosureKey, boolean | null>>(emptyCloseForm());
+  const [closeReasons, setCloseReasons] = useState<Partial<Record<ClosureKey, string>>>({});
+  const [closeDeliveryDate, setCloseDeliveryDate] = useState("");
 
   const [detailProject, setDetailProject] = useState<string | null>(null);
   const [tab, setTab] = useState("reports");
