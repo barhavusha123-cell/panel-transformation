@@ -1427,33 +1427,48 @@ export function AdminConsole() {
                         <Badge variant={r.pct >= 80 ? "destructive" : "secondary"}>{r.pct}%</Badge>
                       </TableCell>
                       {isArchive && (
-                        <TableCell className="text-sm">
-                          {p.categorizedAt ? (
-                            <div className="flex flex-col gap-1">
-                              <span>{formatDateIL(p.categorizedAt.slice(0, 10))}</span>
-                              {categoryView === "warranty" &&
-                                (() => {
-                                  const end = new Date(p.categorizedAt!);
-                                  end.setFullYear(end.getFullYear() + 1);
-                                  const daysLeft = Math.ceil(
-                                    (end.getTime() - Date.now()) / 86400000,
-                                  );
-                                  return (
-                                    <Badge
-                                      variant={daysLeft <= 30 ? "destructive" : "secondary"}
-                                      className="w-fit"
-                                    >
+                        <>
+                          <TableCell className="text-sm">
+                            <Input
+                              type="date"
+                              className="w-[9.5rem]"
+                              value={handoverOf(p) ?? ""}
+                              onChange={(e) =>
+                                setProjectDate(p.name, "handoverDate", e.target.value)
+                              }
+                            />
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {(() => {
+                              const end = serviceEndOf(p);
+                              const daysLeft = end
+                                ? Math.ceil(
+                                    (new Date(`${end}T00:00:00`).getTime() - Date.now()) /
+                                      86400000,
+                                  )
+                                : null;
+                              return (
+                                <div className="flex flex-col gap-1">
+                                  <Input
+                                    type="date"
+                                    className="w-[9.5rem]"
+                                    value={end ?? ""}
+                                    onChange={(e) =>
+                                      setProjectDate(p.name, "serviceEndDate", e.target.value)
+                                    }
+                                  />
+                                  {daysLeft !== null && daysLeft <= 30 && (
+                                    <Badge variant="destructive" className="w-fit">
                                       {daysLeft <= 0
-                                        ? "שנת השירות הסתיימה"
-                                        : `סיום אחריות בעוד ${daysLeft} ימים`}
+                                        ? "השירות הסתיים — יש לשלוח הסכם שירות"
+                                        : `סיום שירות בעוד ${daysLeft} ימים`}
                                     </Badge>
-                                  );
-                                })()}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
+                                  )}
+                                </div>
+                              );
+                            })()}
+                          </TableCell>
+                        </>
                       )}
                       <TableCell>
                         <div className="flex flex-wrap gap-2">
