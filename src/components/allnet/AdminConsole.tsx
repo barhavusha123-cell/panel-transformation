@@ -320,6 +320,18 @@ export function AdminConsole() {
     }
     return base;
   }, [state.projects]);
+  const setProjectDate = (
+    name: string,
+    field: "handoverDate" | "serviceEndDate",
+    value: string,
+  ) =>
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.map((x) =>
+        x.name === name ? { ...x, [field]: value } : x,
+      ),
+    }));
+
   /** פרויקטים שמסיימים את השירות בתוך 30 יום */
   const warrantyEnding = useMemo(() => {
     const dayMs = 86400000;
