@@ -394,6 +394,9 @@ export function ServiceCallsAdmin() {
   const [attachments, setAttachments] = useState<ServiceAttachment[]>([]);
   const [statusFilter, setStatusFilter] = useState<"all" | ServiceCallStatus>("all");
   const [techFilter, setTechFilter] = useState("all");
+  const [clientFilter, setClientFilter] = useState("all");
+  const [siteFilter, setSiteFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
   const [editing, setEditing] = useState<ServiceCall | null>(null);
   const editFileRef = useRef<HTMLInputElement>(null);
   const editCameraRef = useRef<HTMLInputElement>(null);
@@ -444,9 +447,27 @@ export function ServiceCallsAdmin() {
     return state.serviceCalls
       .filter((c) => (statusFilter === "all" ? true : c.status === statusFilter))
       .filter((c) => (techFilter === "all" ? true : c.technician === techFilter))
+      .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
+      .filter((c) => (siteFilter === "all" ? true : c.project === siteFilter))
+      .filter((c) => (dateFilter === "all" ? true : c.createdAt === dateFilter))
       .slice()
       .sort((a, b) => b.number - a.number);
-  }, [state.serviceCalls, statusFilter, techFilter]);
+  }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, dateFilter]);
+
+  const clientOptions = useMemo(
+    () => Array.from(new Set(state.serviceCalls.map((c) => c.client).filter((v): v is string => !!v))).sort((a, b) => a.localeCompare(b, "he")),
+    [state.serviceCalls],
+  );
+
+  const siteOptions = useMemo(
+    () => Array.from(new Set(state.serviceCalls.map((c) => c.project).filter((v): v is string => !!v))).sort((a, b) => a.localeCompare(b, "he")),
+    [state.serviceCalls],
+  );
+
+  const dateOptions = useMemo(
+    () => Array.from(new Set(state.serviceCalls.map((c) => c.createdAt))).sort((a, b) => b.localeCompare(a)),
+    [state.serviceCalls],
+  );
 
   const techName = (username?: string) =>
     technicians.find((u) => u.username === username)?.full_name ?? "לא שויך";
@@ -715,6 +736,54 @@ export function ServiceCallsAdmin() {
               {technicians.map((u) => (
                 <SelectItem key={u.username} value={u.username}>
                   {u.full_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="min-w-40 flex-1 space-y-1">
+          <Label className="text-xs">סינון לפי שם לקוח</Label>
+          <Select value={clientFilter} onValueChange={setClientFilter}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל הלקוחות</SelectItem>
+              {clientOptions.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="min-w-40 flex-1 space-y-1">
+          <Label className="text-xs">סינון לפי שם אתר</Label>
+          <Select value={siteFilter} onValueChange={setSiteFilter}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל האתרים</SelectItem>
+              {siteOptions.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="min-w-40 flex-1 space-y-1">
+          <Label className="text-xs">סינון לפי תאריך קריאה</Label>
+          <Select value={dateFilter} onValueChange={setDateFilter}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל התאריכים</SelectItem>
+              {dateOptions.map((d) => (
+                <SelectItem key={d} value={d}>
+                  {formatDateIL(d)}
                 </SelectItem>
               ))}
             </SelectContent>
