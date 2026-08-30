@@ -967,6 +967,45 @@ export function ServiceCallsTechnician() {
               value={drafts[call.id] ?? ""}
               onChange={(e) => setDrafts((d) => ({ ...d, [call.id]: e.target.value }))}
             />
+
+            <div className="space-y-3 rounded-xl border border-border bg-surface-2/50 p-3">
+              <p className="text-xs font-semibold text-muted-foreground">אישור לקוח בשטח</p>
+              <div className="space-y-2">
+                <Label className="text-xs">שם הלקוח המאשר</Label>
+                <Input
+                  value={call.approverName ?? ""}
+                  onChange={(e) =>
+                    patch(call.id, (c) => ({ ...c, approverName: e.target.value }))
+                  }
+                  placeholder="שם מלא של הלקוח המאשר"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">חתימת הלקוח המאשר</Label>
+                <SignaturePad
+                  value={call.approverSignature}
+                  onSave={(dataUrl) => {
+                    patch(call.id, (c) => ({
+                      ...c,
+                      approverSignature: dataUrl,
+                      approvedAt: nowStamp(),
+                    }));
+                    toast.success("חתימת הלקוח נשמרה.");
+                  }}
+                  onClear={() =>
+                    patch(call.id, (c) => ({
+                      ...c,
+                      approverSignature: undefined,
+                      approvedAt: undefined,
+                    }))
+                  }
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  ניתן לחתום ישירות במסך הטלפון באמצעות האצבע.
+                </p>
+              </div>
+            </div>
+
             <div className="flex flex-wrap gap-2">
               <Button variant="brand" size="sm" onClick={() => respond(call)}>
                 <Send className="size-4" />
