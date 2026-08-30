@@ -206,6 +206,8 @@ export interface ServiceCall {
   technician?: string | undefined;
   status: ServiceCallStatus;
   createdAt: string;
+  /** תאריך סגירת הקריאה (כאשר הסטטוס 'טופלה') */
+  closedAt?: string | undefined;
   createdBy: string;
   contact?: string | undefined;
   address?: string | undefined;
