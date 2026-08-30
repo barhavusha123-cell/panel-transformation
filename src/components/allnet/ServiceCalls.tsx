@@ -407,7 +407,8 @@ export function ServiceCallsAdmin() {
   const [techFilter, setTechFilter] = useState("all");
   const [clientFilter, setClientFilter] = useState("all");
   const [siteFilter, setSiteFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editing, setEditing] = useState<ServiceCall | null>(null);
   const editFileRef = useRef<HTMLInputElement>(null);
   const editCameraRef = useRef<HTMLInputElement>(null);
