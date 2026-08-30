@@ -142,6 +142,12 @@ export interface HoursEntry {
   workers?: number;
   /** שמות עובדי קבלן המשנה שהיו באתר */
   workerNames?: string;
+  /** אישור מנהל הפרויקט לדיווח קבלן המשנה */
+  approved?: boolean;
+  /** שם מנהל הפרויקט שאישר */
+  approvedBy?: string;
+  /** מועד האישור */
+  approvedAt?: string;
 }
 
 export const MIN_FULL_DAY_MINUTES = 180;
