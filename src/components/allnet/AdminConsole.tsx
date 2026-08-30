@@ -13,6 +13,7 @@ import {
   Download,
   FolderKanban,
   ListChecks,
+  Headset,
   Pencil,
   Plus,
   ShieldCheck,
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { FixedCostsEditor } from "./FixedCostsEditor";
+import { ServiceCallsAdmin } from "./ServiceCalls";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import {
@@ -212,7 +214,9 @@ function SliceLabel(props: {
 
 export function AdminConsole() {
   const { state, setState } = useAllNet();
-  const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive">("console");
+  const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive" | "service">(
+    "console",
+  );
   const [categoryView, setCategoryView] = useState<ProjectCategory>("warranty");
   /** פרויקט שנמצא בתהליך סגירה (טופס שאלות סגירה) */
   type ClosureKey =
@@ -243,6 +247,9 @@ export function AdminConsole() {
   const [detailProject, setDetailProject] = useState<string | null>(null);
   const [tab, setTab] = useState("reports");
   const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
+
+  const openServiceCalls = state.serviceCalls.filter((c) => c.status !== "done").length;
+  const unassignedServiceCalls = state.serviceCalls.filter((c) => !c.technician).length;
 
   useEffect(() => {
     const goHome = () => {
@@ -1346,6 +1353,23 @@ export function AdminConsole() {
     );
   }
 
+  if (view === "service") {
+    return (
+      <div className="mx-auto max-w-7xl px-5 pb-16">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-2xl font-bold">
+            קריאות <span className="text-gradient">שירות</span>
+          </h2>
+          <Button variant="soft" onClick={() => setView("console")}>
+            <ArrowRight className="size-4" />
+            חזרה למרכז הבקרה הראשי
+          </Button>
+        </div>
+        <ServiceCallsAdmin />
+      </div>
+    );
+  }
+
   if (view === "projects" || view === "archive") {
     const isArchive = view === "archive";
     const list = isArchive ? categoryProjects : activeProjects;
@@ -1582,6 +1606,34 @@ export function AdminConsole() {
             onClick={() => setView("projects")}
           >
             צפה בכל הפרויקטים
+          </Button>
+        </KpiCard>
+
+        <KpiCard title="קריאות שירות" icon={<Headset className="size-4" />} delay={40}>
+          <div className="flex items-center gap-2">
+            <span
+              className={`text-2xl font-bold ${openServiceCalls ? "text-primary" : ""}`}
+            >
+              {openServiceCalls}
+            </span>
+            {unassignedServiceCalls > 0 && (
+              <Badge variant="destructive" className="animate-pulse">
+                {unassignedServiceCalls} ללא טכנאי
+              </Badge>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {state.serviceCalls.length
+              ? `סה"כ קריאות במערכת: ${state.serviceCalls.length}`
+              : "לא נפתחו קריאות שירות"}
+          </p>
+          <Button
+            variant={openServiceCalls ? "brand" : "soft"}
+            size="sm"
+            className="mt-3 w-full"
+            onClick={() => setView("service")}
+          >
+            נהל קריאות שירות
           </Button>
         </KpiCard>
 

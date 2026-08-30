@@ -156,11 +156,69 @@ export interface FileRecord {
   project: string;
 }
 
+/** ===== קריאות שירות ===== */
+export type ServiceCallStatus = "new" | "assigned" | "in_progress" | "done";
+
+export const SERVICE_STATUSES: ServiceCallStatus[] = ["new", "assigned", "in_progress", "done"];
+
+export const SERVICE_STATUS_LABELS: Record<ServiceCallStatus, string> = {
+  new: "חדשה",
+  assigned: "שויכה לטכנאי",
+  in_progress: "בטיפול",
+  done: "טופלה",
+};
+
+export type ServiceCallPriority = "low" | "normal" | "high";
+
+export const SERVICE_PRIORITIES: ServiceCallPriority[] = ["low", "normal", "high"];
+
+export const SERVICE_PRIORITY_LABELS: Record<ServiceCallPriority, string> = {
+  low: "נמוכה",
+  normal: "רגילה",
+  high: "דחופה",
+};
+
+export interface ServiceAttachment {
+  id: string;
+  name: string;
+  dataUrl: string;
+  isImage: boolean;
+}
+
+export interface ServiceUpdate {
+  id: string;
+  at: string;
+  by: string;
+  text: string;
+  status?: ServiceCallStatus | undefined;
+}
+
+export interface ServiceCall {
+  id: string;
+  /** מספר קריאה רץ לתצוגה */
+  number: number;
+  client: string;
+  project?: string | undefined;
+  subject: string;
+  description: string;
+  priority: ServiceCallPriority;
+  /** שם משתמש של הטכנאי המשויך */
+  technician?: string | undefined;
+  status: ServiceCallStatus;
+  createdAt: string;
+  createdBy: string;
+  contact?: string | undefined;
+  address?: string | undefined;
+  attachments: ServiceAttachment[];
+  updates: ServiceUpdate[];
+}
+
 export interface AllNetState {
   users: User[];
   projects: Project[];
   hours: HoursEntry[];
   files: FileRecord[];
+  serviceCalls: ServiceCall[];
   adminPassword: string;
   adminEmail?: string;
   /** אימות דו-שלבי לכניסת מנהל מערכת */
@@ -182,6 +240,7 @@ export const defaultState = (): AllNetState => ({
   projects: [],
   hours: [],
   files: [],
+  serviceCalls: [],
   adminPassword: DEFAULT_ADMIN_PASSWORD,
   adminEmail: "",
   admin2fa: false,

@@ -47,6 +47,14 @@ export function AllNetProvider({ children }: { children: ReactNode }) {
 
         }));
 
+        merged.serviceCalls = Array.isArray(merged.serviceCalls)
+          ? merged.serviceCalls.map((c) => ({
+              ...c,
+              attachments: Array.isArray(c.attachments) ? c.attachments : [],
+              updates: Array.isArray(c.updates) ? c.updates : [],
+            }))
+          : [];
+
         setRaw(merged);
       }
       const sess = sessionStorage.getItem(SESSION_KEY);

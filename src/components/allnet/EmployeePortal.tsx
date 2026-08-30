@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { CalendarClock, CalendarIcon, FolderOpen, Send, Timer } from "lucide-react";
+import { CalendarClock, CalendarIcon, FolderOpen, Headset, Send, Timer } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { formatDateIL, formatHoursMinutes, getAllTimeOptions, minutesBetween, todayISO } from "@/lib/allnet/utils";
@@ -29,6 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DocumentList } from "./DocumentList";
+import { ServiceCallsTechnician } from "./ServiceCalls";
 
 const TIME_OPTIONS = getAllTimeOptions();
 
@@ -114,6 +115,14 @@ export function EmployeePortal() {
     () =>
       client ? activeProjects.filter((p) => (p.client ?? "").trim() === client) : activeProjects,
     [activeProjects, client],
+  );
+
+  const myOpenCalls = useMemo(
+    () =>
+      state.serviceCalls.filter(
+        (c) => c.technician === user?.username && c.status !== "done",
+      ).length,
+    [state.serviceCalls, user],
   );
 
   const livePreview = from && to ? formatHoursMinutes(minutesBetween(from, to)) : "—";
@@ -203,7 +212,23 @@ export function EmployeePortal() {
             <FolderOpen className="size-4" />
             תוכניות ומסמכים
           </TabsTrigger>
+          <TabsTrigger
+            value="service"
+            className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
+          >
+            <Headset className="size-4" />
+            קריאות שירות
+            {myOpenCalls > 0 && (
+              <span className="ms-1 rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
+                {myOpenCalls}
+              </span>
+            )}
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="service" className="animate-fade mt-6">
+          <ServiceCallsTechnician />
+        </TabsContent>
 
         <TabsContent value="report" className="animate-fade mt-6 space-y-6">
           <form onSubmit={submit} className="surface-panel rounded-2xl p-6">
