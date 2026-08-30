@@ -177,21 +177,44 @@ function CallCard({
   children?: React.ReactNode;
   technicianName: string;
 }) {
+  const [expanded, setExpanded] = useState(false);
   return (
     <div className="animate-rise hover-lift surface-panel rounded-2xl p-4 sm:p-5">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
+      {/* תקציר הקריאה — תמיד גלוי, לחיצה פותחת/מכווצת */}
+      <button
+        type="button"
+        onClick={() => setExpanded((e) => !e)}
+        className="flex w-full flex-wrap items-center gap-x-4 gap-y-2 text-right"
+        aria-expanded={expanded}
+      >
         <span className="brand-gradient flex size-9 items-center justify-center rounded-lg text-primary-foreground">
           <Headset className="size-4" />
         </span>
         <span className="text-base font-bold">קריאה #{call.number}</span>
         {statusBadge(call.status)}
         {priorityBadge(call.priority)}
-        <span className="ms-auto text-xs text-muted-foreground">
-          נפתחה {formatDateIL(call.createdAt)}
+        <span className="text-sm">
+          <span className="text-muted-foreground">לקוח: </span>
+          <span className="font-semibold">{call.client}</span>
         </span>
-      </div>
+        <span className="text-sm">
+          <span className="text-muted-foreground">טכנאי: </span>
+          <span className="font-semibold">{technicianName}</span>
+        </span>
+        <span className="text-xs text-muted-foreground">נפתחה {formatDateIL(call.createdAt)}</span>
+        {call.closedAt && (
+          <span className="text-xs font-medium text-emerald-700">
+            נסגרה {formatDateIL(call.closedAt)}
+          </span>
+        )}
+        <ChevronDown
+          className={`ms-auto size-5 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`}
+        />
+      </button>
 
-      <div className="grid gap-1 text-sm sm:grid-cols-2">
+      {expanded && (
+        <>
+      <div className="mt-3 grid gap-1 text-sm sm:grid-cols-2">
         <p>
           <span className="text-muted-foreground">לקוח: </span>
           <span className="font-semibold">{call.client}</span>
