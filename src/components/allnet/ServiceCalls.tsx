@@ -830,9 +830,58 @@ export function ServiceCallsAdmin() {
 
       {calls.length ? (
         <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface/60 px-4 py-2.5">
+            <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
+              <Checkbox
+                checked={
+                  calls.length > 0 && calls.every((c) => selectedIds.includes(c.id))
+                }
+                onCheckedChange={(v) =>
+                  setSelectedIds(
+                    v
+                      ? Array.from(new Set([...selectedIds, ...calls.map((c) => c.id)]))
+                      : selectedIds.filter((id) => !calls.some((c) => c.id === id)),
+                  )
+                }
+              />
+              בחר את כל הקריאות המסוננות
+              {selectedIds.length > 0 && (
+                <Badge variant="secondary">{selectedIds.length} נבחרו</Badge>
+              )}
+            </label>
+            <Button
+              variant="soft"
+              disabled={!selectedIds.length}
+              onClick={() => {
+                const chosen = state.serviceCalls.filter((c) =>
+                  selectedIds.includes(c.id),
+                );
+                const ok = openServiceCallsBulkReport(chosen, techName);
+                if (ok)
+                  toast.success(`הופק דוח מרוכז עבור ${chosen.length} קריאות — ניתן לשמור כ-PDF.`);
+                else toast.error("החלון נחסם על ידי הדפדפן. יש לאשר חלונות קופצים.");
+              }}
+            >
+              <FileText className="size-4" />
+              הפק דוח PDF לקריאות שנבחרו
+            </Button>
+          </div>
           {calls.map((call) => (
             <CallCard key={call.id} call={call} technicianName={techName(call.technician)}>
               <div className="flex flex-wrap items-end gap-3">
+                <label className="flex cursor-pointer items-center gap-2 pb-2 text-xs font-medium text-muted-foreground">
+                  <Checkbox
+                    checked={selectedIds.includes(call.id)}
+                    onCheckedChange={(v) =>
+                      setSelectedIds((prev) =>
+                        v
+                          ? [...prev, call.id]
+                          : prev.filter((id) => id !== call.id),
+                      )
+                    }
+                  />
+                  בחר לדוח
+                </label>
                 <div className="min-w-44 space-y-1">
                   <Label className="text-xs">
                     <UserCog className="me-1 inline size-3" />
