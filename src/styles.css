@@ -307,6 +307,17 @@
   }
 }
 
+/* Service calls section — light green variant of the brand tokens */
+@utility service-green {
+  --primary: oklch(0.74 0.13 155);
+  --primary-foreground: oklch(0.99 0.005 120);
+  --primary-glow: oklch(0.82 0.11 150);
+  --accent: oklch(0.77 0.12 155);
+  --accent-foreground: oklch(0.99 0.005 120);
+  --ring: oklch(0.74 0.13 155);
+  --gradient-brand: linear-gradient(135deg, oklch(0.72 0.14 155) 0%, oklch(0.8 0.11 148) 100%);
+}
+
 @utility peach-halo {
   position: relative;
   &::after {

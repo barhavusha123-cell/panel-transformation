@@ -1609,6 +1609,7 @@ export function AdminConsole() {
           </Button>
         </KpiCard>
 
+        <div className="service-green">
         <KpiCard title="קריאות שירות" icon={<Headset className="size-4" />} delay={40}>
           <div className="flex items-center gap-2">
             <span
@@ -1636,6 +1637,7 @@ export function AdminConsole() {
             נהל קריאות שירות
           </Button>
         </KpiCard>
+        </div>
 
         <KpiCard title="פרויקטים לפני מסירה" icon={<CalendarClock className="size-4" />} delay={80}>
           <div className="flex items-center gap-2">
