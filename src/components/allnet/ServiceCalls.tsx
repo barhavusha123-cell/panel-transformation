@@ -696,6 +696,10 @@ export function ServiceCallsAdmin() {
                     </SelectContent>
                   </Select>
                 </div>
+                <Button variant="soft" onClick={() => setEditing(call)}>
+                  <Pencil className="size-4" />
+                  ערוך קריאה
+                </Button>
                 <Button
                   variant="ghost"
                   className="text-destructive hover:bg-destructive/10"
