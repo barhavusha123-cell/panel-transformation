@@ -370,7 +370,7 @@ export function ServiceCallsAdmin() {
   );
 
   return (
-    <div className="space-y-5">
+    <div className="service-green space-y-5">
       <div className="surface-panel flex flex-wrap items-center gap-3 rounded-2xl p-4">
         <h3 className="flex items-center gap-2 text-lg font-bold">
           <Headset className="size-5 text-primary" />
