@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   ChevronDown,
   Eye,
+  FileText,
   Headset,
   Paperclip,
   Pencil,
@@ -16,6 +17,7 @@ import {
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { formatDateIL, getAllTimeOptions, nowStamp } from "@/lib/allnet/utils";
+import { openServiceCallReport } from "@/lib/allnet/serviceReport";
 
 const TIME_OPTIONS = getAllTimeOptions();
 
@@ -772,6 +774,17 @@ export function ServiceCallsAdmin() {
                 <Button variant="soft" onClick={() => setEditing(call)}>
                   <Pencil className="size-4" />
                   ערוך קריאה
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const ok = openServiceCallReport(call, techName(call.technician));
+                    if (ok) toast.success("דוח השירות הופק — ניתן לשמור כ-PDF ולשלוח ללקוח.");
+                    else toast.error("החלון נחסם על ידי הדפדפן. יש לאשר חלונות קופצים.");
+                  }}
+                >
+                  <FileText className="size-4" />
+                  הפק דוח שירות (PDF)
                 </Button>
                 <Button
                   variant="ghost"
