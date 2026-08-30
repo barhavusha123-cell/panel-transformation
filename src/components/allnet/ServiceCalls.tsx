@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   ChevronDown,
   Eye,
+  FileText,
   Headset,
   Paperclip,
   Pencil,
@@ -16,6 +17,7 @@ import {
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { formatDateIL, getAllTimeOptions, nowStamp } from "@/lib/allnet/utils";
+import { openServiceCallReport } from "@/lib/allnet/serviceReport";
 
 const TIME_OPTIONS = getAllTimeOptions();
 
