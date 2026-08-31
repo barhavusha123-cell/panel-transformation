@@ -208,6 +208,53 @@ export function BoqChecklist({
           value={`${summary.completedItems} / ${summary.count}`}
         />
       </div>
+      {/* שורת הנחה לכלל הפרויקט */}
+      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3 text-xs">
+        <span className="font-bold">הנחה לכלל הפרויקט:</span>
+        <select
+          value={discount?.type ?? "percent"}
+          disabled={readOnly}
+          onChange={(e) =>
+            setState((prev) => ({
+              ...prev,
+              projects: prev.projects.map((p) =>
+                p.name === projectName
+                  ? { ...p, boqDiscount: { type: e.target.value as "percent" | "fixed", value: p.boqDiscount?.value ?? 0 }, boqUpdatedAt: new Date().toISOString() }
+                  : p,
+              ),
+            }))
+          }
+          className="h-8 rounded-md border border-border bg-background px-2"
+        >
+          <option value="percent">אחוזים (%)</option>
+          <option value="fixed">מחיר קבוע (₪)</option>
+        </select>
+        <Input
+          type="number"
+          min={0}
+          max={discount?.type === "percent" ? 100 : undefined}
+          value={discount?.value ?? 0}
+          disabled={readOnly}
+          onChange={(e) =>
+            setState((prev) => ({
+              ...prev,
+              projects: prev.projects.map((p) =>
+                p.name === projectName
+                  ? { ...p, boqDiscount: { type: p.boqDiscount?.type ?? "percent", value: Number(e.target.value) || 0 }, boqUpdatedAt: new Date().toISOString() }
+                  : p,
+              ),
+            }))
+          }
+          className="h-8 w-24"
+        />
+        <span className="text-muted-foreground">
+          שווי הנחה: <b className="text-destructive">{ils(discountVal)}</b>
+        </span>
+        <span className="font-bold">
+          סה"כ לאחר הנחה: <span className="text-primary">{ils(totalAfter)}</span>
+        </span>
+      </div>
+
       <div className="mb-4">
         <div className="mb-1 flex items-center justify-between text-xs">
           <span className="font-semibold">התקדמות ביצוע כספית</span>
