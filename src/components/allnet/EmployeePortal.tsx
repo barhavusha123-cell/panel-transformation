@@ -1,5 +1,11 @@
-import { useMemo, useState } from "react";
-import { CalendarClock, CalendarIcon, ClipboardCheck, FolderOpen, Headset, Send, Timer } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Camera, CalendarClock, CalendarIcon, ClipboardCheck, FolderOpen, Headset, Paperclip, Send, Timer } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { formatDateIL, formatHoursMinutes, getAllTimeOptions, minutesBetween, todayISO } from "@/lib/allnet/utils";
