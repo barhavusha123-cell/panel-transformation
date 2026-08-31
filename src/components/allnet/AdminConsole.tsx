@@ -1691,35 +1691,6 @@ export function AdminConsole() {
           </Button>
         </KpiCard>
 
-        <div className="service-green">
-        <KpiCard title="קריאות שירות" icon={<Headset className="size-4" />} delay={40}>
-          <div className="flex items-center gap-2">
-            <span
-              className={`text-2xl font-bold ${openServiceCalls ? "text-primary" : ""}`}
-            >
-              {openServiceCalls}
-            </span>
-            {unassignedServiceCalls > 0 && (
-              <Badge variant="destructive" className="animate-pulse">
-                {unassignedServiceCalls} ללא טכנאי
-              </Badge>
-            )}
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {state.serviceCalls.length
-              ? `סה"כ קריאות במערכת: ${state.serviceCalls.length}`
-              : "לא נפתחו קריאות שירות"}
-          </p>
-          <Button
-            variant={openServiceCalls ? "brand" : "soft"}
-            size="sm"
-            className="mt-3 w-full"
-            onClick={() => setView("service")}
-          >
-            נהל קריאות שירות
-          </Button>
-        </KpiCard>
-        </div>
 
         <KpiCard title="פרויקטים לפני מסירה" icon={<CalendarClock className="size-4" />} delay={80}>
           <div className="flex items-center gap-2">
