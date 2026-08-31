@@ -460,15 +460,15 @@ export function ProjectHoursDetail({
         </p>
         {saleAmount > 0 ? (
           <div className="grid gap-4 lg:grid-cols-[0.65fr_1fr]">
-            <div className="h-80 w-full">
+            <div className="h-96 w-full lg:h-[26rem]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     <Pie
                     data={profitData}
                     dataKey="value"
                     nameKey="name"
-                    innerRadius="45%"
-                    outerRadius="80%"
+                    innerRadius="42%"
+                    outerRadius="90%"
                     paddingAngle={2}
                     labelLine={false}
                     label={ProfitSliceLabel}
