@@ -292,11 +292,11 @@ export function BoqChecklist({
                 <th className="p-2">תיאור</th>
                 <th className="p-2">יח'</th>
                 <th className="p-2">כמות</th>
-                <th className="p-2">מחיר יח'</th>
-                <th className="p-2">סה"כ</th>
+                {!readOnly && <th className="p-2">מחיר יח'</th>}
+                {!readOnly && <th className="p-2">סה"כ</th>}
                 <th className="p-2">בוצע</th>
                 <th className="p-2">% ביצוע</th>
-                <th className="p-2">שווי שבוצע</th>
+                {!readOnly && <th className="p-2">שווי שבוצע</th>}
                 <th className="p-2" />
               </tr>
             </thead>
