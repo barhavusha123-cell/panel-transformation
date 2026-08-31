@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/table";
 import { DocumentList } from "./DocumentList";
 import { ServiceCallsTechnician } from "./ServiceCalls";
+import { BoqChecklist } from "./BoqChecklist";
 
 const TIME_OPTIONS = getAllTimeOptions();
 
