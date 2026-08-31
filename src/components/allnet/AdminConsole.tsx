@@ -2116,6 +2116,73 @@ export function AdminConsole() {
 
             <div className="surface-panel rounded-2xl p-5">
               {hourEditDialog}
+              <Dialog open={excelOpen} onOpenChange={setExcelOpen}>
+                <DialogContent dir="rtl" className="max-w-md text-right">
+                  <DialogHeader>
+                    <DialogTitle className="text-right">ייצוא דוח מרוכז לאקסל</DialogTitle>
+                    <DialogDescription className="text-right">
+                      בחר פרויקט, חודש ומדווח — הדוח יכלול את כל הדיווחים התואמים ללא צרופות
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium">פרויקט</label>
+                      <Select value={excelProject} onValueChange={setExcelProject}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">כל הפרויקטים</SelectItem>
+                          {excelProjects.map((p) => (
+                            <SelectItem key={p} value={p}>
+                              {p}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium">חודש (לועזי)</label>
+                      <Select value={excelMonth} onValueChange={setExcelMonth}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">כל החודשים</SelectItem>
+                          {excelMonths.map((m) => (
+                            <SelectItem key={m} value={m}>
+                              {excelMonthLabel(m)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium">מדווח (עובד חברה / קבלן משנה)</label>
+                      <Select value={excelReporter} onValueChange={setExcelReporter}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">כל המדווחים</SelectItem>
+                          {excelReporters.map((r) => (
+                            <SelectItem key={r} value={r}>
+                              {r}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      className="w-full bg-blue-900 text-white hover:bg-blue-800"
+                      onClick={runExcelExport}
+                    >
+                      <FileSpreadsheet className="size-4" />
+                      ייצא לאקסל
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold">יומן דיווחי שעות</h3>
                 <div className="flex items-center gap-2">
