@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { useMemo, useRef, useState } from "react";
 import {
   CalendarIcon,
@@ -152,15 +153,20 @@ function DateFilterButton({
   value,
   onChange,
   placeholder,
+  className,
 }: {
   value: Date | undefined;
   onChange: (d: Date | undefined) => void;
   placeholder: string;
+  className?: string;
 }) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="w-full justify-start text-right font-normal">
+        <Button
+          variant="outline"
+          className={cn("w-full justify-start text-right font-normal", className)}
+        >
           <CalendarIcon className="size-4" />
           {value ? (
             formatDateIL(dayKey(value))
@@ -900,15 +906,15 @@ export function ServiceCallsAdmin() {
         </form>
       )}
 
-      <div className="surface-panel flex flex-wrap items-center gap-3 rounded-2xl p-4">
-        <div className="min-w-40 flex-1 space-y-1">
-          <Label className="text-xs">סינון לפי סטטוס</Label>
+      <div className="surface-panel grid grid-cols-7 items-start gap-2 rounded-2xl p-3">
+        <div className="min-w-0 space-y-1">
+          <Label className="text-[11px]">סטטוס</Label>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
-            <SelectTrigger>
+            <SelectTrigger className="h-9 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">כל הסטטוסים</SelectItem>
+              <SelectItem value="all">הכל</SelectItem>
               {SERVICE_STATUSES.map((s) => (
                 <SelectItem key={s} value={s}>
                   {SERVICE_STATUS_LABELS[s]}
@@ -917,14 +923,14 @@ export function ServiceCallsAdmin() {
             </SelectContent>
           </Select>
         </div>
-        <div className="min-w-40 flex-1 space-y-1">
-          <Label className="text-xs">סינון לפי טכנאי</Label>
+        <div className="min-w-0 space-y-1">
+          <Label className="text-[11px]">טכנאי</Label>
           <Select value={techFilter} onValueChange={setTechFilter}>
-            <SelectTrigger>
+            <SelectTrigger className="h-9 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">כל הטכנאים</SelectItem>
+              <SelectItem value="all">הכל</SelectItem>
               {technicians.map((u) => (
                 <SelectItem key={u.username} value={u.username}>
                   {u.full_name}
@@ -933,14 +939,14 @@ export function ServiceCallsAdmin() {
             </SelectContent>
           </Select>
         </div>
-        <div className="min-w-40 flex-1 space-y-1">
-          <Label className="text-xs">סינון לפי שם לקוח</Label>
+        <div className="min-w-0 space-y-1">
+          <Label className="text-[11px]">לקוח</Label>
           <Select value={clientFilter} onValueChange={setClientFilter}>
-            <SelectTrigger>
+            <SelectTrigger className="h-9 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">כל הלקוחות</SelectItem>
+              <SelectItem value="all">הכל</SelectItem>
               {clientOptions.map((c) => (
                 <SelectItem key={c} value={c}>
                   {c}
@@ -949,14 +955,14 @@ export function ServiceCallsAdmin() {
             </SelectContent>
           </Select>
         </div>
-        <div className="min-w-40 flex-1 space-y-1">
-          <Label className="text-xs">סינון לפי שם אתר</Label>
+        <div className="min-w-0 space-y-1">
+          <Label className="text-[11px]">אתר</Label>
           <Select value={siteFilter} onValueChange={setSiteFilter}>
-            <SelectTrigger>
+            <SelectTrigger className="h-9 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">כל האתרים</SelectItem>
+              <SelectItem value="all">הכל</SelectItem>
               {siteOptions.map((s) => (
                 <SelectItem key={s} value={s}>
                   {s}
@@ -965,12 +971,13 @@ export function ServiceCallsAdmin() {
             </SelectContent>
           </Select>
         </div>
-        <div className="min-w-40 flex-1 space-y-1">
-          <Label className="text-xs">סינון לפי מספר קריאה</Label>
+        <div className="min-w-0 space-y-1">
+          <Label className="text-[11px]">מספר קריאה</Label>
           <Input
+            className="h-9 text-xs"
             value={numberFilter === "all" ? "" : numberFilter}
             onChange={(e) => setNumberFilter(e.target.value)}
-            placeholder="לדוגמה 1 או AL2600001"
+            placeholder="AL2600001"
             list="call-number-options"
           />
           <datalist id="call-number-options">
@@ -982,13 +989,23 @@ export function ServiceCallsAdmin() {
               ))}
           </datalist>
         </div>
-        <div className="min-w-40 flex-1 space-y-1">
-          <Label className="text-xs">מתאריך קריאה</Label>
-          <DateFilterButton value={dateFrom} onChange={setDateFrom} placeholder="מתאריך" />
+        <div className="min-w-0 space-y-1">
+          <Label className="text-[11px]">מתאריך</Label>
+          <DateFilterButton
+            value={dateFrom}
+            onChange={setDateFrom}
+            placeholder="מתאריך"
+            className="h-9 text-xs"
+          />
         </div>
-        <div className="min-w-40 flex-1 space-y-1">
-          <Label className="text-xs">עד תאריך קריאה</Label>
-          <DateFilterButton value={dateTo} onChange={setDateTo} placeholder="עד תאריך" />
+        <div className="min-w-0 space-y-1">
+          <Label className="text-[11px]">עד תאריך</Label>
+          <DateFilterButton
+            value={dateTo}
+            onChange={setDateTo}
+            placeholder="עד תאריך"
+            className="h-9 text-xs"
+          />
         </div>
       </div>
 
