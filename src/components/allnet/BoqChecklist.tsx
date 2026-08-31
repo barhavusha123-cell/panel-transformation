@@ -282,6 +282,7 @@ export function BoqChecklist({
           סה"כ לאחר הנחה: <span className="text-primary">{ils(totalAfter)}</span>
         </span>
       </div>
+      )}
 
       <div className="mb-4">
         <div className="mb-1 flex items-center justify-between text-xs">
