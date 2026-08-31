@@ -10,7 +10,6 @@ import {
 
   CalendarClock,
   Briefcase,
-  Download,
   FileSpreadsheet,
   FolderKanban,
   ListChecks,
