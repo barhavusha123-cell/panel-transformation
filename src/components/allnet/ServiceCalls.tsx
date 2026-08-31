@@ -883,22 +883,20 @@ export function ServiceCallsAdmin() {
         </div>
         <div className="min-w-40 flex-1 space-y-1">
           <Label className="text-xs">סינון לפי מספר קריאה</Label>
-          <Select value={numberFilter} onValueChange={setNumberFilter}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">כל הקריאות</SelectItem>
-              {state.serviceCalls
-                .slice()
-                .sort((a, b) => a.number - b.number)
-                .map((c) => (
-                  <SelectItem key={c.id} value={String(c.number)}>
-                    {formatCallNumber(c.number)}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
+          <Input
+            value={numberFilter === "all" ? "" : numberFilter}
+            onChange={(e) => setNumberFilter(e.target.value)}
+            placeholder="לדוגמה 1 או AL2600001"
+            list="call-number-options"
+          />
+          <datalist id="call-number-options">
+            {state.serviceCalls
+              .slice()
+              .sort((a, b) => a.number - b.number)
+              .map((c) => (
+                <option key={c.id} value={formatCallNumber(c.number)} />
+              ))}
+          </datalist>
         </div>
         <div className="min-w-40 flex-1 space-y-1">
           <Label className="text-xs">מתאריך קריאה</Label>
