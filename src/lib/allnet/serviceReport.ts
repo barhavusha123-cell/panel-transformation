@@ -2,6 +2,7 @@ import logo from "@/assets/allnet-logo-t.png.asset.json";
 import {
   SERVICE_PRIORITY_LABELS,
   SERVICE_STATUS_LABELS,
+  formatCallNumber,
   type ServiceCall,
 } from "@/lib/allnet/types";
 import { formatDateIL } from "@/lib/allnet/utils";
