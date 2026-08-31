@@ -552,7 +552,7 @@ export function ServiceCallsAdmin() {
       })
       .slice()
       .sort((a, b) => b.number - a.number);
-  }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, dateFrom, dateTo]);
+  }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo]);
 
   const clientOptions = useMemo(
     () => Array.from(new Set(state.serviceCalls.map((c) => c.client).filter((v): v is string => !!v))).sort((a, b) => a.localeCompare(b, "he")),
