@@ -2446,7 +2446,7 @@ export function AdminConsole() {
                 </div>
               </div>
               <Button type="submit" variant="brand" className="mt-5">
-                שמור ואתחל פרויקט
+                שמור והקם פרויקט
               </Button>
             </form>
 
