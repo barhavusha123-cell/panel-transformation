@@ -284,6 +284,49 @@ export function AdminConsole() {
     });
   const clearColFilter = (col: string) => setColFilters((prev) => ({ ...prev, [col]: [] }));
 
+  // ייצוא דוח מרוכז לאקסל — לפי פרויקט, חודש ומדווח
+  const [excelOpen, setExcelOpen] = useState(false);
+  const [excelProject, setExcelProject] = useState("all");
+  const [excelMonth, setExcelMonth] = useState("all");
+  const [excelReporter, setExcelReporter] = useState("all");
+  const excelProjects = useMemo(
+    () => Array.from(new Set(state.hours.map((h) => h.project).filter(Boolean))).sort((a, b) => a.localeCompare(b, "he")),
+    [state.hours],
+  );
+  const excelMonths = useMemo(
+    () => Array.from(new Set(state.hours.map((h) => String(h.date).slice(0, 7)))).sort(),
+    [state.hours],
+  );
+  const excelReporters = useMemo(
+    () => Array.from(new Set(state.hours.map((h) => h.reporter).filter(Boolean))).sort((a, b) => a.localeCompare(b, "he")),
+    [state.hours],
+  );
+  const excelMonthLabel = (key: string) => {
+    const [y, m] = key.split("-").map(Number);
+    return new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric" }).format(
+      new Date(y ?? 2000, (m ?? 1) - 1, 1),
+    );
+  };
+  const runExcelExport = () => {
+    const filtered = state.hours.filter(
+      (h) =>
+        (excelProject === "all" || h.project === excelProject) &&
+        (excelMonth === "all" || String(h.date).startsWith(excelMonth)) &&
+        (excelReporter === "all" || h.reporter === excelReporter),
+    );
+    if (!filtered.length) {
+      toast.info("אין דיווחים התואמים לסינון שנבחר");
+      return;
+    }
+    downloadExcelMonthReport(
+      filtered,
+      `דוח שעות מרוכז · ${excelProject === "all" ? "כל הפרויקטים" : excelProject} · ${excelMonth === "all" ? "כל החודשים" : excelMonthLabel(excelMonth)} · ${excelReporter === "all" ? "כל המדווחים" : excelReporter}`,
+      `דוח_מרוכז_${excelProject === "all" ? "כל_הפרויקטים" : excelProject}_${excelMonth === "all" ? "כל_החודשים" : excelMonth}.xls`,
+    );
+    toast.success("הדוח יוצא לאקסל בהצלחה");
+    setExcelOpen(false);
+  };
+
 
   const activeProjects = useMemo(
     () => state.projects.filter((p) => !p.archived),
