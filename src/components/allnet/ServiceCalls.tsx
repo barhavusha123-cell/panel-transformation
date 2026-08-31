@@ -872,6 +872,25 @@ export function ServiceCallsAdmin() {
           </Select>
         </div>
         <div className="min-w-40 flex-1 space-y-1">
+          <Label className="text-xs">סינון לפי מספר קריאה</Label>
+          <Select value={numberFilter} onValueChange={setNumberFilter}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל הקריאות</SelectItem>
+              {state.serviceCalls
+                .slice()
+                .sort((a, b) => a.number - b.number)
+                .map((c) => (
+                  <SelectItem key={c.id} value={String(c.number)}>
+                    {formatCallNumber(c.number)}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="min-w-40 flex-1 space-y-1">
           <Label className="text-xs">מתאריך קריאה</Label>
           <DateFilterButton value={dateFrom} onChange={setDateFrom} placeholder="מתאריך" />
         </div>
