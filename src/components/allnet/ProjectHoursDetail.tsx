@@ -239,6 +239,7 @@ export function ProjectHoursDetail({
 }) {
   const { state } = useAllNet();
   const project = state.projects.find((p) => p.name === projectName);
+  const [costsCollapsed, setCostsCollapsed] = useState(false);
 
   const rows = useMemo(
     () => state.hours.filter((h) => h.project === projectName).slice().reverse(),
@@ -566,7 +567,21 @@ export function ProjectHoursDetail({
 
       <div className="surface-panel rounded-2xl p-5">
         <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
-          <p className="text-xs text-muted-foreground">עלויות עובדים וקבלנים · איזור {region}</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground">עלויות עובדים וקבלנים · איזור {region}</p>
+            <Button
+              size="sm"
+              variant="soft"
+              onClick={() => setCostsCollapsed((c) => !c)}
+              aria-expanded={!costsCollapsed}
+            >
+              <ChevronDown
+                className={`size-4 transition-transform ${costsCollapsed ? "" : "rotate-180"}`}
+              />
+              {costsCollapsed ? "הצג פירוט" : "צמצם"}
+            </Button>
+          </div>
+          {!costsCollapsed && (
           <div className="mt-2 space-y-1 text-sm">
             <div className="flex items-center justify-between">
               <span>עלות קבלני משנה ({subDays} ימי עבודה)</span>
