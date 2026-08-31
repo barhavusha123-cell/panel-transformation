@@ -551,6 +551,92 @@ export function ProjectHoursDetail({
       />
 
       <ProjectFiles projectName={projectName} />
+
+      <div className="surface-panel rounded-2xl p-5">
+        <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
+          <p className="text-xs text-muted-foreground">עלויות עובדים וקבלנים · איזור {region}</p>
+          <div className="mt-2 space-y-1 text-sm">
+            <div className="flex items-center justify-between">
+              <span>עלות קבלני משנה ({subDays} ימי עבודה)</span>
+              <span className="font-bold text-primary">{ils(subCost)}</span>
+            </div>
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              מחירון יום עבודה קבלני ({region}):{" "}
+              {[1, 2, 3, 4]
+                .map((n) => `${n} עובדים ${ils(subDayRate(region, n))}`)
+                .join(" · ")}
+            </p>
+            {subBreakdown.length > 0 && (
+              <div className="rounded-lg border border-primary/20 bg-background/50 p-2 text-[11px]">
+                <p className="mb-1 font-semibold">פירוט חישוב קבלני משנה</p>
+                {subBreakdown.map((d) => (
+                  <div key={d.date} className="flex flex-col gap-0.5 py-0.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-muted-foreground">
+                        {formatDateIL(d.date)} · {d.workers} עובדים{d.names ? ` (${d.names})` : ""} × יום עבודה
+                      </span>
+                      <span className="font-medium">{ils(d.rate)}</span>
+                    </div>
+                    {d.approved ? (
+                      <span className="text-[11px] font-medium text-emerald-700">
+                        ✓ השעות אושרו ע״י מנהל הפרויקט{d.approvedBy ? ` (${d.approvedBy})` : ""}
+                        {d.approvedAt ? ` · ${formatDateIL(d.approvedAt.slice(0, 10))} ${d.approvedAt.slice(11, 16)}` : ""}
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-medium text-blue-600">
+                        ממתין לאישור מנהל הפרויקט
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex items-center justify-between">
+              <span>
+                עלות ימי עבודה מלאים ({employeeDays} × {ils(EMPLOYEE_DAY_RATE)})
+              </span>
+              <span className="font-bold text-primary">{ils(employeeFullDaysCost)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>
+                עלות שעות חלקיות ({employeePartialHours} שעות × {ils(EMPLOYEE_HOUR_RATE)})
+              </span>
+              <span className="font-bold text-primary">{ils(employeePartialCost)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-semibold">סה״כ עלות עובדי חברה</span>
+              <span className="font-bold text-primary">{ils(employeeCost)}</span>
+            </div>
+            {employeeCostRows.length > 0 && (
+              <div className="rounded-lg border border-primary/20 bg-background/50 p-2 text-[11px]">
+                <p className="mb-1 font-semibold">פירוט חישוב עובדי חברה (כל תאריך בנפרד)</p>
+                <p className="mb-1 text-muted-foreground">
+                  נוסחה: דיווח של 5 שעות ומעלה ביום = יום עבודה מלא {ils(EMPLOYEE_DAY_RATE)} · פחות
+                  מ-5 שעות = שעות × {ils(EMPLOYEE_HOUR_RATE)}
+                </p>
+                {employeeCostRows.map((d) => (
+                  <div key={d.key} className="flex items-center justify-between gap-2 py-0.5">
+                    <span className="text-muted-foreground">
+                      {formatDateIL(d.date)} · {d.reporter} ·{" "}
+                      {d.fullDay
+                        ? `יום עבודה מלא (${d.hours} שעות)`
+                        : `${d.hours} שעות × ${ils(EMPLOYEE_HOUR_RATE)}`}
+                    </span>
+                    <span className="font-medium">{ils(d.cost)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex items-center justify-between border-t border-primary/20 pt-1">
+              <span className="font-semibold">סה״כ עלות</span>
+              <span className="text-lg font-bold text-primary">{ils(totalCost)}</span>
+            </div>
+          </div>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            סה״כ שעות בפרויקט: {formatHoursMinutes(totalMinutes)}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
