@@ -199,8 +199,9 @@ export function BoqChecklist({
       )}
 
       {/* סיכום חי */}
-      <div className="mb-4 grid gap-3 sm:grid-cols-4">
+      <div className="mb-4 grid gap-3 sm:grid-cols-5">
         <SummaryBox label="שווי כתב כמויות" value={ils(summary.total)} />
+        <SummaryBox label="שווי פרויקט לאחר הנחה" value={ils(totalAfter)} accent />
         <SummaryBox label="בוצע עד כה" value={ils(summary.done)} accent />
         <SummaryBox label="יתרה לביצוע" value={ils(summary.remaining)} />
         <SummaryBox
