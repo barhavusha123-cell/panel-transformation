@@ -119,22 +119,6 @@ function HoursGroup({
           <Badge variant="secondary">{formatHoursMinutes(minutes)}</Badge>
           <Button
             size="sm"
-            className="bg-blue-900 text-white hover:bg-blue-800"
-            onClick={() => {
-              if (!rows.length) {
-                toast.info("אין דיווחים לייצוא בקטגוריה זו");
-                return;
-              }
-              setExportMonth("all");
-              setExportReporter("all");
-              setExportOpen(true);
-            }}
-          >
-            <FileSpreadsheet className="size-4" />
-            ייצא לאקסל (לפי חודשים)
-          </Button>
-          <Button
-            size="sm"
             variant="soft"
             onClick={() => setCollapsed((c) => !c)}
             aria-expanded={!collapsed}
