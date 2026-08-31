@@ -3,6 +3,7 @@ import {
   ArrowRight,
   ChevronDown,
   Download,
+  FileSpreadsheet,
   Eye,
   HardHat,
   Paperclip,
@@ -16,6 +17,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { useAllNet } from "@/lib/allnet/store";
 import {
   downloadCsv,
+  downloadExcelMonthReport,
   employeeDayCosts,
   formatDateIL,
   formatHoursMinutes,
@@ -96,12 +98,14 @@ function HoursGroup({
   rows,
   markPartialDays = false,
   showWorkers = false,
+  projectName,
 }: {
   title: string;
   icon: React.ReactNode;
   rows: HoursEntry[];
   markPartialDays?: boolean;
   showWorkers?: boolean;
+  projectName: string;
 }) {
   const minutes = rows.reduce((a, h) => a + h.minutes, 0);
   const [attView, setAttView] = useState<HoursEntry | null>(null);
@@ -115,6 +119,25 @@ function HoursGroup({
         </h3>
         <div className="flex items-center gap-2">
           <Badge variant="secondary">{formatHoursMinutes(minutes)}</Badge>
+          <Button
+            size="sm"
+            className="bg-blue-900 text-white hover:bg-blue-800"
+            onClick={() => {
+              if (!rows.length) {
+                toast.info("אין דיווחים לייצוא בקטגוריה זו");
+                return;
+              }
+              downloadExcelMonthReport(
+                rows,
+                `דוח שעות מפורט · ${title} · ${projectName}`,
+                `דוח_שעות_${title}_${projectName}.xls`,
+              );
+              toast.success("הדוח יוצא לאקסל בהצלחה");
+            }}
+          >
+            <FileSpreadsheet className="size-4" />
+            ייצא לאקסל (לפי חודשים)
+          </Button>
           <Button
             size="sm"
             variant="soft"
@@ -554,13 +577,14 @@ export function ProjectHoursDetail({
         )}
       </div>
 
-      <HoursGroup title="עובדי החברה" icon={<Users className="size-5 text-primary" />} rows={employees} />
+      <HoursGroup title="עובדי החברה" icon={<Users className="size-5 text-primary" />} rows={employees} projectName={projectName} />
       <HoursGroup
         title="קבלני משנה"
         icon={<HardHat className="size-5 text-primary" />}
         rows={subs}
         markPartialDays
         showWorkers
+        projectName={projectName}
       />
 
       <ProjectFiles projectName={projectName} />
