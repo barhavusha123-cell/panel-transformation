@@ -1,0 +1,342 @@
+import { useMemo, useRef, useState } from "react";
+import { CheckCircle2, ListChecks, Loader2, Plus, Trash2, Upload } from "lucide-react";
+import { toast } from "sonner";
+import { useAllNet } from "@/lib/allnet/store";
+import { parseBoqFile } from "@/lib/allnet/boq.functions";
+import { boqSummary, type BoqItem } from "@/lib/allnet/types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+
+const ils = (n: number) => `${Math.round(n).toLocaleString("he-IL")} ₪`;
+
+const readAsDataUrl = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = () => reject(new Error("read error"));
+    r.readAsDataURL(file);
+  });
+
+export function BoqChecklist({
+  projectName,
+  readOnly = false,
+}: {
+  projectName: string;
+  readOnly?: boolean;
+}) {
+  const { state, setState, session } = useAllNet();
+  const project = state.projects.find((p) => p.name === projectName);
+  const items = useMemo(() => project?.boq ?? [], [project]);
+  const [busy, setBusy] = useState(false);
+  const [over, setOver] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const summary = boqSummary(items);
+  const who = session?.user?.full_name ?? "מנהל מערכת";
+
+  const patchProject = (fn: (items: BoqItem[]) => BoqItem[], fileName?: string) =>
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.map((p) =>
+        p.name === projectName
+          ? {
+              ...p,
+              boq: fn(p.boq ?? []),
+              boqUpdatedAt: new Date().toISOString(),
+              ...(fileName ? { boqFileName: fileName } : {}),
+            }
+          : p,
+      ),
+    }));
+
+  const handleFiles = async (files: FileList | null) => {
+    const file = files?.[0];
+    if (!file) return;
+    setBusy(true);
+    try {
+      const isText = /\.(csv|txt|tsv)$/i.test(file.name);
+      const payload = isText
+        ? { filename: file.name, text: await file.text() }
+        : { filename: file.name, dataUrl: await readAsDataUrl(file) };
+      const parsed = await parseBoqFile({ data: payload });
+      if (!parsed.length) {
+        toast.error("לא נמצאו שורות כתב כמויות בקובץ.");
+        return;
+      }
+      const mapped: BoqItem[] = parsed.map((i) => ({
+        id: crypto.randomUUID(),
+        code: i.code ?? "",
+        description: i.description,
+        unit: i.unit ?? "",
+        quantity: Number(i.quantity) || 0,
+        unitPrice: Number(i.unitPrice) || 0,
+        doneQty: 0,
+      }));
+      patchProject((prev) => [...prev, ...mapped], file.name);
+      toast.success(`נטענו ${mapped.length} שורות מכתב הכמויות.`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "לא הצלחתי לקרוא את הקובץ.");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  const update = (id: string, patch: Partial<BoqItem>) =>
+    patchProject((prev) =>
+      prev.map((i) =>
+        i.id === id
+          ? { ...i, ...patch, updatedBy: who, updatedAt: new Date().toISOString() }
+          : i,
+      ),
+    );
+
+  const addRow = () =>
+    patchProject((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        code: "",
+        description: "פריט חדש",
+        unit: "יח'",
+        quantity: 1,
+        unitPrice: 0,
+        doneQty: 0,
+      },
+    ]);
+
+  return (
+    <div className="rounded-2xl border border-border bg-surface/70 p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="flex items-center gap-2 text-base font-bold">
+          <ListChecks className="size-5 text-primary" />
+          כתב כמויות — צ'קליסט ביצוע
+          {project?.boqFileName && (
+            <Badge variant="secondary" className="font-normal">
+              {project.boqFileName}
+            </Badge>
+          )}
+        </h3>
+        {!readOnly && (
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={addRow}>
+              <Plus className="size-4" />
+              הוסף שורה
+            </Button>
+            <Button size="sm" disabled={busy} onClick={() => inputRef.current?.click()}>
+              {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+              {busy ? "קורא קובץ..." : "העלה כתב כמויות"}
+            </Button>
+            <input
+              ref={inputRef}
+              type="file"
+              accept=".pdf,.csv,.txt,.tsv,image/*,.xls,.xlsx"
+              className="hidden"
+              onChange={(e) => handleFiles(e.target.files)}
+            />
+          </div>
+        )}
+      </div>
+
+      {!readOnly && (
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setOver(true);
+          }}
+          onDragLeave={() => setOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setOver(false);
+            void handleFiles(e.dataTransfer.files);
+          }}
+          className={`mb-4 rounded-xl border-2 border-dashed p-4 text-center text-xs transition-colors ${
+            over ? "border-primary bg-primary/5" : "border-border bg-surface/40"
+          }`}
+        >
+          גרור לכאן קובץ כתב כמויות (PDF / CSV / תמונה) — המערכת תזהה פריטים, כמויות ומחירים
+          ותהפוך אותם לצ'קליסט ביצוע.
+        </div>
+      )}
+
+      {/* סיכום חי */}
+      <div className="mb-4 grid gap-3 sm:grid-cols-4">
+        <SummaryBox label="שווי כתב כמויות" value={ils(summary.total)} />
+        <SummaryBox label="בוצע עד כה" value={ils(summary.done)} accent />
+        <SummaryBox label="יתרה לביצוע" value={ils(summary.remaining)} />
+        <SummaryBox
+          label="פריטים שהושלמו"
+          value={`${summary.completedItems} / ${summary.count}`}
+        />
+      </div>
+      <div className="mb-4">
+        <div className="mb-1 flex items-center justify-between text-xs">
+          <span className="font-semibold">התקדמות ביצוע כספית</span>
+          <span className="font-bold text-primary">{summary.percent}%</span>
+        </div>
+        <Progress value={summary.percent} />
+      </div>
+
+      {items.length === 0 ? (
+        <p className="py-6 text-center text-sm text-muted-foreground">
+          אין עדיין כתב כמויות לפרויקט זה.
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-right text-xs">
+            <thead className="border-b border-border text-muted-foreground">
+              <tr>
+                <th className="p-2">סעיף</th>
+                <th className="p-2">תיאור</th>
+                <th className="p-2">יח'</th>
+                <th className="p-2">כמות</th>
+                <th className="p-2">מחיר יח'</th>
+                <th className="p-2">סה"כ</th>
+                <th className="p-2">בוצע</th>
+                <th className="p-2">% ביצוע</th>
+                <th className="p-2">שווי שבוצע</th>
+                <th className="p-2" />
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((i) => {
+                const qty = Number(i.quantity) || 0;
+                const done = Math.min(Number(i.doneQty) || 0, qty);
+                const pct = qty > 0 ? Math.round((done / qty) * 100) : 0;
+                const complete = qty > 0 && done >= qty;
+                return (
+                  <tr
+                    key={i.id}
+                    className={`border-b border-border/60 ${complete ? "bg-emerald-50/60" : ""}`}
+                  >
+                    <td className="p-2 text-muted-foreground">{i.code || "—"}</td>
+                    <td className="p-2">
+                      {readOnly ? (
+                        i.description
+                      ) : (
+                        <Input
+                          value={i.description}
+                          onChange={(e) => update(i.id, { description: e.target.value })}
+                          className="h-8 min-w-[180px] text-xs"
+                        />
+                      )}
+                    </td>
+                    <td className="p-2">{i.unit || "—"}</td>
+                    <td className="p-2">
+                      {readOnly ? (
+                        qty
+                      ) : (
+                        <Input
+                          type="number"
+                          min={0}
+                          value={qty}
+                          onChange={(e) => update(i.id, { quantity: Number(e.target.value) || 0 })}
+                          className="h-8 w-20 text-xs"
+                        />
+                      )}
+                    </td>
+                    <td className="p-2">
+                      {readOnly ? (
+                        ils(i.unitPrice)
+                      ) : (
+                        <Input
+                          type="number"
+                          min={0}
+                          value={i.unitPrice}
+                          onChange={(e) => update(i.id, { unitPrice: Number(e.target.value) || 0 })}
+                          className="h-8 w-24 text-xs"
+                        />
+                      )}
+                    </td>
+                    <td className="p-2 font-medium">{ils(qty * (Number(i.unitPrice) || 0))}</td>
+                    <td className="p-2">
+                      <div className="flex items-center gap-1">
+                        <Input
+                          type="number"
+                          min={0}
+                          max={qty}
+                          value={done}
+                          disabled={readOnly}
+                          onChange={(e) =>
+                            update(i.id, {
+                              doneQty: Math.min(Math.max(Number(e.target.value) || 0, 0), qty),
+                            })
+                          }
+                          className="h-8 w-20 text-xs"
+                        />
+                        {!readOnly && (
+                          <button
+                            type="button"
+                            title="סמן כבוצע במלואו"
+                            onClick={() => update(i.id, { doneQty: complete ? 0 : qty })}
+                            className={`rounded-md p-1 transition-colors ${
+                              complete
+                                ? "text-emerald-600"
+                                : "text-muted-foreground hover:text-emerald-600"
+                            }`}
+                          >
+                            <CheckCircle2 className="size-4" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-2">
+                      <span className={complete ? "font-bold text-emerald-600" : "font-medium"}>
+                        {pct}%
+                      </span>
+                    </td>
+                    <td className="p-2 font-bold text-primary">
+                      {ils(done * (Number(i.unitPrice) || 0))}
+                    </td>
+                    <td className="p-2">
+                      {!readOnly && (
+                        <button
+                          type="button"
+                          title="מחק שורה"
+                          onClick={() =>
+                            patchProject((prev) => prev.filter((row) => row.id !== i.id))
+                          }
+                          className="rounded-md p-1 text-muted-foreground transition-colors hover:text-destructive"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {project?.boqUpdatedAt && (
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          עודכן לאחרונה: {new Date(project.boqUpdatedAt).toLocaleString("he-IL")}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function SummaryBox({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-xl border p-3 ${
+        accent ? "border-primary/30 bg-primary/10" : "border-border bg-background/60"
+      }`}
+    >
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className={`text-base font-bold ${accent ? "text-primary" : ""}`}>{value}</p>
+    </div>
+  );
+}
