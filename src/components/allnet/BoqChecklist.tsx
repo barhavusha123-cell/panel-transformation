@@ -214,17 +214,29 @@ export function BoqChecklist({
       )}
 
       {/* סיכום חי */}
-      <div className="mb-4 grid gap-3 sm:grid-cols-5">
-        <SummaryBox label="שווי כתב כמויות" value={ils(summary.total)} />
-        <SummaryBox label="שווי פרויקט לאחר הנחה" value={ils(totalAfter)} accent />
-        <SummaryBox label="בוצע עד כה" value={ils(summary.done)} accent />
-        <SummaryBox label="יתרה לביצוע" value={ils(summary.remaining)} />
-        <SummaryBox
-          label="פריטים שהושלמו"
-          value={`${summary.completedItems} / ${summary.count}`}
-        />
-      </div>
-      {/* שורת הנחה לכלל הפרויקט */}
+      {readOnly ? (
+        <div className="mb-4 grid gap-3 sm:grid-cols-2">
+          <SummaryBox label="כמות כוללת" value={String(items.reduce((a, i) => a + (Number(i.quantity) || 0), 0))} />
+          <SummaryBox
+            label="פריטים שהושלמו"
+            value={`${summary.completedItems} / ${summary.count}`}
+            accent
+          />
+        </div>
+      ) : (
+        <div className="mb-4 grid gap-3 sm:grid-cols-5">
+          <SummaryBox label="שווי כתב כמויות" value={ils(summary.total)} />
+          <SummaryBox label="שווי פרויקט לאחר הנחה" value={ils(totalAfter)} accent />
+          <SummaryBox label="בוצע עד כה" value={ils(summary.done)} accent />
+          <SummaryBox label="יתרה לביצוע" value={ils(summary.remaining)} />
+          <SummaryBox
+            label="פריטים שהושלמו"
+            value={`${summary.completedItems} / ${summary.count}`}
+          />
+        </div>
+      )}
+      {/* שורת הנחה לכלל הפרויקט — צד מנהל בלבד */}
+      {!readOnly && (
       <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3 text-xs">
         <span className="font-bold">הנחה לכלל הפרויקט:</span>
         <select
