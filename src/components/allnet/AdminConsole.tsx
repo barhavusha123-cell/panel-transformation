@@ -15,6 +15,7 @@ import {
   ListChecks,
   Headset,
   Pencil,
+  Paperclip,
   Plus,
   ShieldCheck,
   Trash2,
