@@ -92,8 +92,56 @@ export interface Project {
   handoverDate?: string;
   /** תאריך סיום שירות (YYYY-MM-DD) — ניתן לעריכה ידנית */
   serviceEndDate?: string;
-
+  /** כתב כמויות — צ'קליסט ביצוע */
+  boq?: BoqItem[];
+  /** שם הקובץ שממנו נטען כתב הכמויות */
+  boqFileName?: string;
+  /** מועד עדכון אחרון של כתב הכמויות */
+  boqUpdatedAt?: string;
 }
+
+/** שורת כתב כמויות עם מעקב ביצוע */
+export interface BoqItem {
+  id: string;
+  /** מספר סעיף */
+  code?: string;
+  description: string;
+  /** יחידת מידה (יח', מ', מ"ר וכו') */
+  unit?: string;
+  /** כמות מתוכננת */
+  quantity: number;
+  /** מחיר ליחידה (₪) */
+  unitPrice: number;
+  /** כמות שבוצעה בפועל */
+  doneQty: number;
+  /** מי עדכן לאחרונה */
+  updatedBy?: string;
+  updatedAt?: string;
+  notes?: string;
+}
+
+/** סיכום ביצוע כתב כמויות */
+export const boqSummary = (items: BoqItem[] = []) => {
+  const total = items.reduce((a, i) => a + (Number(i.quantity) || 0) * (Number(i.unitPrice) || 0), 0);
+  const done = items.reduce(
+    (a, i) =>
+      a +
+      Math.min(Number(i.doneQty) || 0, Number(i.quantity) || 0) * (Number(i.unitPrice) || 0),
+    0,
+  );
+  const completedItems = items.filter(
+    (i) => (Number(i.quantity) || 0) > 0 && (Number(i.doneQty) || 0) >= (Number(i.quantity) || 0),
+  ).length;
+  return {
+    total,
+    done,
+    remaining: Math.max(total - done, 0),
+    percent: total > 0 ? Math.round((done / total) * 100) : 0,
+    completedItems,
+    count: items.length,
+  };
+};
+
 
 
 /** יעד שעות מנהל פרויקט / עובד אפקטיבי כולל תוספת חריגה מאושרת */
