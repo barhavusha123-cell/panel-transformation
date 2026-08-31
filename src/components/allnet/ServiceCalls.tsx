@@ -91,6 +91,7 @@ import {
   SERVICE_PRIORITY_LABELS,
   SERVICE_STATUSES,
   SERVICE_STATUS_LABELS,
+  formatCallNumber,
   type ServiceAttachment,
   type ServiceCall,
   type ServiceCallPriority,
@@ -322,7 +323,7 @@ function CallCard({
         <span className="brand-gradient flex size-9 items-center justify-center rounded-lg text-primary-foreground">
           <Headset className="size-4" />
         </span>
-        <span className="text-base font-bold">קריאה #{call.number}</span>
+        <span className="text-base font-bold tracking-wide text-primary">קריאה {formatCallNumber(call.number)}</span>
         {statusBadge(call.status)}
         {priorityBadge(call.priority)}
         <span className="text-sm">
@@ -616,7 +617,7 @@ export function ServiceCallsAdmin() {
       updates: [],
     };
     setState((prev) => ({ ...prev, serviceCalls: [...prev.serviceCalls, call] }));
-    toast.success(`קריאת שירות #${call.number} נפתחה בהצלחה.`);
+    toast.success(`קריאת שירות ${formatCallNumber(call.number)} נפתחה בהצלחה.`);
     reset();
     setOpen(false);
   };
