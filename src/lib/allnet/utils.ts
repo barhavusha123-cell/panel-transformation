@@ -126,6 +126,70 @@ export function downloadCsv(rows: Record<string, unknown>[], filename: string) {
   URL.revokeObjectURL(url);
 }
 
+/** ייצוא דוח שעות מפורט לאקסל (.xls), מחולק לפי חודשים — ללא צרופות */
+export function downloadExcelMonthReport(
+  rows: HoursEntry[],
+  title: string,
+  filename: string,
+) {
+  if (!rows.length) return;
+  const esc = (v: unknown) =>
+    String(v ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  const months = new Map<string, HoursEntry[]>();
+  for (const h of rows) {
+    const key = String(h.date).slice(0, 7); // YYYY-MM
+    const arr = months.get(key) ?? [];
+    arr.push(h);
+    months.set(key, arr);
+  }
+  const sortedMonths = Array.from(months.entries()).sort(([a], [b]) => a.localeCompare(b));
+  const monthName = (key: string) => {
+    const [y, m] = key.split("-").map(Number);
+    return new Intl.DateTimeFormat("he-IL", { month: "long", year: "numeric" }).format(
+      new Date(y ?? 2000, (m ?? 1) - 1, 1),
+    );
+  };
+  const sections = sortedMonths
+    .map(([key, list]) => {
+      const sorted = list.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      const totalMin = sorted.reduce((a, h) => a + h.minutes, 0);
+      const body = sorted
+        .map(
+          (h) => `<tr>
+<td>${esc(h.reporter)}</td>
+<td>${esc(h.role)}</td>
+<td>${h.workers ?? 1} · ${esc(h.workerNames || "—")}</td>
+<td>${esc(formatDateIL(h.date))}</td>
+<td>${esc(h.from)}</td>
+<td>${esc(h.to)}</td>
+<td>${esc(h.worked)}</td>
+<td>${esc(h.extras || "—")}</td>
+<td>${esc(h.notes || "—")}</td>
+</tr>`,
+        )
+        .join("");
+      return `<h2>חודש: ${esc(monthName(key))} · סה״כ ${esc(formatHoursMinutes(totalMin))}</h2>
+<table border="1" cellspacing="0" cellpadding="4">
+<thead><tr>
+<th>שם המדווח</th><th>תפקיד</th><th>עובדים באתר</th><th>תאריך</th><th>משעה</th><th>עד שעה</th><th>זמן עבודה</th><th>חריגים</th><th>הערות</th>
+</tr></thead>
+<tbody>${body}</tbody>
+</table><br/>`;
+    })
+    .join("");
+  const html = `<html xmlns:x="urn:schemas-microsoft-com:office:excel" dir="rtl"><head><meta charset="UTF-8"/></head><body><h1>${esc(title)}</h1>${sections}</body></html>`;
+  const blob = new Blob(["\uFEFF" + html], { type: "application/vnd.ms-excel;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 /** מחשב את עלות הפרויקט לפי דיווחי השעות והעלויות הקבועות */
 export function calculateProjectCost(state: AllNetState, projectName: string): number {
   const project = state.projects.find((p) => p.name === projectName);
