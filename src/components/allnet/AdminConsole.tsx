@@ -10,7 +10,6 @@ import {
 
   CalendarClock,
   Briefcase,
-  Download,
   FileSpreadsheet,
   FolderKanban,
   ListChecks,
@@ -2202,29 +2201,6 @@ export function AdminConsole() {
                   >
                     <FileSpreadsheet className="size-4" />
                     ייצא דוח מרוכז לאקסל
-                  </Button>
-                  <Button
-                    variant="soft"
-                  onClick={() =>
-                    downloadCsv(
-                      filteredHours.map((h) => ({
-                        "שם המדווח": h.reporter,
-                        "שם לקוח": hourClient(h),
-                        פרויקט: h.project,
-                        תאריך: formatDateIL(h.date),
-                        משעה: h.from,
-                        "עד שעה": h.to,
-                        "זמן עבודה": h.worked,
-                        "שעות עשרוני": h.decimal,
-                        הערות: h.notes,
-                        "תוספות/שינויים חריגים": h.extras,
-                      })),
-                      "hours_report.csv",
-                    )
-                  }
-                >
-                  <Download className="size-4" />
-                  ייצא דוח מלא ל-CSV
                   </Button>
                 </div>
               </div>
