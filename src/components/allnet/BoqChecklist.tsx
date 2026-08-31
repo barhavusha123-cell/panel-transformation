@@ -387,9 +387,11 @@ export function BoqChecklist({
                         {pct}%
                       </span>
                     </td>
-                    <td className="p-2 font-bold text-primary">
-                      {ils(done * (Number(i.unitPrice) || 0))}
-                    </td>
+                    {!readOnly && (
+                      <td className="p-2 font-bold text-primary">
+                        {ils(done * (Number(i.unitPrice) || 0))}
+                      </td>
+                    )}
                     <td className="p-2">
                       {!readOnly && (
                         <button
