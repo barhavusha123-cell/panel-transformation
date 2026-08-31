@@ -757,6 +757,7 @@ export function AdminConsole() {
     extraHours: number;
     extraHoursReason: string;
     saleAmount: number;
+    additions: number;
     fixedCosts: FixedCost[];
   }>({
     name: "",
@@ -770,6 +771,7 @@ export function AdminConsole() {
     extraHours: 0,
     extraHoursReason: "",
     saleAmount: 0,
+    additions: 0,
     fixedCosts: [],
   });
 
