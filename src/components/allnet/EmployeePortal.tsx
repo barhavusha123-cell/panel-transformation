@@ -310,7 +310,34 @@ export function EmployeePortal() {
               )}
             </TabsTrigger>
           )}
+          {isManager && (
+            <TabsTrigger
+              value="boq"
+              className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
+            >
+              <ListChecks className="size-4" />
+              כתב כמויות
+            </TabsTrigger>
+          )}
         </TabsList>
+
+        {isManager && (
+          <TabsContent value="boq" className="animate-fade mt-6 space-y-6">
+            <div className="surface-panel rounded-2xl p-6">
+              <h3 className="mb-1 text-lg font-semibold">כתב כמויות וביצוע בפרויקטים שלך</h3>
+              <p className="text-sm text-muted-foreground">
+                סימון פריטים שבוצעו מתעדכן אונליין ומשתקף בדשבורד הניהולי.
+              </p>
+            </div>
+            {managedProjects.map((name) => (
+              <div key={name} className="space-y-2">
+                <p className="text-sm font-bold">{name}</p>
+                <BoqChecklist projectName={name} />
+              </div>
+            ))}
+          </TabsContent>
+        )}
+
 
         {isManager && (
           <TabsContent value="subs" className="animate-fade mt-6">
