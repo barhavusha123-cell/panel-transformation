@@ -2089,6 +2089,7 @@ export function AdminConsole() {
                             />
                           </TableHead>
                         ))}
+                        <TableHead className="text-right">צרופות</TableHead>
                         <TableHead className="text-right">פעולות</TableHead>
                       </TableRow>
                     </TableHeader>
