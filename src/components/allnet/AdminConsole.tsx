@@ -789,6 +789,7 @@ export function AdminConsole() {
       extraHours: p.extraHours ?? 0,
       extraHoursReason: p.extraHoursReason ?? "",
       saleAmount: p.saleAmount ?? 0,
+      additions: p.additions ?? 0,
       fixedCosts: p.fixedCosts ?? [],
     });
   };
@@ -816,6 +817,7 @@ export function AdminConsole() {
               extraHours: Math.max(0, Math.round(Number(editForm.extraHours) || 0)),
               extraHoursReason: editForm.extraHoursReason.trim(),
               saleAmount: Math.max(0, Number(editForm.saleAmount) || 0),
+              additions: Math.max(0, Number(editForm.additions) || 0),
               fixedCosts: editForm.fixedCosts,
               team: editForm.team,
             }
