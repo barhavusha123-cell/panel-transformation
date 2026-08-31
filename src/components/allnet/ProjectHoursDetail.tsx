@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import {
   ArrowRight,
   Download,
+  Eye,
   HardHat,
   Paperclip,
   Pencil,
@@ -14,6 +15,12 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { useAllNet } from "@/lib/allnet/store";
 import { downloadCsv, formatDateIL, formatHoursMinutes, nowStamp } from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { DocumentList } from "./DocumentList";
@@ -92,6 +99,7 @@ function HoursGroup({
   showWorkers?: boolean;
 }) {
   const minutes = rows.reduce((a, h) => a + h.minutes, 0);
+  const [attView, setAttView] = useState<HoursEntry | null>(null);
   return (
     <div className="surface-panel rounded-2xl p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -115,6 +123,7 @@ function HoursGroup({
                 <TableHead className="text-right">זמן עבודה</TableHead>
                 <TableHead className="text-right">חריגים</TableHead>
                 <TableHead className="text-right">הערות</TableHead>
+                <TableHead className="text-right">צרופות</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -140,6 +149,16 @@ function HoursGroup({
                   </TableCell>
                   <TableCell>{h.extras || "—"}</TableCell>
                   <TableCell className="max-w-48 truncate">{h.notes || "—"}</TableCell>
+                  <TableCell>
+                    {h.attachments?.length ? (
+                      <Button size="sm" variant="soft" onClick={() => setAttView(h)}>
+                        <Eye className="size-4" />
+                        {h.attachments.length} צפייה
+                      </Button>
+                    ) : (
+                      "—"
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -150,6 +169,42 @@ function HoursGroup({
           אין דיווחים בקטגוריה זו.
         </p>
       )}
+
+      <Dialog open={!!attView} onOpenChange={(o) => !o && setAttView(null)}>
+        <DialogContent dir="rtl" className="max-w-3xl text-right">
+          <DialogHeader>
+            <DialogTitle className="text-right">
+              צרופות לדיווח — {attView?.reporter} ·{" "}
+              {attView ? formatDateIL(attView.date) : ""}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid max-h-[70vh] gap-3 overflow-y-auto sm:grid-cols-2">
+            {(attView?.attachments ?? []).map((a) => (
+              <div key={a.id} className="rounded-xl border border-border p-3">
+                {a.isImage ? (
+                  <img
+                    src={a.dataUrl}
+                    alt={a.name}
+                    className="max-h-72 w-full rounded-lg object-contain"
+                  />
+                ) : (
+                  <p className="flex items-center gap-2 text-sm">
+                    <Paperclip className="size-4" />
+                    {a.name}
+                  </p>
+                )}
+                <a
+                  href={a.dataUrl}
+                  download={a.name}
+                  className="mt-2 inline-block text-xs text-primary underline"
+                >
+                  הורדה
+                </a>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
