@@ -18,6 +18,8 @@ import {
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { formatDateIL, getAllTimeOptions, nowStamp } from "@/lib/allnet/utils";
+import { parseDalekServicePdf } from "@/lib/allnet/dalekPdf.functions";
+
 import {
   openServiceCallReport,
   openServiceCallsBulkReport,
