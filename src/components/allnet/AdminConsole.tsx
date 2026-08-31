@@ -411,8 +411,10 @@ export function AdminConsole() {
       .reduce((a, h) => a + h.minutes, 0);
     const reported = Math.round((minutes / 60) * 100) / 100;
     const pct = budget > 0 ? Math.round((reported / budget) * 1000) / 10 : 0;
-    const sale = Number(p?.saleAmount) || 0;
-    return { name, client, manager, budget, cost, reported, pct, sale, profit: sale - cost };
+    const saleBase = Number(p?.saleAmount) || 0;
+    const additions = Number(p?.additions) || 0;
+    const sale = saleBase + additions;
+    return { name, client, manager, budget, cost, reported, pct, sale, saleBase, additions, profit: sale - cost };
   };
 
   const dashRows = selectedDash.map(rowFor);
