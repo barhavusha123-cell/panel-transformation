@@ -664,11 +664,57 @@ export function ServiceCallsAdmin() {
         </h3>
         <Badge variant="secondary">פתוחות: {counts.open}</Badge>
         <Badge variant="outline">ללא טכנאי: {counts.unassigned}</Badge>
-        <Button variant="brand" className="ms-auto" onClick={() => setOpen((o) => !o)}>
+        <Button
+          variant="outline"
+          className="ms-auto"
+          onClick={() => setDalekOpen((o) => !o)}
+        >
+          <FileText className="size-4" />
+          קריאות שירות דלק מוטורס
+        </Button>
+        <Button variant="brand" onClick={() => setOpen((o) => !o)}>
           <Plus className="size-4" />
           {open ? "סגור טופס" : "פתח קריאת שירות"}
         </Button>
       </div>
+
+      {dalekOpen && (
+        <div className="animate-rise surface-panel space-y-3 rounded-2xl p-4 sm:p-6">
+          <h4 className="text-base font-bold">קריאות שירות דלק מוטורס</h4>
+          <p className="text-xs text-muted-foreground">
+            גרור לכאן קובץ PDF של קריאת שירות מהלקוח — הנתונים ייקראו אוטומטית ויוזנו לטופס
+            קריאת השירות שלנו.
+          </p>
+          <DropArea onFiles={(f) => void importDalekPdf(f)}>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="soft"
+                disabled={dalekLoading}
+                onClick={() => dalekRef.current?.click()}
+              >
+                <Paperclip className="size-4" />
+                בחירת קובץ PDF
+              </Button>
+              {dalekLoading && (
+                <span className="text-xs text-muted-foreground">קורא את הקובץ…</span>
+              )}
+            </div>
+          </DropArea>
+          <input
+            ref={dalekRef}
+            type="file"
+            accept="application/pdf"
+            className="hidden"
+            onChange={(e) => {
+              void importDalekPdf(e.target.files);
+              e.target.value = "";
+            }}
+          />
+        </div>
+      )}
+
+
 
       {open && (
         <form onSubmit={create} className="animate-rise surface-panel rounded-2xl p-4 sm:p-6">
