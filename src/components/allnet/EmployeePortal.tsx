@@ -100,6 +100,8 @@ export function EmployeePortal() {
   const [workerNames, setWorkerNames] = useState("");
   const [attachments, setAttachments] = useState<ServiceAttachment[]>([]);
   const [attPreview, setAttPreview] = useState<ServiceAttachment | null>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const addFiles = async (files: FileList | null) => {
     if (!files?.length) return;
