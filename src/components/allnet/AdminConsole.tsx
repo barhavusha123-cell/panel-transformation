@@ -11,6 +11,7 @@ import {
   CalendarClock,
   Briefcase,
   Download,
+  FileSpreadsheet,
   FolderKanban,
   ListChecks,
   Headset,
@@ -45,6 +46,7 @@ import {
 import {
   calculateProjectCost,
   downloadCsv,
+  downloadExcelMonthReport,
   formatDateIL,
   formatHoursMinutes,
   getAllTimeOptions,
