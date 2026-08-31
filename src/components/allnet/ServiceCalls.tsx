@@ -488,6 +488,7 @@ export function ServiceCallsAdmin() {
   const [siteFilter, setSiteFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [numberFilter, setNumberFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editing, setEditing] = useState<ServiceCall | null>(null);
   const editFileRef = useRef<HTMLInputElement>(null);
@@ -541,6 +542,7 @@ export function ServiceCallsAdmin() {
       .filter((c) => (techFilter === "all" ? true : c.technician === techFilter))
       .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
       .filter((c) => (siteFilter === "all" ? true : c.project === siteFilter))
+      .filter((c) => (numberFilter === "all" ? true : String(c.number) === numberFilter))
       .filter((c) => {
         if (!dateFrom && !dateTo) return true;
         const key = c.createdAt.slice(0, 10);
