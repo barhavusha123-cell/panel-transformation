@@ -337,6 +337,9 @@ export function ProjectHoursDetail({
     };
   })();
 
+  const managerUser = state.users.find(
+    (u) => u.full_name === project?.manager || u.username === project?.manager,
+  );
 
   return (
     <div className="animate-fade space-y-6">
@@ -346,8 +349,11 @@ export function ProjectHoursDetail({
             <h2 className="text-xl font-bold">
               דיווחי שעות · <span className="text-gradient">{projectName}</span>
             </h2>
-            <p className="text-sm text-muted-foreground">
-              {project?.manager ?? "לא הוגדר"} · {reported} מתוך {budget} שעות
+            <p className="text-sm font-bold text-foreground">
+              {managerUser?.role ? `${managerUser.role} · ` : ""}
+              <span className="text-primary">{project?.manager ?? "לא הוגדר"}</span>
+              {" · "}
+              {reported} מתוך {budget} שעות
               {project?.extraHours
                 ? ` (כולל ${project.extraHours} שעות חריגות מאושרות${project.extraHoursReason ? ` · ${project.extraHoursReason}` : ""})`
                 : ""}
