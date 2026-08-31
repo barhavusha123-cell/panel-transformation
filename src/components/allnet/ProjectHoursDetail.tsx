@@ -465,24 +465,38 @@ export function ProjectHoursDetail({
             )}
             <div className="flex items-center justify-between">
               <span>
-                עלות עובדי חברה ({employeeDays} ימי עבודה × {ils(EMPLOYEE_DAY_RATE)})
+                עלות ימי עבודה מלאים ({employeeDays} × {ils(EMPLOYEE_DAY_RATE)})
               </span>
+              <span className="font-bold text-primary">{ils(employeeFullDaysCost)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>
+                עלות שעות חלקיות ({employeePartialHours} שעות × {ils(EMPLOYEE_HOUR_RATE)})
+              </span>
+              <span className="font-bold text-primary">{ils(employeePartialCost)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-semibold">סה״כ עלות עובדי חברה</span>
               <span className="font-bold text-primary">{ils(employeeCost)}</span>
             </div>
-            {employeeDayKeys.length > 0 && (
+            {employeeCostRows.length > 0 && (
               <div className="rounded-lg border border-primary/20 bg-background/50 p-2 text-[11px]">
-                <p className="mb-1 font-semibold">פירוט חישוב עובדי חברה</p>
-                {employeeDayKeys.map((k) => {
-                  const [reporter, date] = k.split("|");
-                  return (
-                    <div key={k} className="flex items-center justify-between gap-2 py-0.5">
-                      <span className="text-muted-foreground">
-                        {date} · {reporter} × יום עבודה
-                      </span>
-                      <span className="font-medium">{ils(EMPLOYEE_DAY_RATE)}</span>
-                    </div>
-                  );
-                })}
+                <p className="mb-1 font-semibold">פירוט חישוב עובדי חברה (כל תאריך בנפרד)</p>
+                <p className="mb-1 text-muted-foreground">
+                  נוסחה: דיווח של 5 שעות ומעלה ביום = יום עבודה מלא {ils(EMPLOYEE_DAY_RATE)} · פחות
+                  מ-5 שעות = שעות × {ils(EMPLOYEE_HOUR_RATE)}
+                </p>
+                {employeeCostRows.map((d) => (
+                  <div key={d.key} className="flex items-center justify-between gap-2 py-0.5">
+                    <span className="text-muted-foreground">
+                      {formatDateIL(d.date)} · {d.reporter} ·{" "}
+                      {d.fullDay
+                        ? `יום עבודה מלא (${d.hours} שעות)`
+                        : `${d.hours} שעות × ${ils(EMPLOYEE_HOUR_RATE)}`}
+                    </span>
+                    <span className="font-medium">{ils(d.cost)}</span>
+                  </div>
+                ))}
               </div>
             )}
             <div className="flex items-center justify-between border-t border-primary/20 pt-1">
