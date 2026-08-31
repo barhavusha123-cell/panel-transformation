@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   ArrowRight,
+  ChevronDown,
   Download,
   Eye,
   HardHat,
@@ -77,15 +78,12 @@ function ProfitSliceLabel(props: {
       dominantBaseline="central"
       className="pointer-events-none"
       fill="#000000"
-      stroke="#ffffff"
-      strokeWidth={4}
-      paintOrder="stroke"
-      style={{ fontSize: 22, fontWeight: 900 }}
+      style={{ fontSize: 13, fontWeight: 600 }}
     >
       <tspan x={x} dy="-0.5em">
         {short}
       </tspan>
-      <tspan x={x} dy="1.25em" style={{ fontSize: 18, fontWeight: 800 }}>
+      <tspan x={x} dy="1.25em" style={{ fontSize: 12, fontWeight: 600 }}>
         {Math.round((props.percent ?? 0) * 100)}%
       </tspan>
     </text>
@@ -107,6 +105,7 @@ function HoursGroup({
 }) {
   const minutes = rows.reduce((a, h) => a + h.minutes, 0);
   const [attView, setAttView] = useState<HoursEntry | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
   return (
     <div className="surface-panel rounded-2xl p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -114,9 +113,22 @@ function HoursGroup({
           {icon}
           {title}
         </h3>
-        <Badge variant="secondary">{formatHoursMinutes(minutes)}</Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">{formatHoursMinutes(minutes)}</Badge>
+          <Button
+            size="sm"
+            variant="soft"
+            onClick={() => setCollapsed((c) => !c)}
+            aria-expanded={!collapsed}
+          >
+            <ChevronDown
+              className={`size-4 transition-transform ${collapsed ? "" : "rotate-180"}`}
+            />
+            {collapsed ? "הצג פירוט" : "צמצם"}
+          </Button>
+        </div>
       </div>
-      {rows.length ? (
+      {collapsed ? null : rows.length ? (
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -227,6 +239,7 @@ export function ProjectHoursDetail({
 }) {
   const { state } = useAllNet();
   const project = state.projects.find((p) => p.name === projectName);
+  const [costsCollapsed, setCostsCollapsed] = useState(false);
 
   const rows = useMemo(
     () => state.hours.filter((h) => h.project === projectName).slice().reverse(),
@@ -448,15 +461,15 @@ export function ProjectHoursDetail({
         </p>
         {saleAmount > 0 ? (
           <div className="grid gap-4 lg:grid-cols-[0.65fr_1fr]">
-            <div className="h-80 w-full">
+            <div className="h-96 w-full lg:h-[26rem]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     <Pie
                     data={profitData}
                     dataKey="value"
                     nameKey="name"
-                    innerRadius="45%"
-                    outerRadius="80%"
+                    innerRadius="42%"
+                    outerRadius="90%"
                     paddingAngle={2}
                     labelLine={false}
                     label={ProfitSliceLabel}
@@ -554,7 +567,21 @@ export function ProjectHoursDetail({
 
       <div className="surface-panel rounded-2xl p-5">
         <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
-          <p className="text-xs text-muted-foreground">עלויות עובדים וקבלנים · איזור {region}</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground">עלויות עובדים וקבלנים · איזור {region}</p>
+            <Button
+              size="sm"
+              variant="soft"
+              onClick={() => setCostsCollapsed((c) => !c)}
+              aria-expanded={!costsCollapsed}
+            >
+              <ChevronDown
+                className={`size-4 transition-transform ${costsCollapsed ? "" : "rotate-180"}`}
+              />
+              {costsCollapsed ? "הצג פירוט" : "צמצם"}
+            </Button>
+          </div>
+          {!costsCollapsed && (
           <div className="mt-2 space-y-1 text-sm">
             <div className="flex items-center justify-between">
               <span>עלות קבלני משנה ({subDays} ימי עבודה)</span>
@@ -632,6 +659,7 @@ export function ProjectHoursDetail({
               <span className="text-lg font-bold text-primary">{ils(totalCost)}</span>
             </div>
           </div>
+          )}
           <p className="mt-2 text-[11px] text-muted-foreground">
             סה״כ שעות בפרויקט: {formatHoursMinutes(totalMinutes)}
           </p>
