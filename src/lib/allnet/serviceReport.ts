@@ -2,6 +2,7 @@ import logo from "@/assets/allnet-logo-t.png.asset.json";
 import {
   SERVICE_PRIORITY_LABELS,
   SERVICE_STATUS_LABELS,
+  formatCallNumber,
   type ServiceCall,
 } from "@/lib/allnet/types";
 import { formatDateIL } from "@/lib/allnet/utils";
@@ -145,7 +146,7 @@ function callContentHtml(
     <img src="${logoUrl}" alt="AllNet" />
     <div class="meta">
       <h1>דוח שירות מפורט</h1>
-      <div class="sub">קריאה מס' ${call.number} · הופק בתאריך ${formatDateIL(new Date().toISOString())}</div>
+      <div class="sub">קריאה מס' ${formatCallNumber(call.number)} · הופק בתאריך ${formatDateIL(new Date().toISOString())}</div>
       <div class="badges">
         ${badge(SERVICE_STATUS_LABELS[call.status], statusC)}
         ${badge(`דחיפות: ${SERVICE_PRIORITY_LABELS[call.priority]}`, priorityC)}
@@ -206,7 +207,7 @@ function callContentHtml(
     ${
       images.length || files.length
         ? `<div class="attachments">
-      <h2>נספחים · קריאה מס' ${call.number}</h2>
+      <h2>נספחים · קריאה מס' ${formatCallNumber(call.number)}</h2>
       ${
         images.length
           ? `<div class="imgs">${images
@@ -230,7 +231,7 @@ function callContentHtml(
   </div>
 
   <footer>
-    <span>AllNet · דוח שירות מס' ${call.number}</span>
+    <span>AllNet · דוח שירות מס' ${formatCallNumber(call.number)}</span>
     <span>מסמך זה הופק ממערכת הניהול והתפעול של AllNet</span>
   </footer>`;
 }
@@ -241,7 +242,7 @@ function callContentHtml(
 export function openServiceCallReport(call: ServiceCall, technicianName?: string) {
   const logoUrl = new URL(logo.url, window.location.origin).href;
   return openPrintWindow(
-    `דוח שירות #${call.number} - ${call.client}`,
+    `דוח שירות ${formatCallNumber(call.number)} - ${call.client}`,
     `<div class="sheet">${callContentHtml(call, logoUrl, technicianName)}</div>`,
   );
 }
@@ -266,7 +267,7 @@ export function openServiceCallsBulkReport(
     .map((c) => {
       const statusC = STATUS_COLORS[c.status] ?? STATUS_COLORS["open"]!;
       return `<tr>
-        <td>#${c.number}</td>
+        <td>${formatCallNumber(c.number)}</td>
         <td>${esc(c.client) || "—"}</td>
         <td>${esc(c.project) || "—"}</td>
         <td>${formatDateIL(c.createdAt)}</td>

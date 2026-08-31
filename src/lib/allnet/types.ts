@@ -184,6 +184,9 @@ export const SERVICE_PRIORITY_LABELS: Record<ServiceCallPriority, string> = {
   high: "דחופה",
 };
 
+/** מספר קריאה מסודר לתצוגה: AL2600001, AL2600002... */
+export const formatCallNumber = (n: number) => `AL26${String(Math.max(1, n)).padStart(5, "0")}`;
+
 export interface ServiceAttachment {
   id: string;
   name: string;

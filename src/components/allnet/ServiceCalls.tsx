@@ -91,6 +91,7 @@ import {
   SERVICE_PRIORITY_LABELS,
   SERVICE_STATUSES,
   SERVICE_STATUS_LABELS,
+  formatCallNumber,
   type ServiceAttachment,
   type ServiceCall,
   type ServiceCallPriority,
@@ -322,7 +323,7 @@ function CallCard({
         <span className="brand-gradient flex size-9 items-center justify-center rounded-lg text-primary-foreground">
           <Headset className="size-4" />
         </span>
-        <span className="text-base font-bold">קריאה #{call.number}</span>
+        <span className="text-base font-bold tracking-wide text-primary">קריאה {formatCallNumber(call.number)}</span>
         {statusBadge(call.status)}
         {priorityBadge(call.priority)}
         <span className="text-sm">
@@ -487,6 +488,7 @@ export function ServiceCallsAdmin() {
   const [siteFilter, setSiteFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [numberFilter, setNumberFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editing, setEditing] = useState<ServiceCall | null>(null);
   const editFileRef = useRef<HTMLInputElement>(null);
@@ -540,6 +542,7 @@ export function ServiceCallsAdmin() {
       .filter((c) => (techFilter === "all" ? true : c.technician === techFilter))
       .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
       .filter((c) => (siteFilter === "all" ? true : c.project === siteFilter))
+      .filter((c) => (numberFilter === "all" ? true : String(c.number) === numberFilter))
       .filter((c) => {
         if (!dateFrom && !dateTo) return true;
         const key = c.createdAt.slice(0, 10);
@@ -549,7 +552,7 @@ export function ServiceCallsAdmin() {
       })
       .slice()
       .sort((a, b) => b.number - a.number);
-  }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, dateFrom, dateTo]);
+  }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo]);
 
   const clientOptions = useMemo(
     () => Array.from(new Set(state.serviceCalls.map((c) => c.client).filter((v): v is string => !!v))).sort((a, b) => a.localeCompare(b, "he")),
@@ -616,7 +619,7 @@ export function ServiceCallsAdmin() {
       updates: [],
     };
     setState((prev) => ({ ...prev, serviceCalls: [...prev.serviceCalls, call] }));
-    toast.success(`קריאת שירות #${call.number} נפתחה בהצלחה.`);
+    toast.success(`קריאת שירות ${formatCallNumber(call.number)} נפתחה בהצלחה.`);
     reset();
     setOpen(false);
   };
@@ -869,6 +872,25 @@ export function ServiceCallsAdmin() {
           </Select>
         </div>
         <div className="min-w-40 flex-1 space-y-1">
+          <Label className="text-xs">סינון לפי מספר קריאה</Label>
+          <Select value={numberFilter} onValueChange={setNumberFilter}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל הקריאות</SelectItem>
+              {state.serviceCalls
+                .slice()
+                .sort((a, b) => a.number - b.number)
+                .map((c) => (
+                  <SelectItem key={c.id} value={String(c.number)}>
+                    {formatCallNumber(c.number)}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="min-w-40 flex-1 space-y-1">
           <Label className="text-xs">מתאריך קריאה</Label>
           <DateFilterButton value={dateFrom} onChange={setDateFrom} placeholder="מתאריך" />
         </div>
@@ -1003,7 +1025,7 @@ export function ServiceCallsAdmin() {
                   variant="ghost"
                   className="text-destructive hover:bg-destructive/10"
                   onClick={() => {
-                    if (confirm(`למחוק את קריאת השירות #${call.number}?`)) {
+                    if (confirm(`למחוק את קריאת השירות ${formatCallNumber(call.number)}?`)) {
                       remove(call.id);
                       toast.success("קריאת השירות נמחקה.");
                     }
@@ -1027,7 +1049,7 @@ export function ServiceCallsAdmin() {
         <DialogContent className="service-green max-h-[85vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-right">
-              עריכת קריאת שירות #{editing?.number}
+              עריכת קריאת שירות {editing ? formatCallNumber(editing.number) : ""}
             </DialogTitle>
           </DialogHeader>
           {editing && (
