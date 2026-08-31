@@ -144,7 +144,7 @@ export function BoqChecklist({
                     ...prev,
                     projects: prev.projects.map((p) =>
                       p.name === projectName
-                        ? { ...p, boq: [], boqFileName: undefined, boqUpdatedAt: new Date().toISOString() }
+                        ? (() => { const np = { ...p, boq: [], boqUpdatedAt: new Date().toISOString() }; delete np.boqFileName; return np; })()
                         : p,
                     ),
                   }));
