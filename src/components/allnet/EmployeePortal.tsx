@@ -92,6 +92,30 @@ export function EmployeePortal() {
   const [docFilter, setDocFilter] = useState("all");
   const [workers, setWorkers] = useState(1);
   const [workerNames, setWorkerNames] = useState("");
+  const [attachments, setAttachments] = useState<ServiceAttachment[]>([]);
+  const [attPreview, setAttPreview] = useState<ServiceAttachment | null>(null);
+
+  const addFiles = async (files: FileList | null) => {
+    if (!files?.length) return;
+    const list = await Promise.all(
+      Array.from(files).map(
+        (f) =>
+          new Promise<ServiceAttachment>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () =>
+              resolve({
+                id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                name: f.name,
+                dataUrl: String(reader.result),
+                isImage: f.type.startsWith("image/"),
+              });
+            reader.onerror = reject;
+            reader.readAsDataURL(f);
+          }),
+      ),
+    );
+    setAttachments((prev) => [...prev, ...list]);
+  };
 
   const myHours = useMemo(
     () => state.hours.filter((h) => h.username === user?.username).slice().reverse(),
