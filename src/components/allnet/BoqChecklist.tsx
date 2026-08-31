@@ -214,17 +214,29 @@ export function BoqChecklist({
       )}
 
       {/* סיכום חי */}
-      <div className="mb-4 grid gap-3 sm:grid-cols-5">
-        <SummaryBox label="שווי כתב כמויות" value={ils(summary.total)} />
-        <SummaryBox label="שווי פרויקט לאחר הנחה" value={ils(totalAfter)} accent />
-        <SummaryBox label="בוצע עד כה" value={ils(summary.done)} accent />
-        <SummaryBox label="יתרה לביצוע" value={ils(summary.remaining)} />
-        <SummaryBox
-          label="פריטים שהושלמו"
-          value={`${summary.completedItems} / ${summary.count}`}
-        />
-      </div>
-      {/* שורת הנחה לכלל הפרויקט */}
+      {readOnly ? (
+        <div className="mb-4 grid gap-3 sm:grid-cols-2">
+          <SummaryBox label="כמות כוללת" value={String(items.reduce((a, i) => a + (Number(i.quantity) || 0), 0))} />
+          <SummaryBox
+            label="פריטים שהושלמו"
+            value={`${summary.completedItems} / ${summary.count}`}
+            accent
+          />
+        </div>
+      ) : (
+        <div className="mb-4 grid gap-3 sm:grid-cols-5">
+          <SummaryBox label="שווי כתב כמויות" value={ils(summary.total)} />
+          <SummaryBox label="שווי פרויקט לאחר הנחה" value={ils(totalAfter)} accent />
+          <SummaryBox label="בוצע עד כה" value={ils(summary.done)} accent />
+          <SummaryBox label="יתרה לביצוע" value={ils(summary.remaining)} />
+          <SummaryBox
+            label="פריטים שהושלמו"
+            value={`${summary.completedItems} / ${summary.count}`}
+          />
+        </div>
+      )}
+      {/* שורת הנחה לכלל הפרויקט — צד מנהל בלבד */}
+      {!readOnly && (
       <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3 text-xs">
         <span className="font-bold">הנחה לכלל הפרויקט:</span>
         <select
@@ -270,6 +282,7 @@ export function BoqChecklist({
           סה"כ לאחר הנחה: <span className="text-primary">{ils(totalAfter)}</span>
         </span>
       </div>
+      )}
 
       <div className="mb-4">
         <div className="mb-1 flex items-center justify-between text-xs">
@@ -292,11 +305,11 @@ export function BoqChecklist({
                 <th className="p-2">תיאור</th>
                 <th className="p-2">יח'</th>
                 <th className="p-2">כמות</th>
-                <th className="p-2">מחיר יח'</th>
-                <th className="p-2">סה"כ</th>
+                {!readOnly && <th className="p-2">מחיר יח'</th>}
+                {!readOnly && <th className="p-2">סה"כ</th>}
                 <th className="p-2">בוצע</th>
                 <th className="p-2">% ביצוע</th>
-                <th className="p-2">שווי שבוצע</th>
+                {!readOnly && <th className="p-2">שווי שבוצע</th>}
                 <th className="p-2" />
               </tr>
             </thead>
@@ -337,10 +350,8 @@ export function BoqChecklist({
                         />
                       )}
                     </td>
-                    <td className="p-2">
-                      {readOnly ? (
-                        ils(i.unitPrice)
-                      ) : (
+                    {!readOnly && (
+                      <td className="p-2">
                         <Input
                           type="number"
                           min={0}
@@ -348,9 +359,11 @@ export function BoqChecklist({
                           onChange={(e) => update(i.id, { unitPrice: Number(e.target.value) || 0 })}
                           className="h-8 w-24 text-xs"
                         />
-                      )}
-                    </td>
-                    <td className="p-2 font-medium">{ils(qty * (Number(i.unitPrice) || 0))}</td>
+                      </td>
+                    )}
+                    {!readOnly && (
+                      <td className="p-2 font-medium">{ils(qty * (Number(i.unitPrice) || 0))}</td>
+                    )}
                     <td className="p-2">
                       <div className="flex items-center gap-1">
                         <Input
@@ -387,9 +400,11 @@ export function BoqChecklist({
                         {pct}%
                       </span>
                     </td>
-                    <td className="p-2 font-bold text-primary">
-                      {ils(done * (Number(i.unitPrice) || 0))}
-                    </td>
+                    {!readOnly && (
+                      <td className="p-2 font-bold text-primary">
+                        {ils(done * (Number(i.unitPrice) || 0))}
+                      </td>
+                    )}
                     <td className="p-2">
                       {!readOnly && (
                         <button
