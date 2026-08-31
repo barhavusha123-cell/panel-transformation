@@ -146,14 +146,7 @@ export function calculateProjectCost(state: AllNetState, projectName: string): n
     });
   const subCost = subBreakdown.reduce((sum, rate) => sum + rate, 0);
 
-  const employeeDayKeys = Array.from(
-    new Set(
-      employees
-        .filter((h) => h.minutes >= MIN_FULL_DAY_MINUTES)
-        .map((h) => `${h.reporter}|${h.date}`),
-    ),
-  );
-  const employeeCost = employeeDayKeys.length * EMPLOYEE_DAY_RATE;
+  const employeeCost = employeeDayCosts(employees).reduce((a, d) => a + d.cost, 0);
   const fixedCostTotal = (project.fixedCosts ?? []).reduce(
     (a, c) => a + (Number(c.amount) || 0),
     0,
