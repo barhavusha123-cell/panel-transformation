@@ -248,6 +248,7 @@ export function EmployeePortal() {
     setNotes("");
     setExtras("");
     setWorkerNames("");
+    setAttachments([]);
   };
 
   return (
