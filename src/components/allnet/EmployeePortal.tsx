@@ -518,7 +518,101 @@ export function EmployeePortal() {
                 <Label>חריגים / תוספות שינויים (אופציונלי)</Label>
                 <Input value={extras} onChange={(e) => setExtras(e.target.value)} />
               </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label>צירוף תמונות / קבצים (אופציונלי)</Label>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="soft"
+                    onClick={() => cameraInputRef.current?.click()}
+                  >
+                    <Camera className="size-4" />
+                    צילום ממצלמה
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Paperclip className="size-4" />
+                    העלאת קובץ
+                  </Button>
+                  <input
+                    ref={cameraInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={(e) => {
+                      void addFiles(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      void addFiles(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                </div>
+                {attachments.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {attachments.map((a) => (
+                      <div
+                        key={a.id}
+                        className="flex items-center gap-2 rounded-lg border border-border bg-surface/70 p-2"
+                      >
+                        {a.isImage ? (
+                          <button type="button" onClick={() => setAttPreview(a)}>
+                            <img
+                              src={a.dataUrl}
+                              alt={a.name}
+                              className="size-12 rounded object-cover"
+                            />
+                          </button>
+                        ) : (
+                          <span className="flex items-center gap-1 text-xs">
+                            <Paperclip className="size-4" />
+                            {a.name}
+                          </span>
+                        )}
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:bg-destructive/10"
+                          onClick={() =>
+                            setAttachments((prev) => prev.filter((x) => x.id !== a.id))
+                          }
+                        >
+                          הסר
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
+
+            <Dialog open={!!attPreview} onOpenChange={(o) => !o && setAttPreview(null)}>
+              <DialogContent className="max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle className="text-right">{attPreview?.name}</DialogTitle>
+                </DialogHeader>
+                {attPreview && (
+                  <img
+                    src={attPreview.dataUrl}
+                    alt={attPreview.name}
+                    className="max-h-[70vh] w-full rounded-lg object-contain"
+                  />
+                )}
+              </DialogContent>
+            </Dialog>
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
               <div className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-2 text-sm">
