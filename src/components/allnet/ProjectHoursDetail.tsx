@@ -530,7 +530,7 @@ export function ProjectHoursDetail({
           {projectName}
         </p>
         {saleAmount > 0 ? (
-          <div className="grid gap-4">
+          <div className="grid gap-4 lg:grid-cols-[0.65fr_1fr]">
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -553,7 +553,7 @@ export function ProjectHoursDetail({
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="grid gap-4 lg:grid-cols-[0.65fr_1fr]">
+            <div className="grid gap-4">
               <div className="self-start rounded-xl border border-border bg-surface/60 p-4">
                 <h4 className="mb-3 text-sm font-semibold">מקרא צבעים</h4>
                 <div className="space-y-3">
