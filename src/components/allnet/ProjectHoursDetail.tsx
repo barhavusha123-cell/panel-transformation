@@ -105,6 +105,7 @@ function HoursGroup({
 }) {
   const minutes = rows.reduce((a, h) => a + h.minutes, 0);
   const [attView, setAttView] = useState<HoursEntry | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
   return (
     <div className="surface-panel rounded-2xl p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -112,9 +113,22 @@ function HoursGroup({
           {icon}
           {title}
         </h3>
-        <Badge variant="secondary">{formatHoursMinutes(minutes)}</Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">{formatHoursMinutes(minutes)}</Badge>
+          <Button
+            size="sm"
+            variant="soft"
+            onClick={() => setCollapsed((c) => !c)}
+            aria-expanded={!collapsed}
+          >
+            <ChevronDown
+              className={`size-4 transition-transform ${collapsed ? "" : "rotate-180"}`}
+            />
+            {collapsed ? "הצג פירוט" : "צמצם"}
+          </Button>
+        </div>
       </div>
-      {rows.length ? (
+      {collapsed ? null : rows.length ? (
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
