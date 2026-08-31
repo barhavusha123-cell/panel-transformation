@@ -394,6 +394,17 @@ export function BoqChecklist({
               })}
             </tbody>
           </table>
+          {!readOnly && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={addRow}
+              className="mt-3 w-full border-dashed"
+            >
+              <Plus className="size-4" />
+              הוסף שורה חדשה ידנית — תיכנס מיד לחישוב הסיכומים
+            </Button>
+          )}
         </div>
       )}
       {project?.boqUpdatedAt && (
