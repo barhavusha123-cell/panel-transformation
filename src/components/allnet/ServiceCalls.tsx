@@ -18,6 +18,8 @@ import {
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { formatDateIL, getAllTimeOptions, nowStamp } from "@/lib/allnet/utils";
+import { parseDalekServicePdf } from "@/lib/allnet/dalekPdf.functions";
+
 import {
   openServiceCallReport,
   openServiceCallsBulkReport,
@@ -488,6 +490,10 @@ export function ServiceCallsAdmin() {
   const [siteFilter, setSiteFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [dalekOpen, setDalekOpen] = useState(false);
+  const [dalekLoading, setDalekLoading] = useState(false);
+  const dalekRef = useRef<HTMLInputElement>(null);
+
   const [numberFilter, setNumberFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editing, setEditing] = useState<ServiceCall | null>(null);
@@ -578,7 +584,39 @@ export function ServiceCallsAdmin() {
   const techName = (username?: string) =>
     technicians.find((u) => u.username === username)?.full_name ?? "לא שויך";
 
+  const importDalekPdf = async (files: FileList | null) => {
+    const file = files?.[0];
+    if (!file) return;
+    if (!/pdf$/i.test(file.type) && !/\.pdf$/i.test(file.name)) {
+      toast.error("יש לגרור קובץ PDF בלבד.");
+      return;
+    }
+    setDalekLoading(true);
+    try {
+      const att = await readFile(file);
+      const parsed = await parseDalekServicePdf({
+        data: { filename: file.name, dataUrl: att.dataUrl },
+      });
+      setClient(parsed.client?.trim() || "דלק מוטורס");
+      if (parsed.project) setProject(parsed.project);
+      if (parsed.subject) setSubject(parsed.subject);
+      if (parsed.description) setDescription(parsed.description);
+      if (parsed.contact) setContact(parsed.contact);
+      if (parsed.address) setAddress(parsed.address);
+      if (parsed.priority) setPriority(parsed.priority);
+      setAttachments((prev) => [...prev, att]);
+      setOpen(true);
+      setDalekOpen(false);
+      toast.success("הנתונים מה-PDF נטענו לטופס קריאת השירות.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "לא הצלחתי לקרוא את הקובץ.");
+    } finally {
+      setDalekLoading(false);
+    }
+  };
+
   const addFiles = async (files: FileList | null) => {
+
     if (!files?.length) return;
     try {
       const loaded = await Promise.all(Array.from(files).map(readFile));
@@ -660,11 +698,57 @@ export function ServiceCallsAdmin() {
         </h3>
         <Badge variant="secondary">פתוחות: {counts.open}</Badge>
         <Badge variant="outline">ללא טכנאי: {counts.unassigned}</Badge>
-        <Button variant="brand" className="ms-auto" onClick={() => setOpen((o) => !o)}>
+        <Button
+          variant="outline"
+          className="ms-auto"
+          onClick={() => setDalekOpen((o) => !o)}
+        >
+          <FileText className="size-4" />
+          קריאות שירות דלק מוטורס
+        </Button>
+        <Button variant="brand" onClick={() => setOpen((o) => !o)}>
           <Plus className="size-4" />
           {open ? "סגור טופס" : "פתח קריאת שירות"}
         </Button>
       </div>
+
+      {dalekOpen && (
+        <div className="animate-rise surface-panel space-y-3 rounded-2xl p-4 sm:p-6">
+          <h4 className="text-base font-bold">קריאות שירות דלק מוטורס</h4>
+          <p className="text-xs text-muted-foreground">
+            גרור לכאן קובץ PDF של קריאת שירות מהלקוח — הנתונים ייקראו אוטומטית ויוזנו לטופס
+            קריאת השירות שלנו.
+          </p>
+          <DropArea onFiles={(f) => void importDalekPdf(f)}>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="soft"
+                disabled={dalekLoading}
+                onClick={() => dalekRef.current?.click()}
+              >
+                <Paperclip className="size-4" />
+                בחירת קובץ PDF
+              </Button>
+              {dalekLoading && (
+                <span className="text-xs text-muted-foreground">קורא את הקובץ…</span>
+              )}
+            </div>
+          </DropArea>
+          <input
+            ref={dalekRef}
+            type="file"
+            accept="application/pdf"
+            className="hidden"
+            onChange={(e) => {
+              void importDalekPdf(e.target.files);
+              e.target.value = "";
+            }}
+          />
+        </div>
+      )}
+
+
 
       {open && (
         <form onSubmit={create} className="animate-rise surface-panel rounded-2xl p-4 sm:p-6">
