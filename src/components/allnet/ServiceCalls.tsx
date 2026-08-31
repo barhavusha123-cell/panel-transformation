@@ -542,7 +542,17 @@ export function ServiceCallsAdmin() {
       .filter((c) => (techFilter === "all" ? true : c.technician === techFilter))
       .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
       .filter((c) => (siteFilter === "all" ? true : c.project === siteFilter))
-      .filter((c) => (numberFilter === "all" ? true : String(c.number) === numberFilter))
+      .filter((c) => {
+        const q = numberFilter.trim().toLowerCase();
+        if (!q || q === "all") return true;
+        const digits = q.replace(/[^0-9]/g, "");
+        const full = formatCallNumber(c.number).toLowerCase();
+        return (
+          full.includes(q) ||
+          (digits !== "" &&
+            (String(c.number).includes(digits) || full.replace(/[^0-9]/g, "").includes(digits)))
+        );
+      })
       .filter((c) => {
         if (!dateFrom && !dateTo) return true;
         const key = c.createdAt.slice(0, 10);
