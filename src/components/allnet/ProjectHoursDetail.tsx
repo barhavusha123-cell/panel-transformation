@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   ArrowRight,
+  ChevronDown,
   Download,
   Eye,
   HardHat,
@@ -77,15 +78,12 @@ function ProfitSliceLabel(props: {
       dominantBaseline="central"
       className="pointer-events-none"
       fill="#000000"
-      stroke="#ffffff"
-      strokeWidth={4}
-      paintOrder="stroke"
-      style={{ fontSize: 22, fontWeight: 900 }}
+      style={{ fontSize: 13, fontWeight: 600 }}
     >
       <tspan x={x} dy="-0.5em">
         {short}
       </tspan>
-      <tspan x={x} dy="1.25em" style={{ fontSize: 18, fontWeight: 800 }}>
+      <tspan x={x} dy="1.25em" style={{ fontSize: 12, fontWeight: 600 }}>
         {Math.round((props.percent ?? 0) * 100)}%
       </tspan>
     </text>
