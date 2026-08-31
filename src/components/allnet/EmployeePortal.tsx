@@ -241,6 +241,7 @@ export function EmployeePortal() {
       extras,
       workers: isSub ? workers : 1,
       workerNames: isSub ? workerNames.trim() : "",
+      attachments,
     };
     setState((prev) => ({ ...prev, hours: [...prev.hours, entry] }));
     toast.success("הדיווח נקלט בהצלחה.");
