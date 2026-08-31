@@ -1593,7 +1593,7 @@ export function AdminConsole() {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">רווח כולל צפוי</p>
                 <p className="text-xl font-bold">
-                  {Math.round(list.reduce((a, p) => a + (Number(p.saleAmount) || 0) - calculateProjectCost(state, p.name), 0)).toLocaleString("he-IL")} ₪
+                  {Math.round(list.reduce((a, p) => a + (Number(p.saleAmount) || 0) + (Number(p.additions) || 0) - calculateProjectCost(state, p.name), 0)).toLocaleString("he-IL")} ₪
                 </p>
               </div>
             </div>
