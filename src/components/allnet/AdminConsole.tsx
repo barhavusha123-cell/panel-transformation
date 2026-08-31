@@ -11,6 +11,7 @@ import {
   CalendarClock,
   Briefcase,
   Download,
+  FileSpreadsheet,
   FolderKanban,
   ListChecks,
   Headset,
@@ -45,6 +46,7 @@ import {
 import {
   calculateProjectCost,
   downloadCsv,
+  downloadExcelMonthReport,
   formatDateIL,
   formatHoursMinutes,
   getAllTimeOptions,
@@ -281,6 +283,49 @@ export function AdminConsole() {
       return { ...prev, [col]: cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v] };
     });
   const clearColFilter = (col: string) => setColFilters((prev) => ({ ...prev, [col]: [] }));
+
+  // ייצוא דוח מרוכז לאקסל — לפי פרויקט, חודש ומדווח
+  const [excelOpen, setExcelOpen] = useState(false);
+  const [excelProject, setExcelProject] = useState("all");
+  const [excelMonth, setExcelMonth] = useState("all");
+  const [excelReporter, setExcelReporter] = useState("all");
+  const excelProjects = useMemo(
+    () => Array.from(new Set(state.hours.map((h) => h.project).filter(Boolean))).sort((a, b) => a.localeCompare(b, "he")),
+    [state.hours],
+  );
+  const excelMonths = useMemo(
+    () => Array.from(new Set(state.hours.map((h) => String(h.date).slice(0, 7)))).sort(),
+    [state.hours],
+  );
+  const excelReporters = useMemo(
+    () => Array.from(new Set(state.hours.map((h) => h.reporter).filter(Boolean))).sort((a, b) => a.localeCompare(b, "he")),
+    [state.hours],
+  );
+  const excelMonthLabel = (key: string) => {
+    const [y, m] = key.split("-").map(Number);
+    return new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric" }).format(
+      new Date(y ?? 2000, (m ?? 1) - 1, 1),
+    );
+  };
+  const runExcelExport = () => {
+    const filtered = state.hours.filter(
+      (h) =>
+        (excelProject === "all" || h.project === excelProject) &&
+        (excelMonth === "all" || String(h.date).startsWith(excelMonth)) &&
+        (excelReporter === "all" || h.reporter === excelReporter),
+    );
+    if (!filtered.length) {
+      toast.info("אין דיווחים התואמים לסינון שנבחר");
+      return;
+    }
+    downloadExcelMonthReport(
+      filtered,
+      `דוח שעות מרוכז · ${excelProject === "all" ? "כל הפרויקטים" : excelProject} · ${excelMonth === "all" ? "כל החודשים" : excelMonthLabel(excelMonth)} · ${excelReporter === "all" ? "כל המדווחים" : excelReporter}`,
+      `דוח_מרוכז_${excelProject === "all" ? "כל_הפרויקטים" : excelProject}_${excelMonth === "all" ? "כל_החודשים" : excelMonth}.xls`,
+    );
+    toast.success("הדוח יוצא לאקסל בהצלחה");
+    setExcelOpen(false);
+  };
 
 
   const activeProjects = useMemo(
@@ -2071,10 +2116,95 @@ export function AdminConsole() {
 
             <div className="surface-panel rounded-2xl p-5">
               {hourEditDialog}
+              <Dialog open={excelOpen} onOpenChange={setExcelOpen}>
+                <DialogContent dir="rtl" className="max-w-md text-right">
+                  <DialogHeader>
+                    <DialogTitle className="text-right">ייצוא דוח מרוכז לאקסל</DialogTitle>
+                    <DialogDescription className="text-right">
+                      בחר פרויקט, חודש ומדווח — הדוח יכלול את כל הדיווחים התואמים ללא צרופות
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium">פרויקט</label>
+                      <Select value={excelProject} onValueChange={setExcelProject}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">כל הפרויקטים</SelectItem>
+                          {excelProjects.map((p) => (
+                            <SelectItem key={p} value={p}>
+                              {p}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium">חודש (לועזי)</label>
+                      <Select value={excelMonth} onValueChange={setExcelMonth}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">כל החודשים</SelectItem>
+                          {excelMonths.map((m) => (
+                            <SelectItem key={m} value={m}>
+                              {excelMonthLabel(m)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium">מדווח (עובד חברה / קבלן משנה)</label>
+                      <Select value={excelReporter} onValueChange={setExcelReporter}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">כל המדווחים</SelectItem>
+                          {excelReporters.map((r) => (
+                            <SelectItem key={r} value={r}>
+                              {r}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      className="w-full bg-blue-900 text-white hover:bg-blue-800"
+                      onClick={runExcelExport}
+                    >
+                      <FileSpreadsheet className="size-4" />
+                      ייצא לאקסל
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold">יומן דיווחי שעות</h3>
-                <Button
-                  variant="soft"
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    className="bg-blue-900 text-white hover:bg-blue-800"
+                    onClick={() => {
+                      if (!state.hours.length) {
+                        toast.info("אין דיווחים לייצוא");
+                        return;
+                      }
+                      setExcelProject("all");
+                      setExcelMonth("all");
+                      setExcelReporter("all");
+                      setExcelOpen(true);
+                    }}
+                  >
+                    <FileSpreadsheet className="size-4" />
+                    ייצא דוח מרוכז לאקסל
+                  </Button>
+                  <Button
+                    variant="soft"
                   onClick={() =>
                     downloadCsv(
                       filteredHours.map((h) => ({
@@ -2095,7 +2225,8 @@ export function AdminConsole() {
                 >
                   <Download className="size-4" />
                   ייצא דוח מלא ל-CSV
-                </Button>
+                  </Button>
+                </div>
               </div>
               {filteredHours.length ? (
                 <div className="overflow-x-auto">
