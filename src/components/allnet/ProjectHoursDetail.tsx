@@ -42,6 +42,7 @@ import {
 import {
   CATEGORY_LABELS,
   EMPLOYEE_DAY_RATE,
+  EMPLOYEE_HOUR_RATE,
   effectiveBudget,
   MIN_FULL_DAY_MINUTES,
   SUB_CREW_SIZE,
