@@ -1,8 +1,9 @@
 import { useMemo, useRef, useState } from "react";
-import { CheckCircle2, ListChecks, Loader2, Plus, Trash2, Upload } from "lucide-react";
+import { CheckCircle2, FileSpreadsheet, ListChecks, Loader2, Plus, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { parseBoqFile } from "@/lib/allnet/boq.functions";
+import { exportBoqExcel } from "@/lib/allnet/boqExcel";
 import { boqSummary, discountAmount, type BoqItem } from "@/lib/allnet/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -134,6 +135,20 @@ export function BoqChecklist({
             </Badge>
           )}
         </h3>
+        {items.length > 0 && project && (
+          <Button
+            size="sm"
+            className="bg-blue-800 text-white hover:bg-blue-900"
+            onClick={() => {
+              void exportBoqExcel(project)
+                .then(() => toast.success("כתב הכמויות יוצא לאקסל בהצלחה."))
+                .catch(() => toast.error("לא הצלחתי לייצא את הקובץ."));
+            }}
+          >
+            <FileSpreadsheet className="size-4" />
+            ייצא צ'קליסט לאקסל
+          </Button>
+        )}
         {!readOnly && (
           <div className="flex gap-2">
             {items.length > 0 && (
