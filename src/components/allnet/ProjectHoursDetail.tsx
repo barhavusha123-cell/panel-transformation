@@ -566,7 +566,10 @@ export function ProjectHoursDetail({
         projectName={projectName}
       />
 
+      <BoqChecklist projectName={projectName} />
+
       <ProjectFiles projectName={projectName} />
+
 
       <div className="surface-panel rounded-2xl p-5">
         <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
