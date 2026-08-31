@@ -110,6 +110,42 @@ function HoursGroup({
   const minutes = rows.reduce((a, h) => a + h.minutes, 0);
   const [attView, setAttView] = useState<HoursEntry | null>(null);
   const [collapsed, setCollapsed] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportMonth, setExportMonth] = useState("all");
+  const [exportReporter, setExportReporter] = useState("all");
+  const months = useMemo(
+    () => Array.from(new Set(rows.map((h) => String(h.date).slice(0, 7)))).sort(),
+    [rows],
+  );
+  const reporters = useMemo(
+    () => Array.from(new Set(rows.map((h) => h.reporter))).sort(),
+    [rows],
+  );
+  const monthLabel = (key: string) => {
+    const [y, m] = key.split("-").map(Number);
+    return new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric" }).format(
+      new Date(y ?? 2000, (m ?? 1) - 1, 1),
+    );
+  };
+  const runExport = () => {
+    const filtered = rows.filter(
+      (h) =>
+        (exportMonth === "all" || String(h.date).startsWith(exportMonth)) &&
+        (exportReporter === "all" || h.reporter === exportReporter),
+    );
+    if (!filtered.length) {
+      toast.info("אין דיווחים התואמים לסינון שנבחר");
+      return;
+    }
+    const mPart = exportMonth === "all" ? "כל_החודשים" : exportMonth;
+    downloadExcelMonthReport(
+      filtered,
+      `דוח שעות מפורט · ${title} · ${projectName} · ${exportMonth === "all" ? "כל החודשים" : monthLabel(exportMonth)} · ${exportReporter === "all" ? "כל המדווחים" : exportReporter}`,
+      `דוח_שעות_${title}_${projectName}_${mPart}.xls`,
+    );
+    toast.success("הדוח יוצא לאקסל בהצלחה");
+    setExportOpen(false);
+  };
   return (
     <div className="surface-panel rounded-2xl p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
