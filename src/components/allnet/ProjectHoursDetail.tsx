@@ -169,6 +169,42 @@ function HoursGroup({
           אין דיווחים בקטגוריה זו.
         </p>
       )}
+
+      <Dialog open={!!attView} onOpenChange={(o) => !o && setAttView(null)}>
+        <DialogContent dir="rtl" className="max-w-3xl text-right">
+          <DialogHeader>
+            <DialogTitle className="text-right">
+              צרופות לדיווח — {attView?.reporter} ·{" "}
+              {attView ? formatDateIL(attView.date) : ""}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid max-h-[70vh] gap-3 overflow-y-auto sm:grid-cols-2">
+            {(attView?.attachments ?? []).map((a) => (
+              <div key={a.id} className="rounded-xl border border-border p-3">
+                {a.isImage ? (
+                  <img
+                    src={a.dataUrl}
+                    alt={a.name}
+                    className="max-h-72 w-full rounded-lg object-contain"
+                  />
+                ) : (
+                  <p className="flex items-center gap-2 text-sm">
+                    <Paperclip className="size-4" />
+                    {a.name}
+                  </p>
+                )}
+                <a
+                  href={a.dataUrl}
+                  download={a.name}
+                  className="mt-2 inline-block text-xs text-primary underline"
+                >
+                  הורדה
+                </a>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
