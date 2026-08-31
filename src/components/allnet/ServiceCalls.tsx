@@ -488,6 +488,10 @@ export function ServiceCallsAdmin() {
   const [siteFilter, setSiteFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [dalekOpen, setDalekOpen] = useState(false);
+  const [dalekLoading, setDalekLoading] = useState(false);
+  const dalekRef = useRef<HTMLInputElement>(null);
+
   const [numberFilter, setNumberFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editing, setEditing] = useState<ServiceCall | null>(null);
