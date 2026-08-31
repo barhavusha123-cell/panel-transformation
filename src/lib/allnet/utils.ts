@@ -1,10 +1,53 @@
 import {
   EMPLOYEE_DAY_RATE,
+  EMPLOYEE_FULL_DAY_MINUTES,
+  EMPLOYEE_HOUR_RATE,
   MIN_FULL_DAY_MINUTES,
   SUB_CREW_SIZE,
   subDayRate,
   type AllNetState,
+  type HoursEntry,
 } from "./types";
+
+export interface EmployeeDayCost {
+  key: string;
+  reporter: string;
+  date: string;
+  minutes: number;
+  hours: number;
+  fullDay: boolean;
+  cost: number;
+}
+
+/**
+ * חישוב עלות עובדי חברה — כל תאריך מחושב בנפרד:
+ * 5 שעות ומעלה ביום = יום עבודה מלא (1,200 ₪),
+ * פחות מ-5 שעות = חישוב שעתי (180 ₪ לשעה).
+ */
+export function employeeDayCosts(entries: HoursEntry[]): EmployeeDayCost[] {
+  const map = new Map<string, { reporter: string; date: string; minutes: number }>();
+  for (const h of entries) {
+    const key = `${h.reporter}|${h.date}`;
+    const cur = map.get(key);
+    if (cur) cur.minutes += h.minutes;
+    else map.set(key, { reporter: h.reporter, date: h.date, minutes: h.minutes });
+  }
+  return Array.from(map.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, v]) => {
+      const hours = Math.round((v.minutes / 60) * 100) / 100;
+      const fullDay = v.minutes >= EMPLOYEE_FULL_DAY_MINUTES;
+      return {
+        key,
+        reporter: v.reporter,
+        date: v.date,
+        minutes: v.minutes,
+        hours,
+        fullDay,
+        cost: fullDay ? EMPLOYEE_DAY_RATE : hours * EMPLOYEE_HOUR_RATE,
+      };
+    });
+}
 
 export function formatHoursMinutes(totalMinutes: number): string {
   const safe = Number.isFinite(totalMinutes) ? Math.max(0, totalMinutes) : 0;
