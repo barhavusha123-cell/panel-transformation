@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import {
   ArrowRight,
   Download,
+  Eye,
   HardHat,
   Paperclip,
   Pencil,
