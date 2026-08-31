@@ -148,6 +148,8 @@ export interface HoursEntry {
   approvedBy?: string;
   /** מועד האישור */
   approvedAt?: string;
+  /** תמונות/קבצים שצורפו לדיווח */
+  attachments?: ServiceAttachment[];
 }
 
 export const MIN_FULL_DAY_MINUTES = 180;
