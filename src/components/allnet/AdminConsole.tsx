@@ -2118,8 +2118,26 @@ export function AdminConsole() {
               {hourEditDialog}
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold">יומן דיווחי שעות</h3>
-                <Button
-                  variant="soft"
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    className="bg-blue-900 text-white hover:bg-blue-800"
+                    onClick={() => {
+                      if (!state.hours.length) {
+                        toast.info("אין דיווחים לייצוא");
+                        return;
+                      }
+                      setExcelProject("all");
+                      setExcelMonth("all");
+                      setExcelReporter("all");
+                      setExcelOpen(true);
+                    }}
+                  >
+                    <FileSpreadsheet className="size-4" />
+                    ייצא דוח מרוכז לאקסל
+                  </Button>
+                  <Button
+                    variant="soft"
                   onClick={() =>
                     downloadCsv(
                       filteredHours.map((h) => ({
