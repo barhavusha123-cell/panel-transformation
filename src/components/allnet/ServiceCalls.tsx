@@ -582,7 +582,39 @@ export function ServiceCallsAdmin() {
   const techName = (username?: string) =>
     technicians.find((u) => u.username === username)?.full_name ?? "לא שויך";
 
+  const importDalekPdf = async (files: FileList | null) => {
+    const file = files?.[0];
+    if (!file) return;
+    if (!/pdf$/i.test(file.type) && !/\.pdf$/i.test(file.name)) {
+      toast.error("יש לגרור קובץ PDF בלבד.");
+      return;
+    }
+    setDalekLoading(true);
+    try {
+      const att = await readFile(file);
+      const parsed = await parseDalekServicePdf({
+        data: { filename: file.name, dataUrl: att.dataUrl },
+      });
+      setClient(parsed.client?.trim() || "דלק מוטורס");
+      if (parsed.project) setProject(parsed.project);
+      if (parsed.subject) setSubject(parsed.subject);
+      if (parsed.description) setDescription(parsed.description);
+      if (parsed.contact) setContact(parsed.contact);
+      if (parsed.address) setAddress(parsed.address);
+      if (parsed.priority) setPriority(parsed.priority);
+      setAttachments((prev) => [...prev, att]);
+      setOpen(true);
+      setDalekOpen(false);
+      toast.success("הנתונים מה-PDF נטענו לטופס קריאת השירות.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "לא הצלחתי לקרוא את הקובץ.");
+    } finally {
+      setDalekLoading(false);
+    }
+  };
+
   const addFiles = async (files: FileList | null) => {
+
     if (!files?.length) return;
     try {
       const loaded = await Promise.all(Array.from(files).map(readFile));
