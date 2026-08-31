@@ -991,11 +991,21 @@ export function ServiceCallsAdmin() {
         </div>
         <div className="min-w-0 space-y-1">
           <Label className="text-[11px]">מתאריך</Label>
-          <DateFilterButton value={dateFrom} onChange={setDateFrom} placeholder="מתאריך" />
+          <DateFilterButton
+            value={dateFrom}
+            onChange={setDateFrom}
+            placeholder="מתאריך"
+            className="h-9 text-xs"
+          />
         </div>
         <div className="min-w-0 space-y-1">
           <Label className="text-[11px]">עד תאריך</Label>
-          <DateFilterButton value={dateTo} onChange={setDateTo} placeholder="עד תאריך" />
+          <DateFilterButton
+            value={dateTo}
+            onChange={setDateTo}
+            placeholder="עד תאריך"
+            className="h-9 text-xs"
+          />
         </div>
       </div>
 
