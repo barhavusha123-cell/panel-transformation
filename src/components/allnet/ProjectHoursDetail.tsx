@@ -163,12 +163,9 @@ function HoursGroup({
                 toast.info("אין דיווחים לייצוא בקטגוריה זו");
                 return;
               }
-              downloadExcelMonthReport(
-                rows,
-                `דוח שעות מפורט · ${title} · ${projectName}`,
-                `דוח_שעות_${title}_${projectName}.xls`,
-              );
-              toast.success("הדוח יוצא לאקסל בהצלחה");
+              setExportMonth("all");
+              setExportReporter("all");
+              setExportOpen(true);
             }}
           >
             <FileSpreadsheet className="size-4" />
