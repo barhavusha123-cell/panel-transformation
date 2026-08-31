@@ -659,6 +659,7 @@ export function ProjectHoursDetail({
               <span className="text-lg font-bold text-primary">{ils(totalCost)}</span>
             </div>
           </div>
+          )}
           <p className="mt-2 text-[11px] text-muted-foreground">
             סה״כ שעות בפרויקט: {formatHoursMinutes(totalMinutes)}
           </p>
