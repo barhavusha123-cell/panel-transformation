@@ -180,6 +180,9 @@ export const SERVICE_PRIORITIES: ServiceCallPriority[] = ["low", "normal", "high
 
 export const SERVICE_PRIORITY_LABELS: Record<ServiceCallPriority, string> = {
   low: "נמוכה",
+
+/** מספר קריאה מסודר לתצוגה: AL2600001, AL2600002... */
+export const formatCallNumber = (n: number) => `AL26${String(Math.max(1, n)).padStart(5, "0")}`;
   normal: "רגילה",
   high: "דחופה",
 };
