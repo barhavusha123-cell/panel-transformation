@@ -2266,6 +2266,19 @@ export function AdminConsole() {
               </p>
             </div>
 
+            <div className="surface-panel rounded-2xl p-6">
+              <h3 className="mb-4 text-lg font-semibold">רשימת המשתמשים הקיימים במערכת</h3>
+              {state.users.length ? (
+                <Accordion type="single" collapsible className="w-full">
+                  {state.users.map((u) => (
+                    <UserRow key={u.username} username={u.username} />
+                  ))}
+                </Accordion>
+              ) : (
+                <p className="text-sm text-muted-foreground">אין משתמשים רשומים במערכת.</p>
+              )}
+            </div>
+
             <form onSubmit={addUser} className="surface-panel rounded-2xl p-6">
               <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
                 <Plus className="size-5 text-primary" />
@@ -2324,19 +2337,6 @@ export function AdminConsole() {
                 צור משתמש חדש
               </Button>
             </form>
-
-            <div className="surface-panel rounded-2xl p-6">
-              <h3 className="mb-4 text-lg font-semibold">רשימת המשתמשים הקיימים במערכת</h3>
-              {state.users.length ? (
-                <Accordion type="single" collapsible className="w-full">
-                  {state.users.map((u) => (
-                    <UserRow key={u.username} username={u.username} />
-                  ))}
-                </Accordion>
-              ) : (
-                <p className="text-sm text-muted-foreground">אין משתמשים רשומים במערכת.</p>
-              )}
-            </div>
           </TabsContent>
 
           {/* Projects & files */}
