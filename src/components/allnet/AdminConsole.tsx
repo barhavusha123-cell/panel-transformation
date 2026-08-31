@@ -2158,7 +2158,8 @@ export function AdminConsole() {
                 >
                   <Download className="size-4" />
                   ייצא דוח מלא ל-CSV
-                </Button>
+                  </Button>
+                </div>
               </div>
               {filteredHours.length ? (
                 <div className="overflow-x-auto">
