@@ -1273,6 +1273,25 @@ export function AdminConsole() {
                           }
                         />
                       </div>
+                      <div className="space-y-2">
+                        <Label>תוספות מאושרות (₪)</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          step={1}
+                          value={editForm.additions}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, additions: Number(e.target.value) })
+                          }
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          שווי כולל:{" "}
+                          <span className="font-semibold text-foreground">
+                            {Math.round((Number(editForm.saleAmount) || 0) + (Number(editForm.additions) || 0)).toLocaleString("he-IL")} ₪
+                          </span>{" "}
+                          (שווי ראשוני + תוספות)
+                        </p>
+                      </div>
                       <div className="md:col-span-2">
                         <FixedCostsEditor
                           value={editForm.fixedCosts}
