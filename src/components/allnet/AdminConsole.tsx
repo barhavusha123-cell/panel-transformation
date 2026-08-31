@@ -483,6 +483,8 @@ export function AdminConsole() {
     extras: string;
   } | null>(null);
 
+  const [hourAtt, setHourAtt] = useState<(typeof state.hours)[number] | null>(null);
+
   const saveHourEdit = () => {
     if (!hourEdit) return;
     if (!hourEdit.project || !hourEdit.date || !hourEdit.from || !hourEdit.to) {
