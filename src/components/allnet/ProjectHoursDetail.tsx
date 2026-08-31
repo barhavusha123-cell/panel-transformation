@@ -110,6 +110,42 @@ function HoursGroup({
   const minutes = rows.reduce((a, h) => a + h.minutes, 0);
   const [attView, setAttView] = useState<HoursEntry | null>(null);
   const [collapsed, setCollapsed] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportMonth, setExportMonth] = useState("all");
+  const [exportReporter, setExportReporter] = useState("all");
+  const months = useMemo(
+    () => Array.from(new Set(rows.map((h) => String(h.date).slice(0, 7)))).sort(),
+    [rows],
+  );
+  const reporters = useMemo(
+    () => Array.from(new Set(rows.map((h) => h.reporter))).sort(),
+    [rows],
+  );
+  const monthLabel = (key: string) => {
+    const [y, m] = key.split("-").map(Number);
+    return new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric" }).format(
+      new Date(y ?? 2000, (m ?? 1) - 1, 1),
+    );
+  };
+  const runExport = () => {
+    const filtered = rows.filter(
+      (h) =>
+        (exportMonth === "all" || String(h.date).startsWith(exportMonth)) &&
+        (exportReporter === "all" || h.reporter === exportReporter),
+    );
+    if (!filtered.length) {
+      toast.info("אין דיווחים התואמים לסינון שנבחר");
+      return;
+    }
+    const mPart = exportMonth === "all" ? "כל_החודשים" : exportMonth;
+    downloadExcelMonthReport(
+      filtered,
+      `דוח שעות מפורט · ${title} · ${projectName} · ${exportMonth === "all" ? "כל החודשים" : monthLabel(exportMonth)} · ${exportReporter === "all" ? "כל המדווחים" : exportReporter}`,
+      `דוח_שעות_${title}_${projectName}_${mPart}.xls`,
+    );
+    toast.success("הדוח יוצא לאקסל בהצלחה");
+    setExportOpen(false);
+  };
   return (
     <div className="surface-panel rounded-2xl p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -127,12 +163,9 @@ function HoursGroup({
                 toast.info("אין דיווחים לייצוא בקטגוריה זו");
                 return;
               }
-              downloadExcelMonthReport(
-                rows,
-                `דוח שעות מפורט · ${title} · ${projectName}`,
-                `דוח_שעות_${title}_${projectName}.xls`,
-              );
-              toast.success("הדוח יוצא לאקסל בהצלחה");
+              setExportMonth("all");
+              setExportReporter("all");
+              setExportOpen(true);
             }}
           >
             <FileSpreadsheet className="size-4" />
@@ -211,6 +244,55 @@ function HoursGroup({
           אין דיווחים בקטגוריה זו.
         </p>
       )}
+
+      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+        <DialogContent dir="rtl" className="max-w-md text-right">
+          <DialogHeader>
+            <DialogTitle className="text-right">ייצוא לאקסל — {title}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">חודש (לועזי)</label>
+              <Select value={exportMonth} onValueChange={setExportMonth}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">כל החודשים</SelectItem>
+                  {months.map((m) => (
+                    <SelectItem key={m} value={m}>
+                      {monthLabel(m)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">מדווח (עובד / קבלן משנה)</label>
+              <Select value={exportReporter} onValueChange={setExportReporter}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">כל המדווחים</SelectItem>
+                  {reporters.map((r) => (
+                    <SelectItem key={r} value={r}>
+                      {r}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              className="w-full bg-blue-900 text-white hover:bg-blue-800"
+              onClick={runExport}
+            >
+              <FileSpreadsheet className="size-4" />
+              ייצא לאקסל
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!attView} onOpenChange={(o) => !o && setAttView(null)}>
         <DialogContent dir="rtl" className="max-w-3xl text-right">
