@@ -542,7 +542,17 @@ export function ServiceCallsAdmin() {
       .filter((c) => (techFilter === "all" ? true : c.technician === techFilter))
       .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
       .filter((c) => (siteFilter === "all" ? true : c.project === siteFilter))
-      .filter((c) => (numberFilter === "all" ? true : String(c.number) === numberFilter))
+      .filter((c) => {
+        const q = numberFilter.trim().toLowerCase();
+        if (!q || q === "all") return true;
+        const digits = q.replace(/[^0-9]/g, "");
+        const full = formatCallNumber(c.number).toLowerCase();
+        return (
+          full.includes(q) ||
+          (digits !== "" &&
+            (String(c.number).includes(digits) || full.replace(/[^0-9]/g, "").includes(digits)))
+        );
+      })
       .filter((c) => {
         if (!dateFrom && !dateTo) return true;
         const key = c.createdAt.slice(0, 10);
@@ -873,22 +883,20 @@ export function ServiceCallsAdmin() {
         </div>
         <div className="min-w-40 flex-1 space-y-1">
           <Label className="text-xs">סינון לפי מספר קריאה</Label>
-          <Select value={numberFilter} onValueChange={setNumberFilter}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">כל הקריאות</SelectItem>
-              {state.serviceCalls
-                .slice()
-                .sort((a, b) => a.number - b.number)
-                .map((c) => (
-                  <SelectItem key={c.id} value={String(c.number)}>
-                    {formatCallNumber(c.number)}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
+          <Input
+            value={numberFilter === "all" ? "" : numberFilter}
+            onChange={(e) => setNumberFilter(e.target.value)}
+            placeholder="לדוגמה 1 או AL2600001"
+            list="call-number-options"
+          />
+          <datalist id="call-number-options">
+            {state.serviceCalls
+              .slice()
+              .sort((a, b) => a.number - b.number)
+              .map((c) => (
+                <option key={c.id} value={formatCallNumber(c.number)} />
+              ))}
+          </datalist>
         </div>
         <div className="min-w-40 flex-1 space-y-1">
           <Label className="text-xs">מתאריך קריאה</Label>
