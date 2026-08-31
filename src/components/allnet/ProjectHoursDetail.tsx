@@ -258,15 +258,15 @@ export function ProjectHoursDetail({
     });
   const subCost = subBreakdown.reduce((sum, d) => sum + d.rate, 0);
   // עלות עובדי חברה: 1,200 ₪ ליום עבודה לעובד
-  const employeeDayKeys = Array.from(
-    new Set(
-      employees
-        .filter((h) => h.minutes >= MIN_FULL_DAY_MINUTES)
-        .map((h) => `${h.reporter}|${h.date}`),
-    ),
-  ).sort();
-  const employeeDays = employeeDayKeys.length;
-  const employeeCost = employeeDays * EMPLOYEE_DAY_RATE;
+  const employeeCostRows = employeeDayCosts(employees);
+  const employeeFullDays = employeeCostRows.filter((d) => d.fullDay);
+  const employeePartialDays = employeeCostRows.filter((d) => !d.fullDay);
+  const employeeFullDaysCost = employeeFullDays.reduce((a, d) => a + d.cost, 0);
+  const employeePartialCost = employeePartialDays.reduce((a, d) => a + d.cost, 0);
+  const employeePartialHours =
+    Math.round(employeePartialDays.reduce((a, d) => a + d.hours, 0) * 100) / 100;
+  const employeeDays = employeeFullDays.length;
+  const employeeCost = employeeFullDaysCost + employeePartialCost;
   const totalCost = subCost + employeeCost;
   const fixedCosts = project?.fixedCosts ?? [];
   const fixedCostTotal = fixedCosts.reduce((a, c) => a + (Number(c.amount) || 0), 0);
