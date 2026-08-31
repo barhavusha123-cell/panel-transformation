@@ -152,15 +152,20 @@ function DateFilterButton({
   value,
   onChange,
   placeholder,
+  className,
 }: {
   value: Date | undefined;
   onChange: (d: Date | undefined) => void;
   placeholder: string;
+  className?: string;
 }) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="w-full justify-start text-right font-normal">
+        <Button
+          variant="outline"
+          className={cn("w-full justify-start text-right font-normal", className)}
+        >
           <CalendarIcon className="size-4" />
           {value ? (
             formatDateIL(dayKey(value))
