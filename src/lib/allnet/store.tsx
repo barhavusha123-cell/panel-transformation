@@ -42,6 +42,12 @@ export function AllNetProvider({ children }: { children: ReactNode }) {
           ...(p.category ? { category: p.category } : {}),
           ...(p.closure ? { closure: p.closure } : {}),
           ...(p.categorizedAt ? { categorizedAt: p.categorizedAt } : {}),
+          ...(p.handoverDate ? { handoverDate: p.handoverDate } : {}),
+          ...(p.serviceEndDate ? { serviceEndDate: p.serviceEndDate } : {}),
+          ...(p.additions ? { additions: Number(p.additions) || 0 } : {}),
+          ...(Array.isArray(p.boq) ? { boq: p.boq } : {}),
+          ...(p.boqFileName ? { boqFileName: p.boqFileName } : {}),
+          ...(p.boqUpdatedAt ? { boqUpdatedAt: p.boqUpdatedAt } : {}),
 
 
 
