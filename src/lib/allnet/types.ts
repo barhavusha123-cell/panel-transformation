@@ -98,7 +98,18 @@ export interface Project {
   boqFileName?: string;
   /** מועד עדכון אחרון של כתב הכמויות */
   boqUpdatedAt?: string;
+  /** הנחה לכלל הפרויקט — באחוזים או בסכום קבוע */
+  boqDiscount?: BoqDiscount;
 }
+
+export interface BoqDiscount {
+  type: "percent" | "fixed";
+  value: number;
+}
+
+/** מחשב את סכום ההנחה מתוך סכום */
+export const discountAmount = (total: number, d?: BoqDiscount) =>
+  !d || !d.value ? 0 : d.type === "percent" ? (total * d.value) / 100 : Math.min(d.value, total);
 
 /** שורת כתב כמויות עם מעקב ביצוע */
 export interface BoqItem {
