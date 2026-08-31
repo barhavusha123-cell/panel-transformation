@@ -133,6 +133,28 @@ export function BoqChecklist({
         </h3>
         {!readOnly && (
           <div className="flex gap-2">
+            {items.length > 0 && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-destructive hover:text-destructive"
+                onClick={() => {
+                  if (!window.confirm("למחוק את כל כתב הכמויות והקובץ שהועלה?")) return;
+                  setState((prev) => ({
+                    ...prev,
+                    projects: prev.projects.map((p) =>
+                      p.name === projectName
+                        ? { ...p, boq: [], boqFileName: undefined, boqUpdatedAt: new Date().toISOString() }
+                        : p,
+                    ),
+                  }));
+                  toast.success("כתב הכמויות נמחק — ניתן להעלות קובץ חדש.");
+                }}
+              >
+                <Trash2 className="size-4" />
+                מחק כתב כמויות
+              </Button>
+            )}
             <Button size="sm" variant="outline" onClick={addRow}>
               <Plus className="size-4" />
               הוסף שורה
