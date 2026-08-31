@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { Camera, CalendarClock, CalendarIcon, ClipboardCheck, FolderOpen, Headset, Paperclip, Send, Timer } from "lucide-react";
+import { Camera, CalendarClock, CalendarIcon, ClipboardCheck, ListChecks, FolderOpen, Headset, Paperclip, Send, Timer } from "lucide-react";
 import {
   Dialog,
   DialogContent,
