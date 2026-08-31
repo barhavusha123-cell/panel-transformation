@@ -2114,6 +2114,16 @@ export function AdminConsole() {
                           <TableCell>{h.extras || "—"}</TableCell>
                           <TableCell className="max-w-48 truncate">{h.notes || "—"}</TableCell>
                           <TableCell>
+                            {h.attachments?.length ? (
+                              <Button size="sm" variant="soft" onClick={() => setHourAtt(h)}>
+                                <Paperclip className="size-4" />
+                                {h.attachments.length}
+                              </Button>
+                            ) : (
+                              "—"
+                            )}
+                          </TableCell>
+                          <TableCell>
                             <div className="flex gap-1">
                               <Button
                                 size="sm"
