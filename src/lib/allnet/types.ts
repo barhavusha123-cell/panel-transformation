@@ -76,8 +76,10 @@ export interface Project {
   extraHours?: number;
   /** סיבת אישור השעות החריגות */
   extraHoursReason?: string;
-  /** בכמה נמכר הפרויקט (הכנסה) */
+  /** בכמה נמכר הפרויקט (הכנסה) — שווי ראשוני */
   saleAmount?: number;
+  /** תוספות מאושרות (₪) — מתווספות לשווי הראשוני */
+  additions?: number;
   /** עלויות קבועות לפרויקט */
   fixedCosts?: FixedCost[];
   /** קטגוריית סיווג לאחר סגירה */

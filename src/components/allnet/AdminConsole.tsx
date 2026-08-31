@@ -411,8 +411,10 @@ export function AdminConsole() {
       .reduce((a, h) => a + h.minutes, 0);
     const reported = Math.round((minutes / 60) * 100) / 100;
     const pct = budget > 0 ? Math.round((reported / budget) * 1000) / 10 : 0;
-    const sale = Number(p?.saleAmount) || 0;
-    return { name, client, manager, budget, cost, reported, pct, sale, profit: sale - cost };
+    const saleBase = Number(p?.saleAmount) || 0;
+    const additions = Number(p?.additions) || 0;
+    const sale = saleBase + additions;
+    return { name, client, manager, budget, cost, reported, pct, sale, saleBase, additions, profit: sale - cost };
   };
 
   const dashRows = selectedDash.map(rowFor);
@@ -755,6 +757,7 @@ export function AdminConsole() {
     extraHours: number;
     extraHoursReason: string;
     saleAmount: number;
+    additions: number;
     fixedCosts: FixedCost[];
   }>({
     name: "",
@@ -768,6 +771,7 @@ export function AdminConsole() {
     extraHours: 0,
     extraHoursReason: "",
     saleAmount: 0,
+    additions: 0,
     fixedCosts: [],
   });
 
@@ -785,6 +789,7 @@ export function AdminConsole() {
       extraHours: p.extraHours ?? 0,
       extraHoursReason: p.extraHoursReason ?? "",
       saleAmount: p.saleAmount ?? 0,
+      additions: p.additions ?? 0,
       fixedCosts: p.fixedCosts ?? [],
     });
   };
@@ -812,6 +817,7 @@ export function AdminConsole() {
               extraHours: Math.max(0, Math.round(Number(editForm.extraHours) || 0)),
               extraHoursReason: editForm.extraHoursReason.trim(),
               saleAmount: Math.max(0, Number(editForm.saleAmount) || 0),
+              additions: Math.max(0, Number(editForm.additions) || 0),
               fixedCosts: editForm.fixedCosts,
               team: editForm.team,
             }
@@ -1267,6 +1273,25 @@ export function AdminConsole() {
                           }
                         />
                       </div>
+                      <div className="space-y-2">
+                        <Label>תוספות מאושרות (₪)</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          step={1}
+                          value={editForm.additions}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, additions: Number(e.target.value) })
+                          }
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          שווי כולל:{" "}
+                          <span className="font-semibold text-foreground">
+                            {Math.round((Number(editForm.saleAmount) || 0) + (Number(editForm.additions) || 0)).toLocaleString("he-IL")} ₪
+                          </span>{" "}
+                          (שווי ראשוני + תוספות)
+                        </p>
+                      </div>
                       <div className="md:col-span-2">
                         <FixedCostsEditor
                           value={editForm.fixedCosts}
@@ -1452,8 +1477,18 @@ export function AdminConsole() {
                           {p.name}
                         </button>
                       </TableCell>
-                      <TableCell className="font-semibold">
-                        {Math.round(r.sale).toLocaleString("he-IL")} ₪
+                      <TableCell>
+                        <div className="space-y-0.5">
+                          <p className="text-xs text-muted-foreground">
+                            שווי ראשוני: {Math.round(r.saleBase).toLocaleString("he-IL")} ₪
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            תוספות מאושרות: {Math.round(r.additions).toLocaleString("he-IL")} ₪
+                          </p>
+                          <p className="font-semibold">
+                            סה"כ: {Math.round(r.sale).toLocaleString("he-IL")} ₪
+                          </p>
+                        </div>
                       </TableCell>
                       <TableCell>{p.manager}</TableCell>
                       {isArchive && (
@@ -1552,13 +1587,13 @@ export function AdminConsole() {
                   שווי כולל של כל הפרויקטים הפעילים
                 </p>
                 <p className="text-2xl font-bold">
-                  {Math.round(list.reduce((a, p) => a + (Number(p.saleAmount) || 0), 0)).toLocaleString("he-IL")} ₪
+                  {Math.round(list.reduce((a, p) => a + (Number(p.saleAmount) || 0) + (Number(p.additions) || 0), 0)).toLocaleString("he-IL")} ₪
                 </p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">רווח כולל צפוי</p>
                 <p className="text-xl font-bold">
-                  {Math.round(list.reduce((a, p) => a + (Number(p.saleAmount) || 0) - calculateProjectCost(state, p.name), 0)).toLocaleString("he-IL")} ₪
+                  {Math.round(list.reduce((a, p) => a + (Number(p.saleAmount) || 0) + (Number(p.additions) || 0) - calculateProjectCost(state, p.name), 0)).toLocaleString("he-IL")} ₪
                 </p>
               </div>
             </div>

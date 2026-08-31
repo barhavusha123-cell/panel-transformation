@@ -217,7 +217,7 @@ export function ProjectHoursDetail({
   const fixedCostTotal = fixedCosts.reduce((a, c) => a + (Number(c.amount) || 0), 0);
   const extraHours = Number(project?.extraHours) || 0;
   const extraHoursCost = extraHours * (EMPLOYEE_DAY_RATE / 8);
-  const saleAmount = Number(project?.saleAmount) || 0;
+  const saleAmount = (Number(project?.saleAmount) || 0) + (Number(project?.additions) || 0);
   const spent = totalCost + fixedCostTotal + extraHoursCost;
   const profit = saleAmount - spent;
   const profitPct = saleAmount > 0 ? Math.round((profit / saleAmount) * 1000) / 10 : 0;
