@@ -123,6 +123,7 @@ function HoursGroup({
                 <TableHead className="text-right">זמן עבודה</TableHead>
                 <TableHead className="text-right">חריגים</TableHead>
                 <TableHead className="text-right">הערות</TableHead>
+                <TableHead className="text-right">צרופות</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -148,6 +149,16 @@ function HoursGroup({
                   </TableCell>
                   <TableCell>{h.extras || "—"}</TableCell>
                   <TableCell className="max-w-48 truncate">{h.notes || "—"}</TableCell>
+                  <TableCell>
+                    {h.attachments?.length ? (
+                      <Button size="sm" variant="soft" onClick={() => setAttView(h)}>
+                        <Eye className="size-4" />
+                        {h.attachments.length} צפייה
+                      </Button>
+                    ) : (
+                      "—"
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
