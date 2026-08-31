@@ -2391,7 +2391,7 @@ export function AdminConsole() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>ימי עבודה קבלן משנה</Label>
+                  <Label>ימי עבודה קבלן משנה (צוות)</Label>
                   <Input
                     type="number"
                     min={0}
