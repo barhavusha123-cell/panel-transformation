@@ -337,10 +337,8 @@ export function BoqChecklist({
                         />
                       )}
                     </td>
-                    <td className="p-2">
-                      {readOnly ? (
-                        ils(i.unitPrice)
-                      ) : (
+                    {!readOnly && (
+                      <td className="p-2">
                         <Input
                           type="number"
                           min={0}
@@ -348,9 +346,11 @@ export function BoqChecklist({
                           onChange={(e) => update(i.id, { unitPrice: Number(e.target.value) || 0 })}
                           className="h-8 w-24 text-xs"
                         />
-                      )}
-                    </td>
-                    <td className="p-2 font-medium">{ils(qty * (Number(i.unitPrice) || 0))}</td>
+                      </td>
+                    )}
+                    {!readOnly && (
+                      <td className="p-2 font-medium">{ils(qty * (Number(i.unitPrice) || 0))}</td>
+                    )}
                     <td className="p-2">
                       <div className="flex items-center gap-1">
                         <Input
