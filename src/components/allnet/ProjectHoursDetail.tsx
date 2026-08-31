@@ -191,55 +191,6 @@ function HoursGroup({
         </p>
       )}
 
-      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
-        <DialogContent dir="rtl" className="max-w-md text-right">
-          <DialogHeader>
-            <DialogTitle className="text-right">ייצוא לאקסל — {title}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">חודש (לועזי)</label>
-              <Select value={exportMonth} onValueChange={setExportMonth}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">כל החודשים</SelectItem>
-                  {months.map((m) => (
-                    <SelectItem key={m} value={m}>
-                      {monthLabel(m)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">מדווח (עובד / קבלן משנה)</label>
-              <Select value={exportReporter} onValueChange={setExportReporter}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">כל המדווחים</SelectItem>
-                  {reporters.map((r) => (
-                    <SelectItem key={r} value={r}>
-                      {r}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button
-              className="w-full bg-blue-900 text-white hover:bg-blue-800"
-              onClick={runExport}
-            >
-              <FileSpreadsheet className="size-4" />
-              ייצא לאקסל
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       <Dialog open={!!attView} onOpenChange={(o) => !o && setAttView(null)}>
         <DialogContent dir="rtl" className="max-w-3xl text-right">
           <DialogHeader>
