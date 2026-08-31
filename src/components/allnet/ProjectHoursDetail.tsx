@@ -31,6 +31,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { DocumentList } from "./DocumentList";
+import { BoqChecklist } from "./BoqChecklist";
+
 
 import {
   Table,
