@@ -56,10 +56,22 @@ export function BoqChecklist({
     if (!file) return;
     setBusy(true);
     try {
+      const isExcel = /\.(xlsx|xls|xlsm)$/i.test(file.name);
       const isText = /\.(csv|txt|tsv)$/i.test(file.name);
-      const payload = isText
-        ? { filename: file.name, text: await file.text() }
-        : { filename: file.name, dataUrl: await readAsDataUrl(file) };
+      let payload: { filename: string; text?: string; dataUrl?: string };
+      if (isExcel) {
+        // מודלי ה-AI לא תומכים בקבצי אקסל — ממירים לטקסט בדפדפן
+        const XLSX = await import("xlsx");
+        const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+        const text = wb.SheetNames.map(
+          (n) => `# ${n}\n${XLSX.utils.sheet_to_csv(wb.Sheets[n]!)}`,
+        ).join("\n\n");
+        payload = { filename: `${file.name}.csv`, text };
+      } else if (isText) {
+        payload = { filename: file.name, text: await file.text() };
+      } else {
+        payload = { filename: file.name, dataUrl: await readAsDataUrl(file) };
+      }
       const parsed = await parseBoqFile({ data: payload });
       if (!parsed.length) {
         toast.error("לא נמצאו שורות כתב כמויות בקובץ.");
