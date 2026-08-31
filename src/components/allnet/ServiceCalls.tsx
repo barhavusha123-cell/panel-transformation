@@ -1004,7 +1004,7 @@ export function ServiceCallsAdmin() {
                   variant="ghost"
                   className="text-destructive hover:bg-destructive/10"
                   onClick={() => {
-                    if (confirm(`למחוק את קריאת השירות #${call.number}?`)) {
+                    if (confirm(`למחוק את קריאת השירות ${formatCallNumber(call.number)}?`)) {
                       remove(call.id);
                       toast.success("קריאת השירות נמחקה.");
                     }
@@ -1028,7 +1028,7 @@ export function ServiceCallsAdmin() {
         <DialogContent className="service-green max-h-[85vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-right">
-              עריכת קריאת שירות #{editing?.number}
+              עריכת קריאת שירות {editing ? formatCallNumber(editing.number) : ""}
             </DialogTitle>
           </DialogHeader>
           {editing && (
