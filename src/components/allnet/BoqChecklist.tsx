@@ -3,7 +3,7 @@ import { CheckCircle2, ListChecks, Loader2, Plus, Trash2, Upload } from "lucide-
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { parseBoqFile } from "@/lib/allnet/boq.functions";
-import { boqSummary, type BoqItem } from "@/lib/allnet/types";
+import { boqSummary, discountAmount, type BoqItem } from "@/lib/allnet/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -34,6 +34,9 @@ export function BoqChecklist({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const summary = boqSummary(items);
+  const discount = project?.boqDiscount;
+  const discountVal = discountAmount(summary.total, discount);
+  const totalAfter = Math.max(summary.total - discountVal, 0);
   const who = session?.user?.full_name ?? "מנהל מערכת";
 
   const patchProject = (fn: (items: BoqItem[]) => BoqItem[], fileName?: string) =>
