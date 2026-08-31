@@ -15,6 +15,12 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { useAllNet } from "@/lib/allnet/store";
 import { downloadCsv, formatDateIL, formatHoursMinutes, nowStamp } from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { DocumentList } from "./DocumentList";
@@ -93,6 +99,7 @@ function HoursGroup({
   showWorkers?: boolean;
 }) {
   const minutes = rows.reduce((a, h) => a + h.minutes, 0);
+  const [attView, setAttView] = useState<HoursEntry | null>(null);
   return (
     <div className="surface-panel rounded-2xl p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
