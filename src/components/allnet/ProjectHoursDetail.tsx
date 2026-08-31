@@ -530,7 +530,7 @@ export function ProjectHoursDetail({
           {projectName}
         </p>
         {saleAmount > 0 ? (
-          <div className="grid gap-4 lg:grid-cols-[1.2fr_0.65fr_1fr]">
+          <div className="grid gap-4">
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -553,66 +553,68 @@ export function ProjectHoursDetail({
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="self-center rounded-xl border border-border bg-surface/60 p-4">
-              <h4 className="mb-3 text-sm font-semibold">מקרא צבעים</h4>
-              <div className="space-y-3">
-                {profitData.map((d) => (
-                  <div key={d.name} className="flex items-center gap-3">
-                    <span
-                      className="inline-block size-4 shrink-0 rounded-full"
-                      style={{ backgroundColor: d.color }}
-                    />
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium leading-tight">{d.name}</p>
-                      <p className="text-xs text-muted-foreground">{ils(d.value)}</p>
+            <div className="grid gap-4 lg:grid-cols-[0.65fr_1fr]">
+              <div className="self-start rounded-xl border border-border bg-surface/60 p-4">
+                <h4 className="mb-3 text-sm font-semibold">מקרא צבעים</h4>
+                <div className="space-y-3">
+                  {profitData.map((d) => (
+                    <div key={d.name} className="flex items-center gap-3">
+                      <span
+                        className="inline-block size-4 shrink-0 rounded-full"
+                        style={{ backgroundColor: d.color }}
+                      />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium leading-tight">{d.name}</p>
+                        <p className="text-xs text-muted-foreground">{ils(d.value)}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-2 self-center text-sm">
-              <div className="flex items-center justify-between rounded-lg border border-border p-2">
-                <span>סכום מכירת הפרויקט</span>
-                <span className="font-bold">{ils(saleAmount)}</span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg border border-border p-2">
-                <span>עלות עבודה מדווחת</span>
-                <span className="font-bold">{ils(totalCost)}</span>
-              </div>
-              <div className="rounded-lg border border-border p-2">
-                <div className="flex items-center justify-between">
-                  <span>עלויות קבועות</span>
-                  <span className="font-bold">{ils(fixedCostTotal)}</span>
+                  ))}
                 </div>
-                {fixedCosts.map((c) => (
-                  <div
-                    key={c.id}
-                    className="flex items-center justify-between py-0.5 text-[11px] text-muted-foreground"
-                  >
-                    <span>
-                      {c.type}
-                      {c.description ? ` · ${c.description}` : ""}
-                    </span>
-                    <span>{ils(Number(c.amount) || 0)}</span>
-                  </div>
-                ))}
               </div>
-              {extraHoursCost > 0 && (
+              <div className="space-y-2 self-start text-sm">
                 <div className="flex items-center justify-between rounded-lg border border-border p-2">
-                  <span>
-                    שעות חריגות מאושרות ({extraHours} שעות × {ils(EMPLOYEE_DAY_RATE / 8)})
-                    {project?.extraHoursReason ? ` · ${project.extraHoursReason}` : ""}
-                  </span>
-                  <span className="font-bold">{ils(extraHoursCost)}</span>
+                  <span>סכום מכירת הפרויקט</span>
+                  <span className="font-bold">{ils(saleAmount)}</span>
                 </div>
-              )}
-              <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/10 p-2">
-                <span className="font-semibold">{profit >= 0 ? "רווח נותר" : "הפסד"}</span>
-                <span className="text-lg font-bold text-primary">{ils(Math.abs(profit))}</span>
+                <div className="flex items-center justify-between rounded-lg border border-border p-2">
+                  <span>עלות עבודה מדווחת</span>
+                  <span className="font-bold">{ils(totalCost)}</span>
+                </div>
+                <div className="rounded-lg border border-border p-2">
+                  <div className="flex items-center justify-between">
+                    <span>עלויות קבועות</span>
+                    <span className="font-bold">{ils(fixedCostTotal)}</span>
+                  </div>
+                  {fixedCosts.map((c) => (
+                    <div
+                      key={c.id}
+                      className="flex items-center justify-between py-0.5 text-[11px] text-muted-foreground"
+                    >
+                      <span>
+                        {c.type}
+                        {c.description ? ` · ${c.description}` : ""}
+                      </span>
+                      <span>{ils(Number(c.amount) || 0)}</span>
+                    </div>
+                  ))}
+                </div>
+                {extraHoursCost > 0 && (
+                  <div className="flex items-center justify-between rounded-lg border border-border p-2">
+                    <span>
+                      שעות חריגות מאושרות ({extraHours} שעות × {ils(EMPLOYEE_DAY_RATE / 8)})
+                      {project?.extraHoursReason ? ` · ${project.extraHoursReason}` : ""}
+                    </span>
+                    <span className="font-bold">{ils(extraHoursCost)}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/10 p-2">
+                  <span className="font-semibold">{profit >= 0 ? "רווח נותר" : "הפסד"}</span>
+                  <span className="text-lg font-bold text-primary">{ils(Math.abs(profit))}</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  הרווחיות מתעדכנת אוטומטית ככל שנוספים דיווחי שעות לפרויקט.
+                </p>
               </div>
-              <p className="text-[11px] text-muted-foreground">
-                הרווחיות מתעדכנת אוטומטית ככל שנוספים דיווחי שעות לפרויקט.
-              </p>
             </div>
           </div>
         ) : (
