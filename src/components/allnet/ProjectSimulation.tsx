@@ -446,7 +446,11 @@ export function ProjectSimulation({
             </Button>
             <Button variant="outline" className="gap-1.5" onClick={handleReset}>
               <RotateCcw className="size-4" />
-              איפוס לערכים מקוריים
+              איפוס לערכי הפרויקט
+            </Button>
+            <Button variant="outline" className="gap-1.5" onClick={handleClearFields}>
+              <Eraser className="size-4" />
+              איפוס שדות
             </Button>
             <Button variant="outline" className="gap-1.5" onClick={handleExportPdf}>
               <FileDown className="size-4" />
