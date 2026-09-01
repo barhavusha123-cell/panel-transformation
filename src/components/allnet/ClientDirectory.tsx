@@ -97,14 +97,6 @@ export function ClientDirectory() {
     );
   }, [clients, query]);
 
-  const projectCount = useMemo(() => {
-    const map = new Map<string, number>();
-    state.projects.forEach((p) => {
-      const n = (p.client ?? "").trim();
-      if (n) map.set(n, (map.get(n) ?? 0) + 1);
-    });
-    return map;
-  }, [state.projects]);
 
   const openNew = () => {
     setEditingId(null);
