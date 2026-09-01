@@ -25,6 +25,7 @@ import {
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { FixedCostsEditor } from "./FixedCostsEditor";
 import { UserDirectory } from "./UserDirectory";
+import { ClientDirectory } from "./ClientDirectory";
 import { ServiceCallsAdmin } from "./ServiceCalls";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
@@ -2191,6 +2192,12 @@ export function AdminConsole() {
               ניהול משתמשים
             </TabsTrigger>
             <TabsTrigger
+              value="clients"
+              className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
+            >
+              ניהול לקוחות
+            </TabsTrigger>
+            <TabsTrigger
               value="projects"
               className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
             >
@@ -2506,6 +2513,11 @@ export function AdminConsole() {
             </div>
 
             <UserDirectory />
+          </TabsContent>
+
+          {/* Clients */}
+          <TabsContent value="clients" className="mt-6">
+            <ClientDirectory />
           </TabsContent>
 
           {/* Projects & files */}
