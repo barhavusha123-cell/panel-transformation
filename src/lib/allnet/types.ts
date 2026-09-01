@@ -100,6 +100,22 @@ export interface Project {
   boqUpdatedAt?: string;
   /** הנחה לכלל הפרויקט — באחוזים או בסכום קבוע */
   boqDiscount?: BoqDiscount;
+  /** סימולציית רווחיות שמורה */
+  simulation?: ProjectSimulationState;
+}
+
+/** פרמטרים שמורים של סימולציית רווחיות */
+export interface ProjectSimulationState {
+  region: Region;
+  saleAmount: number;
+  additions: number;
+  fixedCosts: FixedCost[];
+  crewSize: number;
+  /** אחוז מתקציב העבודה המוקצה לעובדי חברה */
+  employeeShare: number;
+  /** רווח גולמי יעד (%) */
+  targetProfit: number;
+  savedAt: string;
 }
 
 export interface BoqDiscount {

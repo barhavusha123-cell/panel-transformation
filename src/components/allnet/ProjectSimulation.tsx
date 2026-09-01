@@ -197,7 +197,7 @@ export function ProjectSimulation({
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>יעד רווח (%)</Label>
+                <Label>רווח גולמי (%)</Label>
                 <Input
                   type="number"
                   min={0}
