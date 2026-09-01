@@ -1293,7 +1293,7 @@ export function AdminConsole() {
                         <RegionRates region={editForm.region} />
                       </div>
                       <div className="space-y-2">
-                        <Label>סכום מכירת הפרויקט (₪)</Label>
+                        <Label>שווי הפרויקט (₪)</Label>
                         <Input
                           type="number"
                           min={0}
@@ -2613,7 +2613,7 @@ export function AdminConsole() {
                   <RegionRates region={np.region} />
                 </div>
                 <div className="space-y-2">
-                  <Label>סכום מכירת הפרויקט (₪)</Label>
+                  <Label>שווי הפרויקט (₪)</Label>
                   <Input
                     type="number"
                     min={0}
