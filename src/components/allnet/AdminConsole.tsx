@@ -1555,7 +1555,7 @@ export function AdminConsole() {
                                 onClick={() => setCallsProject(p.name)}
                               >
                                 <Headset className="size-4" />
-                                קריאות שירות
+                                היסטורית קריאות שירות
                               </Button>
                               <Button
                                 size="sm"
