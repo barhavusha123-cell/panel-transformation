@@ -137,6 +137,26 @@ export function ProjectSimulation({
     };
   });
 
+  const handleExportPdf = () => {
+    const ok = openSimulationReport({
+      name,
+      client,
+      manager,
+      region,
+      saleAmount: Number(saleAmount) || 0,
+      additions: Number(additions) || 0,
+      fixedCosts,
+      crewSize,
+      employeeShare,
+      targetProfit,
+      employeeDayRate: EMPLOYEE_DAY_RATE,
+      employeeHourRate: EMPLOYEE_HOUR_RATE,
+      ...calc,
+      mix: mixRows,
+    });
+    if (!ok) toast.error("החלון נחסם על ידי הדפדפן — אפשר חלונות קופצים ונסה שוב");
+  };
+
   const handleSave = () => {
     if (!project?.name) {
       toast.error("ניתן לשמור סימולציה רק מתוך פרויקט קיים");
