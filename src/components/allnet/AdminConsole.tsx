@@ -15,6 +15,7 @@ import {
   ListChecks,
   Headset,
   Pencil,
+  Calculator,
   Paperclip,
   Plus,
   ShieldCheck,
@@ -95,6 +96,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { ProjectHoursDetail } from "./ProjectHoursDetail";
+import { ProjectSimulation } from "./ProjectSimulation";
 
 
 const CHART_COLORS = [
@@ -247,6 +249,8 @@ export function AdminConsole() {
   const [closeDeliveryDate, setCloseDeliveryDate] = useState("");
 
   const [detailProject, setDetailProject] = useState<string | null>(null);
+  const [simProject, setSimProject] = useState<Project | null>(null);
+  const [simOpen, setSimOpen] = useState(false);
   const [tab, setTab] = useState("reports");
   const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
 
@@ -1559,6 +1563,18 @@ export function AdminConsole() {
                         <div className="flex flex-wrap gap-2">
                           <Button
                             size="sm"
+                            variant="outline"
+                            className="border-emerald-500 text-emerald-700 hover:bg-emerald-500/10"
+                            onClick={() => {
+                              setSimProject(p);
+                              setSimOpen(true);
+                            }}
+                          >
+                            <Calculator className="size-4" />
+                            סימולציה
+                          </Button>
+                          <Button
+                            size="sm"
                             variant="soft"
                             onClick={() => {
                               startEdit(p);
@@ -1627,6 +1643,7 @@ export function AdminConsole() {
             </div>
           )}
         </div>
+        <ProjectSimulation open={simOpen} onOpenChange={setSimOpen} project={simProject} />
       </div>
     );
   }
