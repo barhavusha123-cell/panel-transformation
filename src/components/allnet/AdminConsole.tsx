@@ -1179,13 +1179,11 @@ export function AdminConsole() {
                       {historyDatalists}
                       <div className="space-y-2">
                         <Label>שם לקוח</Label>
-                        <Input
-                          list="allnet-client-history"
+                        <ClientPicker
                           value={editForm.client}
-                          onChange={(e) =>
-                            setEditForm({ ...editForm, client: e.target.value })
-                          }
-                          placeholder="שם הלקוח"
+                          onChange={(v) => setEditForm({ ...editForm, client: v })}
+                          clients={registeredClientNames}
+                          history={clientHistory}
                         />
                       </div>
                       <div className="space-y-2">
@@ -2536,11 +2534,11 @@ export function AdminConsole() {
                 {historyDatalists}
                 <div className="space-y-2">
                   <Label>שם לקוח</Label>
-                  <Input
-                    list="allnet-client-history"
+                  <ClientPicker
                     value={np.client}
-                    onChange={(e) => setNp({ ...np, client: e.target.value })}
-                    placeholder="שם הלקוח"
+                    onChange={(v) => setNp({ ...np, client: v })}
+                    clients={registeredClientNames}
+                    history={clientHistory}
                   />
                 </div>
                 <div className="space-y-2">
