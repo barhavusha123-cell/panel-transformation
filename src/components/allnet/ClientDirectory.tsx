@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Building2,
   Mail,
@@ -37,6 +37,14 @@ const emptyForm = {
   notes: "",
 };
 
+const FIRST_CLIENT_NUMBER = 26001;
+
+const nextClientNumber = (list: { clientNumber?: number }[]) =>
+  Math.max(
+    FIRST_CLIENT_NUMBER - 1,
+    ...list.map((c) => c.clientNumber ?? 0),
+  ) + 1;
+
 const newId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
@@ -49,6 +57,29 @@ export function ClientDirectory() {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+
+  // השלמת מספרי לקוח ללקוחות ותיקים (לפי סדר ההקמה)
+  useEffect(() => {
+    if (!clients.some((c) => !c.clientNumber)) return;
+    setState((prev) => {
+      const list = prev.clients ?? [];
+      if (!list.some((c) => !c.clientNumber)) return prev;
+      let next = nextClientNumber(list);
+      const ordered = [...list].sort((a, b) =>
+        (a.createdAt ?? "").localeCompare(b.createdAt ?? ""),
+      );
+      const assigned = new Map<string, number>();
+      ordered.forEach((c) => {
+        if (!c.clientNumber) assigned.set(c.id, next++);
+      });
+      return {
+        ...prev,
+        clients: list.map((c) =>
+          assigned.has(c.id) ? { ...c, clientNumber: assigned.get(c.id)! } : c,
+        ),
+      };
+    });
+  }, [clients, setState]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -132,6 +163,7 @@ export function ClientDirectory() {
       }
       const client: Client = {
         id: newId(),
+        clientNumber: nextClientNumber(list),
         name,
         contactName: form.contactName.trim(),
         phone: form.phone.trim(),
@@ -200,65 +232,100 @@ export function ClientDirectory() {
             : "לא נמצאו לקוחות התואמים לחיפוש."}
         </p>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((c) => (
-            <div key={c.id} className="surface-panel flex flex-col gap-3 rounded-2xl p-5">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-3">
-                  <div className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary">
-                    <Building2 className="size-5" />
+        <div className="surface-panel overflow-hidden rounded-2xl">
+          <div className="hidden items-center gap-3 border-b border-border/60 bg-muted/40 px-4 py-2 text-[11px] font-medium text-muted-foreground md:flex">
+            <span className="w-16">מס׳ לקוח</span>
+            <span className="min-w-0 flex-1">שם הלקוח</span>
+            <span className="w-40">איש קשר</span>
+            <span className="w-32">טלפון</span>
+            <span className="w-52">דוא״ל</span>
+            <span className="w-24 text-center">פרויקטים</span>
+            <span className="w-20" />
+          </div>
+          <ul className="divide-y divide-border/50">
+            {filtered.map((c) => (
+              <li
+                key={c.id}
+                className="group flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 text-sm transition-colors hover:bg-muted/40"
+              >
+                <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
+                  {c.clientNumber ?? "—"}
+                </span>
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <div className="grid size-7 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                    <Building2 className="size-3.5" />
                   </div>
-                  <div>
-                    <p className="font-semibold">{c.name}</p>
-                    {c.taxId && (
-                      <p className="text-xs text-muted-foreground">ח.פ {c.taxId}</p>
-                    )}
-                  </div>
+                  <span className="truncate font-medium">{c.name}</span>
+                  {c.taxId && (
+                    <span className="hidden shrink-0 text-[11px] text-muted-foreground lg:inline">
+                      ח.פ {c.taxId}
+                    </span>
+                  )}
                 </div>
-                <Badge variant="secondary">
-                  {projectCount.get(c.name.trim()) ?? 0} פרויקטים
-                </Badge>
-              </div>
-              <div className="space-y-1.5 text-sm text-muted-foreground">
-                {c.contactName && (
-                  <p className="flex items-center gap-2">
-                    <UserRound className="size-3.5" /> {c.contactName}
-                  </p>
-                )}
-                {c.phone && (
-                  <p className="flex items-center gap-2" dir="ltr" style={{ textAlign: "end" }}>
-                    <Phone className="size-3.5" /> {c.phone}
-                  </p>
-                )}
-                {c.email && (
-                  <p className="flex items-center gap-2">
-                    <Mail className="size-3.5" /> {c.email}
-                  </p>
-                )}
+                <span className="w-40 shrink-0 truncate text-muted-foreground">
+                  {c.contactName ? (
+                    <span className="flex items-center gap-1.5">
+                      <UserRound className="size-3.5 shrink-0" />
+                      {c.contactName}
+                    </span>
+                  ) : (
+                    ""
+                  )}
+                </span>
+                <span className="w-32 shrink-0 truncate text-muted-foreground" dir="ltr" style={{ textAlign: "end" }}>
+                  {c.phone ? (
+                    <span className="flex items-center gap-1.5">
+                      <Phone className="size-3.5 shrink-0" />
+                      {c.phone}
+                    </span>
+                  ) : (
+                    ""
+                  )}
+                </span>
+                <span className="w-52 shrink-0 truncate text-muted-foreground">
+                  {c.email ? (
+                    <span className="flex items-center gap-1.5">
+                      <Mail className="size-3.5 shrink-0" />
+                      <span className="truncate" dir="ltr">{c.email}</span>
+                    </span>
+                  ) : (
+                    ""
+                  )}
+                </span>
+                <span className="w-24 shrink-0 text-center">
+                  <Badge variant="secondary" className="text-[11px]">
+                    {projectCount.get(c.name.trim()) ?? 0}
+                  </Badge>
+                </span>
+                <span className="flex w-20 shrink-0 justify-end gap-1">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="size-8"
+                    title="ערוך"
+                    onClick={() => openEdit(c)}
+                  >
+                    <Pencil className="size-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="size-8 text-destructive hover:bg-destructive/10"
+                    title="מחק"
+                    onClick={() => remove(c)}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </span>
                 {c.address && (
-                  <p className="flex items-center gap-2">
-                    <MapPin className="size-3.5" /> {c.address}
-                  </p>
+                  <span className="flex w-full items-center gap-1.5 text-[11px] text-muted-foreground lg:hidden">
+                    <MapPin className="size-3" />
+                    {c.address}
+                  </span>
                 )}
-                {c.notes && <p className="text-xs">הערות: {c.notes}</p>}
-              </div>
-              <div className="mt-auto flex gap-2 pt-1">
-                <Button size="sm" variant="soft" onClick={() => openEdit(c)}>
-                  <Pencil className="size-4" />
-                  ערוך
-                </Button>
-                <Button
-                  size="sm"
-                  variant="soft"
-                  className="text-destructive hover:bg-destructive/10"
-                  onClick={() => remove(c)}
-                >
-                  <Trash2 className="size-4" />
-                  מחק
-                </Button>
-              </div>
-            </div>
-          ))}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -271,6 +338,25 @@ export function ClientDirectory() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2 sm:col-span-2">
+              <Label>מספר לקוח</Label>
+              <Input
+                readOnly
+                disabled
+                dir="ltr"
+                className="bg-muted/50"
+                value={
+                  editingId
+                    ? String(
+                        clients.find((c) => c.id === editingId)?.clientNumber ?? "",
+                      )
+                    : String(nextClientNumber(clients))
+                }
+              />
+              <p className="text-[11px] text-muted-foreground">
+                מספר רץ אוטומטי — אינו ניתן לעריכה.
+              </p>
+            </div>
             <div className="space-y-2 sm:col-span-2">
               <Label>שם הלקוח *</Label>
               <Input

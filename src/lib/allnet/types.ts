@@ -330,6 +330,8 @@ export interface ServiceCall {
 /** לקוח במערכת */
 export interface Client {
   id: string;
+  /** מספר לקוח רץ אוטומטי (מתחיל ב-26001) */
+  clientNumber?: number;
   name: string;
   /** איש קשר ראשי */
   contactName?: string;
