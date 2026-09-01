@@ -1537,16 +1537,27 @@ export function AdminConsole() {
                           </TableCell>
                         </>
                       )}
-                      <TableCell>
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            size="sm"
-                            variant="soft"
-                            onClick={() => {
-                              startEdit(p);
-                              window.scrollTo({ top: 0, behavior: "smooth" });
-                            }}
-                          >
+                       <TableCell>
+                         <div className="flex flex-wrap gap-2">
+                           {categoryView === "warranty" && (
+                             <Button
+                               size="sm"
+                               variant="soft"
+                               className="border border-blue/40 text-blue-dark hover:bg-blue/10"
+                               onClick={() => setCallsProject(p.name)}
+                             >
+                               <Headset className="size-4" />
+                               קריאות שירות
+                             </Button>
+                           )}
+                           <Button
+                             size="sm"
+                             variant="soft"
+                             onClick={() => {
+                               startEdit(p);
+                               window.scrollTo({ top: 0, behavior: "smooth" });
+                             }}
+                           >
                             <Pencil className="size-4" />
                             ערוך
                           </Button>
