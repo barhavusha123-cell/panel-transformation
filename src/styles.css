@@ -178,6 +178,7 @@
 
   --blue: oklch(0.78 0.1 225);
   --blue-foreground: oklch(0.2 0.02 50);
+  --blue-dark: oklch(0.65 0.12 225);
 
   --destructive: oklch(0.7 0.15 25);
   --destructive-foreground: oklch(0.98 0.005 60);
