@@ -33,6 +33,7 @@ export function BoqChecklist({
   const [busy, setBusy] = useState(false);
   const [over, setOver] = useState(false);
   const [progressCollapsed, setProgressCollapsed] = useState(false);
+  const [checklistCollapsed, setChecklistCollapsed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const summary = boqSummary(items);
