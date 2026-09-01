@@ -136,6 +136,34 @@ export function ProjectSimulation({
     };
   });
 
+  const handleSave = () => {
+    if (!project?.name) {
+      toast.error("ניתן לשמור סימולציה רק מתוך פרויקט קיים");
+      return;
+    }
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.map((p) =>
+        p.name === project.name
+          ? {
+              ...p,
+              simulation: {
+                region,
+                saleAmount: Number(saleAmount) || 0,
+                additions: Number(additions) || 0,
+                fixedCosts: fixedCosts.map((c) => ({ ...c })),
+                crewSize,
+                employeeShare,
+                targetProfit,
+                savedAt: new Date().toISOString(),
+              },
+            }
+          : p,
+      ),
+    }));
+    toast.success("הסימולציה נשמרה ותיטען בפתיחה הבאה");
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92vh] max-w-5xl overflow-y-auto" dir="rtl">
