@@ -725,7 +725,11 @@ export function EmployeePortal() {
           </div>
         </TabsContent>
 
-        <TabsContent value="docs" className="animate-fade mt-6">
+        <TabsContent
+          value="docs"
+          className="animate-fade mt-6"
+          hidden={user?.role === "קבלן משנה"}
+        >
           <div className="surface-panel space-y-4 rounded-2xl p-6">
             <h3 className="text-lg font-semibold">מסמכי פרויקט ותוכניות עבודה</h3>
             <div className="max-w-xs space-y-2">
