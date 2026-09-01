@@ -104,7 +104,7 @@ export function TopBar() {
             />
             <div>
               <h1 className="text-lg font-bold tracking-tight underline-offset-4 group-hover:underline sm:text-xl">
-                פלטפורמת ניהול תפעול ארגוני — <span className="text-gradient">AllNet</span>
+                פלטפורמת ניהול תפעול ארגוני — <span className="text-primary">AllNet</span>
               </h1>
               <p className="text-xs text-muted-foreground sm:text-sm">
                 פורטל בקרת פרויקטים ומעקב שעות עבודה
