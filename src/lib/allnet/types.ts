@@ -335,10 +335,15 @@ export interface Client {
   name: string;
   /** איש קשר הנהלה */
   contactName?: string;
+  /** טלפון איש קשר הנהלה */
+  managementPhone?: string;
   /** איש קשר הנהלת חשבונות */
   accountingContact?: string;
+  /** טלפון איש קשר הנהלת חשבונות */
+  accountingPhone?: string;
   /** משרד / אתר ראשי */
   office?: string;
+  /** טלפון כללי — נשמר לתאימות נתונים קיימים */
   phone?: string;
   email?: string;
   /** ח.פ / עוסק מורשה */

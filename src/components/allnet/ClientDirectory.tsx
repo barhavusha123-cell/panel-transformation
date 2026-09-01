@@ -30,9 +30,10 @@ import { Separator } from "@/components/ui/separator";
 const emptyForm = {
   name: "",
   contactName: "",
+  managementPhone: "",
   accountingContact: "",
+  accountingPhone: "",
   office: "",
-  phone: "",
   email: "",
   taxId: "",
   address: "",
@@ -88,7 +89,7 @@ export function ClientDirectory() {
     const list = [...clients].sort((a, b) => a.name.localeCompare(b.name, "he"));
     if (!q) return list;
     return list.filter((c) =>
-      [c.name, c.contactName, c.accountingContact, c.office, c.phone, c.email, c.taxId, c.address]
+      [c.name, c.contactName, c.managementPhone, c.accountingContact, c.accountingPhone, c.office, c.phone, c.email, c.taxId, c.address]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(q)),
     );
@@ -114,9 +115,10 @@ export function ClientDirectory() {
     setForm({
       name: c.name,
       contactName: c.contactName ?? "",
+      managementPhone: c.managementPhone ?? c.phone ?? "",
       accountingContact: c.accountingContact ?? "",
+      accountingPhone: c.accountingPhone ?? "",
       office: c.office ?? "",
-      phone: c.phone ?? "",
       email: c.email ?? "",
       taxId: c.taxId ?? "",
       address: c.address ?? "",
@@ -148,9 +150,11 @@ export function ClientDirectory() {
                 ...c,
                 name,
                 contactName: form.contactName.trim(),
+                managementPhone: form.managementPhone.trim(),
                 accountingContact: form.accountingContact.trim(),
+                accountingPhone: form.accountingPhone.trim(),
                 office: form.office.trim(),
-                phone: form.phone.trim(),
+                phone: form.managementPhone.trim(),
                 email: form.email.trim(),
                 taxId: form.taxId.trim(),
                 address: form.address.trim(),
@@ -172,9 +176,11 @@ export function ClientDirectory() {
         clientNumber: nextClientNumber(list),
         name,
         contactName: form.contactName.trim(),
+        managementPhone: form.managementPhone.trim(),
         accountingContact: form.accountingContact.trim(),
+        accountingPhone: form.accountingPhone.trim(),
         office: form.office.trim(),
-        phone: form.phone.trim(),
+        phone: form.managementPhone.trim(),
         email: form.email.trim(),
         taxId: form.taxId.trim(),
         address: form.address.trim(),
@@ -244,10 +250,9 @@ export function ClientDirectory() {
           <div className="hidden items-center gap-3 border-b border-border/60 bg-muted/40 px-4 py-2 text-[11px] font-medium text-muted-foreground lg:flex">
             <span className="w-16">מס׳ לקוח</span>
             <span className="min-w-0 flex-1">שם הלקוח</span>
-            <span className="w-32">הנהלה</span>
-            <span className="w-32">הנהלת חשבונות</span>
+            <span className="w-36">הנהלה</span>
+            <span className="w-36">הנהלת חשבונות</span>
             <span className="w-28">משרד</span>
-            <span className="w-28">טלפון</span>
             <span className="w-40">דוא״ל</span>
             <span className="w-20 text-center">פרויקטים</span>
             <span className="w-20" />
@@ -272,21 +277,41 @@ export function ClientDirectory() {
                     </span>
                   )}
                 </div>
-                <span className="w-32 shrink-0 truncate text-muted-foreground">
-                  {c.contactName ? (
-                    <span className="flex items-center gap-1.5">
-                      <UserRound className="size-3.5 shrink-0" />
-                      {c.contactName}
+                <span className="w-36 shrink-0 truncate text-muted-foreground">
+                  {c.contactName || c.managementPhone || c.phone ? (
+                    <span className="flex flex-col gap-0.5">
+                      {c.contactName && (
+                        <span className="flex items-center gap-1.5">
+                          <UserRound className="size-3.5 shrink-0" />
+                          {c.contactName}
+                        </span>
+                      )}
+                      {(c.managementPhone || c.phone) && (
+                        <span className="flex items-center gap-1.5 text-[11px]" dir="ltr" style={{ textAlign: "end" }}>
+                          <Phone className="size-3 shrink-0" />
+                          {c.managementPhone || c.phone}
+                        </span>
+                      )}
                     </span>
                   ) : (
                     ""
                   )}
                 </span>
-                <span className="w-32 shrink-0 truncate text-muted-foreground">
-                  {c.accountingContact ? (
-                    <span className="flex items-center gap-1.5">
-                      <UserRound className="size-3.5 shrink-0" />
-                      {c.accountingContact}
+                <span className="w-36 shrink-0 truncate text-muted-foreground">
+                  {c.accountingContact || c.accountingPhone ? (
+                    <span className="flex flex-col gap-0.5">
+                      {c.accountingContact && (
+                        <span className="flex items-center gap-1.5">
+                          <UserRound className="size-3.5 shrink-0" />
+                          {c.accountingContact}
+                        </span>
+                      )}
+                      {c.accountingPhone && (
+                        <span className="flex items-center gap-1.5 text-[11px]" dir="ltr" style={{ textAlign: "end" }}>
+                          <Phone className="size-3 shrink-0" />
+                          {c.accountingPhone}
+                        </span>
+                      )}
                     </span>
                   ) : (
                     ""
@@ -294,16 +319,6 @@ export function ClientDirectory() {
                 </span>
                 <span className="w-28 shrink-0 truncate text-muted-foreground">
                   {c.office || ""}
-                </span>
-                <span className="w-28 shrink-0 truncate text-muted-foreground" dir="ltr" style={{ textAlign: "end" }}>
-                  {c.phone ? (
-                    <span className="flex items-center gap-1.5">
-                      <Phone className="size-3.5 shrink-0" />
-                      {c.phone}
-                    </span>
-                  ) : (
-                    ""
-                  )}
                 </span>
                 <span className="w-40 shrink-0 truncate text-muted-foreground">
                   {c.email ? (
@@ -397,6 +412,15 @@ export function ClientDirectory() {
               />
             </div>
             <div className="space-y-2">
+              <Label>טלפון הנהלה</Label>
+              <Input
+                dir="ltr"
+                value={form.managementPhone}
+                onChange={(e) => setForm({ ...form, managementPhone: e.target.value })}
+                placeholder="טלפון איש קשר הנהלה"
+              />
+            </div>
+            <div className="space-y-2">
               <Label>הנהלת חשבונות</Label>
               <Input
                 value={form.accountingContact}
@@ -405,11 +429,12 @@ export function ClientDirectory() {
               />
             </div>
             <div className="space-y-2">
-              <Label>טלפון</Label>
+              <Label>טלפון הנהלת חשבונות</Label>
               <Input
                 dir="ltr"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                value={form.accountingPhone}
+                onChange={(e) => setForm({ ...form, accountingPhone: e.target.value })}
+                placeholder="טלפון איש קשר הנהלת חשבונות"
               />
             </div>
             <div className="space-y-2">
@@ -429,7 +454,7 @@ export function ClientDirectory() {
                 placeholder="כתובת / מספר משרד"
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 sm:col-span-2">
               <Label>ח.פ / עוסק מורשה</Label>
               <Input
                 dir="ltr"
