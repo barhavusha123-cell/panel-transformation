@@ -246,26 +246,25 @@ export function ClientDirectory() {
         </p>
       ) : (
         <div className="surface-panel overflow-hidden rounded-2xl">
-          <div className="hidden items-center gap-3 border-b border-border/60 bg-muted/40 px-4 py-2 text-[11px] font-medium text-muted-foreground lg:flex">
-            <span className="w-16">מס׳ לקוח</span>
-            <span className="min-w-0 flex-1">שם הלקוח</span>
-            <span className="w-36">מנהל / בעלים</span>
-            <span className="w-36">הנהלת חשבונות</span>
-            <span className="w-28">משרד</span>
-            <span className="w-40">דוא״ל</span>
-            <span className="w-20 text-center">פרויקטים</span>
-            <span className="w-20" />
+          <div className="hidden items-center gap-3 border-b border-border/60 bg-muted/40 px-4 py-2 text-[11px] font-medium text-muted-foreground lg:grid lg:grid-cols-[4rem_minmax(0,2fr)_9rem_9rem_7rem_10rem_5rem]">
+            <span>מס׳ לקוח</span>
+            <span>שם הלקוח</span>
+            <span>מנהל / בעלים</span>
+            <span>הנהלת חשבונות</span>
+            <span>משרד</span>
+            <span>דוא״ל</span>
+            <span className="text-center">פעולות</span>
           </div>
           <ul className="divide-y divide-border/50">
             {filtered.map((c) => (
               <li
                 key={c.id}
-                className="group flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 text-sm transition-colors hover:bg-muted/40"
+                className="group flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 text-sm transition-colors hover:bg-muted/40 lg:grid lg:grid-cols-[4rem_minmax(0,2fr)_9rem_9rem_7rem_10rem_5rem] lg:gap-3"
               >
-                <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
+                <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground lg:w-auto">
                   {c.clientNumber ?? "—"}
                 </span>
-                <div className="flex min-w-0 flex-1 items-center gap-2">
+                <div className="flex min-w-0 flex-1 items-center gap-2 lg:w-auto lg:min-w-0">
                   <div className="grid size-7 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
                     <Building2 className="size-3.5" />
                   </div>
@@ -276,7 +275,7 @@ export function ClientDirectory() {
                     </span>
                   )}
                 </div>
-                <span className="w-36 shrink-0 truncate text-muted-foreground">
+                <span className="w-36 shrink-0 truncate text-muted-foreground lg:w-auto">
                   {c.contactName || c.managementPhone || c.phone ? (
                     <span className="flex flex-col gap-0.5">
                       {c.contactName && (
@@ -296,7 +295,7 @@ export function ClientDirectory() {
                     ""
                   )}
                 </span>
-                <span className="w-36 shrink-0 truncate text-muted-foreground">
+                <span className="w-36 shrink-0 truncate text-muted-foreground lg:w-auto">
                   {c.accountingContact || c.accountingPhone ? (
                     <span className="flex flex-col gap-0.5">
                       {c.accountingContact && (
@@ -316,10 +315,10 @@ export function ClientDirectory() {
                     ""
                   )}
                 </span>
-                <span className="w-28 shrink-0 truncate text-muted-foreground">
+                <span className="w-28 shrink-0 truncate text-muted-foreground lg:w-auto">
                   {c.office || ""}
                 </span>
-                <span className="w-40 shrink-0 truncate text-muted-foreground">
+                <span className="w-40 shrink-0 truncate text-muted-foreground lg:w-auto">
                   {c.email ? (
                     <span className="flex items-center gap-1.5">
                       <Mail className="size-3.5 shrink-0" />
@@ -329,12 +328,7 @@ export function ClientDirectory() {
                     ""
                   )}
                 </span>
-                <span className="w-20 shrink-0 text-center">
-                  <Badge variant="secondary" className="text-[11px]">
-                    {projectCount.get(c.name.trim()) ?? 0}
-                  </Badge>
-                </span>
-                <span className="flex w-20 shrink-0 justify-end gap-1">
+                <span className="flex w-20 shrink-0 justify-end gap-1 lg:w-auto">
                   <Button
                     size="icon"
                     variant="ghost"
