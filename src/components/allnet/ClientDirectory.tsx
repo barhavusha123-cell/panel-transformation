@@ -191,7 +191,9 @@ export function ClientDirectory() {
   };
 
   const remove = (c: Client) => {
-    const linked = projectCount.get(c.name.trim()) ?? 0;
+    const linked = state.projects.filter(
+      (p) => (p.client ?? "").trim() === c.name.trim(),
+    ).length;
     if (linked > 0) {
       toast.error(`לא ניתן למחוק — ללקוח משויכים ${linked} פרויקטים.`);
       return;
