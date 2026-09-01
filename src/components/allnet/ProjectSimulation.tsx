@@ -185,6 +185,17 @@ export function ProjectSimulation({
     toast.success("הסימולציה נשמרה ותיטען בפתיחה הבאה");
   };
 
+  const handleReset = () => {
+    setRegion(project?.region ?? "מרכז");
+    setSaleAmount(Number(project?.saleAmount) || 0);
+    setAdditions(Number(project?.additions) || 0);
+    setFixedCosts(project?.fixedCosts ? project.fixedCosts.map((c) => ({ ...c })) : []);
+    setCrewSize(2);
+    setEmployeeShare(50);
+    setTargetProfit(0);
+    toast.info("הסימולציה אופסה לערכי הפרויקט המקוריים");
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92vh] max-w-5xl overflow-y-auto" dir="rtl">
