@@ -32,6 +32,7 @@ import {
   CATEGORY_LABELS,
   MIN_BUDGET,
   PROJECT_CATEGORIES,
+  SERVICE_STATUS_LABELS,
   REGIONS,
   ROLES,
   SUB_DAY_RATES,
@@ -245,6 +246,8 @@ export function AdminConsole() {
   const [detailProject, setDetailProject] = useState<string | null>(null);
   const [simProject, setSimProject] = useState<Project | null>(null);
   const [simOpen, setSimOpen] = useState(false);
+  /** פרויקט בשנת שירות שעבורו מוצגות קריאות השירות */
+  const [callsProject, setCallsProject] = useState<string | null>(null);
   const [tab, setTab] = useState("reports");
   const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
 
@@ -1535,16 +1538,27 @@ export function AdminConsole() {
                           </TableCell>
                         </>
                       )}
-                      <TableCell>
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            size="sm"
-                            variant="soft"
-                            onClick={() => {
-                              startEdit(p);
-                              window.scrollTo({ top: 0, behavior: "smooth" });
-                            }}
-                          >
+                       <TableCell>
+                         <div className="flex flex-wrap gap-2">
+                           {categoryView === "warranty" && (
+                             <Button
+                               size="sm"
+                               variant="soft"
+                               className="border border-blue/40 text-blue-dark hover:bg-blue/10"
+                               onClick={() => setCallsProject(p.name)}
+                             >
+                               <Headset className="size-4" />
+                               קריאות שירות
+                             </Button>
+                           )}
+                           <Button
+                             size="sm"
+                             variant="soft"
+                             onClick={() => {
+                               startEdit(p);
+                               window.scrollTo({ top: 0, behavior: "smooth" });
+                             }}
+                           >
                             <Pencil className="size-4" />
                             ערוך
                           </Button>
@@ -1608,6 +1622,109 @@ export function AdminConsole() {
           )}
         </div>
         <ProjectSimulation open={simOpen} onOpenChange={setSimOpen} project={simProject} />
+        <Dialog open={!!callsProject} onOpenChange={(o) => !o && setCallsProject(null)}>
+          <DialogContent dir="rtl" className="max-h-[85vh] overflow-y-auto text-right sm:max-w-2xl">
+            <DialogHeader className="text-right">
+              <DialogTitle className="flex items-center gap-2">
+                <Headset className="size-5 text-blue-dark" />
+                קריאות שירות — {callsProject}
+              </DialogTitle>
+              <DialogDescription>
+                כל קריאות השירות שנפתחו עבור הפרויקט במהלך שנת השירות
+              </DialogDescription>
+            </DialogHeader>
+            {(() => {
+              const proj = state.projects.find((x) => x.name === callsProject);
+              const calls = state.serviceCalls
+                .filter(
+                  (c) =>
+                    (c.project && c.project === callsProject) ||
+                    (!c.project && proj?.client && c.client === proj.client),
+                )
+                .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+              const totalMinutes = calls.reduce((a, c) => {
+                if (c.workFrom && c.workTo) {
+                  try {
+                    return a + minutesBetween(c.workFrom, c.workTo);
+                  } catch {
+                    return a;
+                  }
+                }
+                return a;
+              }, 0);
+              if (!calls.length)
+                return (
+                  <p className="py-6 text-center text-sm text-muted-foreground">
+                    לא נמצאו קריאות שירות עבור פרויקט זה.
+                  </p>
+                );
+              return (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="rounded-xl border border-border bg-surface-2/60 p-3 text-center">
+                      <p className="text-xs text-muted-foreground">סה"כ קריאות</p>
+                      <p className="text-xl font-bold">{calls.length}</p>
+                    </div>
+                    <div className="rounded-xl border border-border bg-surface-2/60 p-3 text-center">
+                      <p className="text-xs text-muted-foreground">קריאות פתוחות</p>
+                      <p className="text-xl font-bold text-orange-600">
+                        {calls.filter((c) => c.status !== "done").length}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-border bg-surface-2/60 p-3 text-center">
+                      <p className="text-xs text-muted-foreground">סה"כ שעות טיפול</p>
+                      <p className="text-xl font-bold text-blue-dark">
+                        {formatHoursMinutes(totalMinutes)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {calls.map((c) => (
+                      <div
+                        key={c.id}
+                        className="rounded-xl border border-border bg-card p-3 shadow-sm"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="font-semibold">
+                            #{c.number} — {c.subject}
+                          </p>
+                          <Badge
+                            variant={c.status === "done" ? "secondary" : "default"}
+                            className="w-fit"
+                          >
+                            {SERVICE_STATUS_LABELS[c.status]}
+                          </Badge>
+                        </div>
+                        <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                          <span>נפתחה: {formatDateIL(c.createdAt.slice(0, 10))}</span>
+                          {c.closedAt && (
+                            <span>נסגרה: {formatDateIL(c.closedAt.slice(0, 10))}</span>
+                          )}
+                          {c.technician && <span>טכנאי: {c.technician}</span>}
+                          {c.workFrom && c.workTo && (
+                            <span>
+                              שעות: {c.workFrom}–{c.workTo} (
+                              {formatHoursMinutes(minutesBetween(c.workFrom, c.workTo))})
+                            </span>
+                          )}
+                        </div>
+                        {c.description && (
+                          <p className="mt-1 text-xs text-muted-foreground">{c.description}</p>
+                        )}
+                        {c.followUp && (
+                          <p className="mt-1 text-xs">
+                            <span className="font-medium">המשך טיפול: </span>
+                            {c.followUp}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
