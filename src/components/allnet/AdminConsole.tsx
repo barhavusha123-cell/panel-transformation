@@ -25,6 +25,7 @@ import {
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { FixedCostsEditor } from "./FixedCostsEditor";
 import { UserDirectory } from "./UserDirectory";
+import { ClientDirectory } from "./ClientDirectory";
 import { ServiceCallsAdmin } from "./ServiceCalls";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
@@ -342,9 +343,12 @@ export function AdminConsole() {
   const clientHistory = useMemo(
     () =>
       Array.from(
-        new Set(state.projects.map((p) => (p.client ?? "").trim()).filter(Boolean)),
+        new Set([
+          ...state.projects.map((p) => (p.client ?? "").trim()),
+          ...(state.clients ?? []).map((c) => (c.name ?? "").trim()),
+        ].filter(Boolean)),
       ).sort((a, b) => a.localeCompare(b, "he")),
-    [state.projects],
+    [state.projects, state.clients],
   );
   const projectNameHistory = useMemo(
     () =>
@@ -2191,6 +2195,12 @@ export function AdminConsole() {
               ניהול משתמשים
             </TabsTrigger>
             <TabsTrigger
+              value="clients"
+              className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
+            >
+              ניהול לקוחות
+            </TabsTrigger>
+            <TabsTrigger
               value="projects"
               className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
             >
@@ -2506,6 +2516,11 @@ export function AdminConsole() {
             </div>
 
             <UserDirectory />
+          </TabsContent>
+
+          {/* Clients */}
+          <TabsContent value="clients" className="mt-6">
+            <ClientDirectory />
           </TabsContent>
 
           {/* Projects & files */}
