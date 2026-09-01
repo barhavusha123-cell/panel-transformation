@@ -531,20 +531,15 @@ export function ServiceCallsAdmin() {
     }
   };
 
+  // רק לקוחות שהוקמו בלשונית "ניהול לקוחות"
   const clients = useMemo(
     () =>
-      Array.from(
-        new Set(
-          [
-            ...state.projects.map((p) => p.client ?? ""),
-            ...state.serviceCalls.map((c) => c.client ?? ""),
-          ]
-            .map((s) => s.trim())
-            .filter(Boolean),
-        ),
-      ).sort((a, b) => a.localeCompare(b, "he")),
-    [state.projects, state.serviceCalls],
+      Array.from(new Set((state.clients ?? []).map((c) => (c.name ?? "").trim()).filter(Boolean))).sort(
+        (a, b) => a.localeCompare(b, "he"),
+      ),
+    [state.clients],
   );
+
 
   const projectNames = useMemo(
     () =>
