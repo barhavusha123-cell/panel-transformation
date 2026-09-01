@@ -37,6 +37,14 @@ const emptyForm = {
   notes: "",
 };
 
+const FIRST_CLIENT_NUMBER = 26001;
+
+const nextClientNumber = (list: { clientNumber?: number }[]) =>
+  Math.max(
+    FIRST_CLIENT_NUMBER - 1,
+    ...list.map((c) => c.clientNumber ?? 0),
+  ) + 1;
+
 const newId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
@@ -49,6 +57,29 @@ export function ClientDirectory() {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+
+  // השלמת מספרי לקוח ללקוחות ותיקים (לפי סדר ההקמה)
+  useEffect(() => {
+    if (!clients.some((c) => !c.clientNumber)) return;
+    setState((prev) => {
+      const list = prev.clients ?? [];
+      if (!list.some((c) => !c.clientNumber)) return prev;
+      let next = nextClientNumber(list);
+      const ordered = [...list].sort((a, b) =>
+        (a.createdAt ?? "").localeCompare(b.createdAt ?? ""),
+      );
+      const assigned = new Map<string, number>();
+      ordered.forEach((c) => {
+        if (!c.clientNumber) assigned.set(c.id, next++);
+      });
+      return {
+        ...prev,
+        clients: list.map((c) =>
+          assigned.has(c.id) ? { ...c, clientNumber: assigned.get(c.id) } : c,
+        ),
+      };
+    });
+  }, [clients, setState]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
