@@ -2158,78 +2158,83 @@ export function AdminConsole() {
           ))}
 
           {activeProjects.length ? (
-            <div className="space-y-6">
-              <div className="surface-panel rounded-2xl p-6">
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                  <h3 className="text-lg font-semibold">התפלגות פרויקטים</h3>
-                </div>
+            <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+              <div className="space-y-6">
+                <div className="surface-panel rounded-2xl p-6">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="text-lg font-semibold">התפלגות פרויקטים</h3>
+                  </div>
 
-                {dashRows.length ? (
-                  <div className="relative">
-                    <ResponsiveContainer width="100%" height={420}>
-                      <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                        <Pie
-                          data={dashRows.map((r) => ({ ...r, value: 1 }))}
-                          dataKey="value"
-                          nameKey="name"
-                          cx="50%"
-                          cy="50%"
-                          innerRadius="30%"
-                          outerRadius="95%"
-                          paddingAngle={1.5}
-                          labelLine={false}
-                          label={SliceLabel}
-                          isAnimationActive={false}
-                        >
-                          {dashRows.map((r, i) => {
-                            const isHovered = hoveredSlice === r.name;
-                            return (
-                              <Cell
-                                key={r.name}
-                                fill={isHovered ? "#22c55e" : CHART_COLORS[i % 6]}
-                                stroke="var(--background)"
-                                strokeWidth={2}
-                                className="cursor-pointer transition-all duration-200"
-                                onClick={() => setDetailProject(r.name)}
-                                onMouseEnter={() => setHoveredSlice(r.name)}
-                                onMouseLeave={() => setHoveredSlice(null)}
-                              />
-                            );
-                          })}
-                        </Pie>
-                        <Tooltip
-                          contentStyle={{
-                            background: "var(--popover)",
-                            border: "1px solid var(--border)",
-                            borderRadius: 12,
-                            color: "var(--popover-foreground)",
-                          }}
-                          formatter={(_v, _n, item) => {
-                            const p = item.payload as (typeof dashRows)[number];
-                            return [`${p.reported} / ${p.budget} שעות · ${p.pct}%`, p.name];
-                          }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                      <div className="text-center">
-                        <p className="text-xs font-medium text-muted-foreground">
-                          שווי פרויקטים בעבודה
-                        </p>
-                        <p className="text-xl font-bold text-foreground">
-                          {Math.round(dashRows.reduce((sum, r) => sum + r.sale, 0)).toLocaleString("he-IL")} ₪
-                        </p>
+                  {dashRows.length ? (
+                    <div className="relative">
+                      <ResponsiveContainer width="100%" height={560}>
+                        <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                          <Pie
+                            data={dashRows.map((r) => ({ ...r, value: 1 }))}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            innerRadius="34%"
+                            outerRadius="99%"
+                            paddingAngle={1.5}
+                            labelLine={false}
+                            label={SliceLabel}
+                            isAnimationActive={false}
+                          >
+                            {dashRows.map((r, i) => {
+                              const isHovered = hoveredSlice === r.name;
+                              return (
+                                <Cell
+                                  key={r.name}
+                                  fill={isHovered ? "#22c55e" : CHART_COLORS[i % 6]}
+                                  stroke="var(--background)"
+                                  strokeWidth={2}
+                                  className="cursor-pointer transition-all duration-200"
+                                  onClick={() => setDetailProject(r.name)}
+                                  onMouseEnter={() => setHoveredSlice(r.name)}
+                                  onMouseLeave={() => setHoveredSlice(null)}
+                                />
+                              );
+                            })}
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{
+                              background: "var(--popover)",
+                              border: "1px solid var(--border)",
+                              borderRadius: 12,
+                              color: "var(--popover-foreground)",
+                            }}
+                            formatter={(_v, _n, item) => {
+                              const p = item.payload as (typeof dashRows)[number];
+                              return [`${p.reported} / ${p.budget} שעות · ${p.pct}%`, p.name];
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                        <div className="text-center">
+                          <p className="text-xs font-medium text-muted-foreground">
+                            שווי פרויקטים בעבודה
+                          </p>
+                          <p className="text-xl font-bold text-foreground">
+                            {Math.round(dashRows.reduce((sum, r) => sum + r.sale, 0)).toLocaleString("he-IL")} ₪
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    אנא בחר לפחות פרויקט אחד להצגה בדשבורד.
-                  </p>
-                )}
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      אנא בחר לפחות פרויקט אחד להצגה בדשבורד.
+                    </p>
+                  )}
+                </div>
+
+
+
               </div>
 
-              <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+              <div className="space-y-6">
                 <div className="surface-panel rounded-2xl p-6">
                   <h3 className="mb-4 text-lg font-semibold">טבלת סיכום פרויקטים</h3>
                   <div className="space-y-3">
