@@ -95,6 +95,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { ProjectHoursDetail } from "./ProjectHoursDetail";
+import { ProjectSimulation } from "./ProjectSimulation";
 
 
 const CHART_COLORS = [
