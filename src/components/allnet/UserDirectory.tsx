@@ -48,7 +48,7 @@ function Avatar({ name, size = "md" }: { name: string; size?: "md" | "lg" }) {
   const dim = size === "lg" ? "size-16 text-xl" : "size-11 text-sm";
   return (
     <span
-      className={`relative flex ${dim} shrink-0 items-center justify-center rounded-full bg-surface-2 font-semibold text-primary ring-1 ring-border`}
+      className={`relative flex ${dim} shrink-0 items-center justify-center rounded-full bg-surface-2 font-semibold text-blue ring-1 ring-border`}
     >
       {name.trim() ? initials(name) : <UserRound className="size-1/2" />}
     </span>
