@@ -1030,6 +1030,22 @@ export function ServiceCallsAdmin() {
                 <Badge variant="secondary">{selectedIds.length} נבחרו</Badge>
               )}
             </label>
+            <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              className="border-primary/40 text-primary"
+              onClick={() => {
+                const ok = openServiceCallsOverviewReport(state.serviceCalls, techName);
+                if (ok)
+                  toast.success(
+                    `הופק דוח כללי עבור ${state.serviceCalls.length} קריאות שירות — ניתן לשמור כ-PDF.`,
+                  );
+                else toast.error("אין קריאות שירות או שהחלון נחסם על ידי הדפדפן.");
+              }}
+            >
+              <FileText className="size-4" />
+              דוח כללי — כל הקריאות + סיכום שעות
+            </Button>
             <Button
               variant="soft"
               disabled={!selectedIds.length}
