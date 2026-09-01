@@ -287,6 +287,12 @@ export function AdminConsole() {
     });
   const clearColFilter = (col: string) => setColFilters((prev) => ({ ...prev, [col]: [] }));
 
+  // pagination for hours report log
+  const [hoursPage, setHoursPage] = useState(1);
+  useEffect(() => {
+    setHoursPage(1);
+  }, [colFilters]);
+
   // ייצוא דוח מרוכז לאקסל — לפי פרויקט, חודש ומדווח
   const [excelOpen, setExcelOpen] = useState(false);
   const [excelProject, setExcelProject] = useState("all");
@@ -517,6 +523,14 @@ export function AdminConsole() {
     )
     .slice()
     .sort((a, b) => (a.date === b.date ? b.id - a.id : a.date < b.date ? 1 : -1));
+
+  const HOURS_PER_PAGE = 10;
+  const totalHoursPages = Math.max(1, Math.ceil(filteredHours.length / HOURS_PER_PAGE));
+  const safeHoursPage = Math.min(hoursPage, totalHoursPages);
+  const paginatedHours = filteredHours.slice(
+    (safeHoursPage - 1) * HOURS_PER_PAGE,
+    safeHoursPage * HOURS_PER_PAGE,
+  );
 
 
   const toggle = (arr: string[], v: string, set: (x: string[]) => void) =>
@@ -2231,7 +2245,7 @@ export function AdminConsole() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredHours.map((h) => (
+                      {paginatedHours.map((h) => (
                         <TableRow key={h.id} className="transition-colors hover:bg-surface-2/60">
                           <TableCell className="font-medium">{h.reporter}</TableCell>
                           <TableCell>{hourClient(h)}</TableCell>
@@ -2295,6 +2309,29 @@ export function AdminConsole() {
                       ))}
                     </TableBody>
                   </Table>
+                  {totalHoursPages > 1 && (
+                    <div className="mt-4 flex items-center justify-between">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setHoursPage((p) => Math.max(1, p - 1))}
+                        disabled={safeHoursPage <= 1}
+                      >
+                        הקודם
+                      </Button>
+                      <span className="text-sm text-muted-foreground">
+                        עמוד {safeHoursPage} מתוך {totalHoursPages} ({filteredHours.length} דיווחים)
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setHoursPage((p) => Math.min(totalHoursPages, p + 1))}
+                        disabled={safeHoursPage >= totalHoursPages}
+                      >
+                        הבא
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
