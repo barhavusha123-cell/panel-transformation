@@ -241,13 +241,15 @@ export function ClientDirectory() {
         </p>
       ) : (
         <div className="surface-panel overflow-hidden rounded-2xl">
-          <div className="hidden items-center gap-3 border-b border-border/60 bg-muted/40 px-4 py-2 text-[11px] font-medium text-muted-foreground md:flex">
+          <div className="hidden items-center gap-3 border-b border-border/60 bg-muted/40 px-4 py-2 text-[11px] font-medium text-muted-foreground lg:flex">
             <span className="w-16">מס׳ לקוח</span>
             <span className="min-w-0 flex-1">שם הלקוח</span>
-            <span className="w-40">איש קשר</span>
-            <span className="w-32">טלפון</span>
-            <span className="w-52">דוא״ל</span>
-            <span className="w-24 text-center">פרויקטים</span>
+            <span className="w-32">הנהלה</span>
+            <span className="w-32">הנהלת חשבונות</span>
+            <span className="w-28">משרד</span>
+            <span className="w-28">טלפון</span>
+            <span className="w-40">דוא״ל</span>
+            <span className="w-20 text-center">פרויקטים</span>
             <span className="w-20" />
           </div>
           <ul className="divide-y divide-border/50">
