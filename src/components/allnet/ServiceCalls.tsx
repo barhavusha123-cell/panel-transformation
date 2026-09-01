@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import { ClientPicker } from "./ClientPicker";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CalendarIcon,
@@ -531,20 +533,15 @@ export function ServiceCallsAdmin() {
     }
   };
 
+  // רק לקוחות שהוקמו בלשונית "ניהול לקוחות"
   const clients = useMemo(
     () =>
-      Array.from(
-        new Set(
-          [
-            ...state.projects.map((p) => p.client ?? ""),
-            ...state.serviceCalls.map((c) => c.client ?? ""),
-          ]
-            .map((s) => s.trim())
-            .filter(Boolean),
-        ),
-      ).sort((a, b) => a.localeCompare(b, "he")),
-    [state.projects, state.serviceCalls],
+      Array.from(new Set((state.clients ?? []).map((c) => (c.name ?? "").trim()).filter(Boolean))).sort(
+        (a, b) => a.localeCompare(b, "he"),
+      ),
+    [state.clients],
   );
+
 
   const projectNames = useMemo(
     () =>
@@ -775,18 +772,9 @@ export function ServiceCallsAdmin() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label>שם לקוח</Label>
-              <Input
-                list="service-clients"
-                value={client}
-                onChange={(e) => setClient(e.target.value)}
-                placeholder="שם הלקוח"
-              />
-              <datalist id="service-clients">
-                {clients.map((c) => (
-                  <option key={c} value={c} />
-                ))}
-              </datalist>
+              <ClientPicker value={client} onChange={setClient} clients={clients} />
             </div>
+
 
             <div className="space-y-2">
               <Label>אתר (לא חובה)</Label>
@@ -1180,12 +1168,13 @@ export function ServiceCallsAdmin() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>שם לקוח</Label>
-                <Input
-                  list="service-clients"
+                <ClientPicker
                   value={editing.client}
-                  onChange={(e) => setEditing({ ...editing, client: e.target.value })}
+                  onChange={(v) => setEditing({ ...editing, client: v })}
+                  clients={clients}
                 />
               </div>
+
               <div className="space-y-2">
                 <Label>אתר (לא חובה)</Label>
                 <Input

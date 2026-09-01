@@ -1,111 +1,124 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Building2, ChevronDown } from "lucide-react";
+import { Building2, Check, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 interface ClientPickerProps {
   value: string;
   onChange: (v: string) => void;
-  /** שמות לקוחות רשומים (מניהול לקוחות) — יוצגו ראשונים */
+  /** שמות לקוחות רשומים (מניהול לקוחות) — הבחירה האפשרית היחידה */
   clients: string[];
-  /** שמות נוספים מהיסטוריית פרויקטים */
+  /** לא בשימוש — נשמר לתאימות */
   history?: string[];
   placeholder?: string;
 }
 
 /**
- * שדה שם לקוח עם השלמה אוטומטית: בהקלדת האות הראשונה מוצגים
- * הלקוחות הרשומים במערכת לבחירה, ולאחר מכן שמות מההיסטוריה.
+ * בורר לקוח — ניתן לבחור אך ורק לקוח שהוקם ב"ניהול לקוחות".
+ * אין אפשרות להקליד שם חופשי; שדה החיפוש משמש לסינון בלבד.
  */
 export function ClientPicker({
   value,
   onChange,
   clients,
-  history = [],
-  placeholder = "שם הלקוח",
+  placeholder = "בחר לקוח מהרשימה",
 }: ClientPickerProps) {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const [highlight, setHighlight] = useState(0);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const suggestions = useMemo(() => {
-    const q = value.trim().toLowerCase();
-    const match = (n: string) => !q || n.toLowerCase().includes(q);
-    const fromClients = clients.filter(match);
-    const fromHistory = history.filter((n) => match(n) && !clients.includes(n));
-    return [
-      ...fromClients.map((name) => ({ name, registered: true })),
-      ...fromHistory.map((name) => ({ name, registered: false })),
-    ].slice(0, 8);
-  }, [value, clients, history]);
+  const options = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return clients
+      .map((c) => c.trim())
+      .filter(Boolean)
+      .filter((c) => !q || c.toLowerCase().includes(q))
+      .sort((a, b) => a.localeCompare(b, "he"));
+  }, [clients, query]);
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
         setOpen(false);
+        setQuery("");
       }
     };
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
+  useEffect(() => {
+    if (open) setTimeout(() => inputRef.current?.focus(), 0);
+  }, [open]);
+
   const pick = (name: string) => {
     onChange(name);
     setOpen(false);
+    setQuery("");
   };
 
   return (
     <div ref={wrapRef} className="relative">
-      <Input
-        value={value}
-        placeholder={placeholder}
-        autoComplete="off"
-        onChange={(e) => {
-          onChange(e.target.value);
-          setOpen(true);
-          setHighlight(0);
-        }}
-        onFocus={() => setOpen(true)}
-        onKeyDown={(e) => {
-          if (!open || suggestions.length === 0) return;
-          if (e.key === "ArrowDown") {
-            e.preventDefault();
-            setHighlight((h) => (h + 1) % suggestions.length);
-          } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            setHighlight((h) => (h - 1 + suggestions.length) % suggestions.length);
-          } else if (e.key === "Enter" && suggestions[highlight]) {
-            e.preventDefault();
-            pick(suggestions[highlight].name);
-          } else if (e.key === "Escape") {
-            setOpen(false);
-          }
-        }}
-        className="pe-9"
-      />
       <button
         type="button"
-        tabIndex={-1}
         onClick={() => setOpen((o) => !o)}
-        className="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-        aria-label="הצג רשימת לקוחות"
+        className={cn(
+          "flex h-10 w-full items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-start text-sm transition-colors hover:bg-muted/40",
+          !value && "text-muted-foreground",
+        )}
       >
-        <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
+        <Building2 className="size-4 shrink-0 text-primary" />
+        <span className="truncate">{value || placeholder}</span>
+        <ChevronDown
+          className={cn("ms-auto size-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180")}
+        />
       </button>
 
-      {open && suggestions.length > 0 && (
+      {open && (
         <div className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border bg-popover shadow-xl animate-fade">
-          <p className="border-b bg-muted/40 px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
-            לקוחות רשומים · הקלד לסינון
-          </p>
+          <div className="border-b p-2">
+            <Input
+              ref={inputRef}
+              value={query}
+              placeholder="חיפוש לקוח רשום…"
+              autoComplete="off"
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setHighlight(0);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setHighlight((h) => (h + 1) % Math.max(options.length, 1));
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setHighlight((h) => (h - 1 + options.length) % Math.max(options.length, 1));
+                } else if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (options[highlight]) pick(options[highlight]);
+                } else if (e.key === "Escape") {
+                  setOpen(false);
+                  setQuery("");
+                }
+              }}
+              className="h-9"
+            />
+          </div>
           <ul className="max-h-56 overflow-y-auto p-1">
-            {suggestions.map((s, i) => (
-              <li key={s.name}>
+            {options.length === 0 && (
+              <li className="px-3 py-3 text-center text-xs text-muted-foreground">
+                לא נמצאו לקוחות רשומים — יש להקים לקוח בלשונית "ניהול לקוחות".
+              </li>
+            )}
+            {options.map((name, i) => (
+              <li key={name}>
                 <button
                   type="button"
                   onMouseDown={(e) => {
                     e.preventDefault();
-                    pick(s.name);
+                    pick(name);
                   }}
                   onMouseEnter={() => setHighlight(i)}
                   className={cn(
@@ -113,22 +126,11 @@ export function ClientPicker({
                     i === highlight ? "bg-primary/10 text-foreground" : "hover:bg-muted",
                   )}
                 >
-                  <span
-                    className={cn(
-                      "grid size-7 shrink-0 place-items-center rounded-full",
-                      s.registered
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground",
-                    )}
-                  >
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
                     <Building2 className="size-3.5" />
                   </span>
-                  <span className="truncate font-medium">{s.name}</span>
-                  {s.registered && (
-                    <span className="ms-auto shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                      לקוח רשום
-                    </span>
-                  )}
+                  <span className="truncate font-medium">{name}</span>
+                  {value === name && <Check className="ms-auto size-4 shrink-0 text-primary" />}
                 </button>
               </li>
             ))}
