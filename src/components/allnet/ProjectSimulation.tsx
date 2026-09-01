@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Calculator, FileDown, RotateCcw, Save, TrendingUp } from "lucide-react";
+import * as SliderPrimitive from "@radix-ui/react-slider";
 import { openSimulationReport } from "@/lib/allnet/simulationReport";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
@@ -136,6 +137,8 @@ export function ProjectSimulation({
       conDays: calc.crewRate > 0 ? conBudget / calc.crewRate : 0,
     };
   });
+
+  const contractorShare = 100 - employeeShare;
 
   const handleExportPdf = () => {
     const ok = openSimulationReport({
@@ -288,22 +291,39 @@ export function ProjectSimulation({
 
             <FixedCostsEditor value={fixedCosts} onChange={setFixedCosts} />
 
-            <div className="space-y-2 rounded-xl border border-border bg-surface/60 p-4">
-              <div className="flex items-center justify-between">
-                <Label>חלוקת תקציב העבודה — עובדי חברה</Label>
-                <Badge variant="secondary">
-                  {employeeShare}% חברה / {100 - employeeShare}% קבלן
+            <div className="space-y-3 rounded-xl border border-border bg-surface/60 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <Label>חלוקת תקציב העבודה</Label>
+                <Badge
+                  variant="outline"
+                  className={
+                    contractorShare >= 50
+                      ? "border-blue-200 bg-blue-100 text-blue-700"
+                      : "border-orange-200 bg-orange-100 text-orange-700"
+                  }
+                >
+                  {contractorShare >= 50
+                    ? "מקסימום שימוש עובדי קבלן"
+                    : "מקסימום שימוש עובדי חברה"}
                 </Badge>
               </div>
-              <input
-                type="range"
+              <SliderPrimitive.Root
                 min={0}
                 max={100}
                 step={5}
-                value={employeeShare}
-                onChange={(e) => setEmployeeShare(Number(e.target.value))}
-                className="w-full accent-emerald-600"
-              />
+                value={[contractorShare]}
+                onValueChange={([v]) => setEmployeeShare(100 - (v ?? 0))}
+                className="relative flex w-full touch-none select-none items-center py-1"
+              >
+                <SliderPrimitive.Track className="relative h-4 w-full grow overflow-hidden rounded-full bg-orange-200">
+                  <SliderPrimitive.Range className="absolute h-full bg-blue-500" />
+                </SliderPrimitive.Track>
+                <SliderPrimitive.Thumb className="block h-6 w-6 rounded-full border-2 border-white bg-blue-500 shadow-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" />
+              </SliderPrimitive.Root>
+              <div className="flex justify-between text-sm font-medium">
+                <span className="text-orange-600">עובדי חברה {employeeShare}%</span>
+                <span className="text-blue-600">עובדי קבלן {contractorShare}%</span>
+              </div>
             </div>
           </div>
 
