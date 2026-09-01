@@ -138,6 +138,8 @@ export function ProjectSimulation({
     };
   });
 
+  const contractorShare = 100 - employeeShare;
+
   const handleExportPdf = () => {
     const ok = openSimulationReport({
       name,
