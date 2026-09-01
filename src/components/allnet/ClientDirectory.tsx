@@ -404,20 +404,20 @@ export function ClientDirectory() {
               />
             </div>
             <div className="space-y-2">
-              <Label>הנהלה</Label>
+              <Label>מנהל / בעלים</Label>
               <Input
                 value={form.contactName}
                 onChange={(e) => setForm({ ...form, contactName: e.target.value })}
-                placeholder="איש קשר הנהלה"
+                placeholder="שם מנהל / בעלים"
               />
             </div>
             <div className="space-y-2">
-              <Label>טלפון הנהלה</Label>
+              <Label>טלפון</Label>
               <Input
                 dir="ltr"
                 value={form.managementPhone}
                 onChange={(e) => setForm({ ...form, managementPhone: e.target.value })}
-                placeholder="טלפון איש קשר הנהלה"
+                placeholder="טלפון מנהל / בעלים"
               />
             </div>
             <div className="space-y-2">
