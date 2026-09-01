@@ -42,6 +42,7 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-blue: var(--blue);
   --color-blue-foreground: var(--blue-foreground);
+  --color-blue-dark: var(--blue-dark);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
