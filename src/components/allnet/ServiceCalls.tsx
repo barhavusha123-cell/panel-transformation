@@ -557,6 +557,11 @@ export function ServiceCallsAdmin() {
     [state.clients],
   );
 
+  const selectedClientSla = useMemo(() => {
+    const matched = state.clients?.find((c) => (c.name ?? "").trim() === (client ?? "").trim());
+    return !!matched?.sla;
+  }, [state.clients, client]);
+
 
   const projectNames = useMemo(
     () =>
