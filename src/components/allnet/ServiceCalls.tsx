@@ -686,6 +686,12 @@ export function ServiceCallsAdmin() {
     setAttachments([]);
   };
 
+  const handleCancel = () => {
+    reset();
+    setOpen(false);
+    void navigate({ to: "/" });
+  };
+
   const create = (e: React.FormEvent) => {
     e.preventDefault();
     if (!client.trim()) {
