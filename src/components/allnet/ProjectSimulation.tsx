@@ -199,6 +199,20 @@ export function ProjectSimulation({
     toast.info("הסימולציה אופסה לערכי הפרויקט המקוריים");
   };
 
+  const handleClearFields = () => {
+    setName("");
+    setClient("");
+    setManager("");
+    setRegion("מרכז");
+    setSaleAmount(0);
+    setAdditions(0);
+    setFixedCosts([]);
+    setCrewSize(2);
+    setEmployeeShare(50);
+    setTargetProfit(0);
+    toast.info("כל השדות נוקו");
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92vh] max-w-5xl overflow-y-auto" dir="rtl">
