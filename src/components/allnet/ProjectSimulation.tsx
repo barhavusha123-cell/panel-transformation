@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calculator, FileDown, Save, TrendingUp } from "lucide-react";
+import { Calculator, FileDown, RotateCcw, Save, TrendingUp } from "lucide-react";
 import { openSimulationReport } from "@/lib/allnet/simulationReport";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
