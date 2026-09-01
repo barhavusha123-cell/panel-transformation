@@ -272,7 +272,7 @@ export function EmployeePortal() {
       </div>
 
       <Tabs defaultValue="report" dir="rtl">
-        <TabsList className="bg-surface-2/70 p-1">
+        <TabsList className="flex w-full flex-nowrap justify-start overflow-x-auto bg-surface-2/70 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <TabsTrigger
             value="report"
             className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
