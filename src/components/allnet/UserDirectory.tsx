@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import {
   Briefcase,
   KeyRound,
@@ -106,12 +105,11 @@ export function UserDirectory() {
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {users.map((u) => (
-          <motion.button
+          <button
             key={u.username}
             type="button"
-            whileHover={{ y: -2 }}
             onClick={() => setSelected(u.username)}
-            className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-right transition-colors hover:border-primary/50 hover:bg-surface-2/60"
+            className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-right transition-colors hover:border-primary/50 hover:bg-surface-2/60 hover:-translate-y-0.5"
           >
             <Avatar name={u.full_name} />
             <span className="min-w-0 flex-1">
@@ -130,7 +128,7 @@ export function UserDirectory() {
                 )}
               </span>
             </span>
-          </motion.button>
+          </button>
         ))}
         {!users.length && (
           <p className="text-sm text-muted-foreground">לא נמצאו משתמשים תואמים.</p>
