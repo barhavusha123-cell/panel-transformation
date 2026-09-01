@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { ClientPicker } from "./ClientPicker";
+import { useNavigate } from "@tanstack/react-router";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
