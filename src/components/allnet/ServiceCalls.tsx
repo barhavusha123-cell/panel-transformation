@@ -781,7 +781,7 @@ export function ServiceCallsAdmin() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label>שם לקוח</Label>
-              <ClientPicker value={client} onChange={setClient} clients={clients} />
+              <ClientPicker value={client} onChange={handleClientChange} clients={clients} />
             </div>
 
 
