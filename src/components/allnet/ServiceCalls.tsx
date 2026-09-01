@@ -105,6 +105,17 @@ import {
 
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
+/** סדר חשיבות סטטוסים לתצוגה: חדשה → בטיפול → שויכה לטכנאי → טופלה */
+const STATUS_ORDER: Record<ServiceCallStatus, number> = {
+  new: 0,
+  in_progress: 1,
+  assigned: 2,
+  done: 3,
+};
+
+/** מספר קריאות מרבי בעמוד */
+const PAGE_SIZE = 10;
+
 const readFile = (file: File) =>
   new Promise<ServiceAttachment>((resolve, reject) => {
     const reader = new FileReader();
