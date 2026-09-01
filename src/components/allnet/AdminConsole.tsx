@@ -1538,19 +1538,40 @@ export function AdminConsole() {
                           </TableCell>
                         </>
                       )}
-                       <TableCell>
-                         <div className="flex flex-wrap gap-2">
-                           {categoryView === "warranty" && (
-                             <Button
-                               size="sm"
-                               variant="soft"
-                               className="border border-blue/40 text-blue-dark hover:bg-blue/10"
-                               onClick={() => setCallsProject(p.name)}
-                             >
-                               <Headset className="size-4" />
-                               קריאות שירות
-                             </Button>
-                           )}
+                         <TableCell>
+                          <div className="flex flex-wrap gap-2">
+                            {categoryView === "warranty" && (
+                              <>
+                              <Button
+                                size="sm"
+                                variant="soft"
+                                className="border border-blue/40 text-blue-dark hover:bg-blue/10"
+                                onClick={() => setCallsProject(p.name)}
+                              >
+                                <Headset className="size-4" />
+                                קריאות שירות
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="soft"
+                                className="border border-success/60 text-success hover:bg-success/10"
+                                onClick={() => {
+                                  const detail = { client: p.client ?? "", project: p.name };
+                                  setView("service");
+                                  window.setTimeout(
+                                    () =>
+                                      window.dispatchEvent(
+                                        new CustomEvent("allnet:new-service-call", { detail }),
+                                      ),
+                                    120,
+                                  );
+                                }}
+                              >
+                                <Plus className="size-4" />
+                                פתח קריאת שירות
+                              </Button>
+                              </>
+                            )}
                            <Button
                              size="sm"
                              variant="soft"
