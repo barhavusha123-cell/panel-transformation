@@ -416,7 +416,6 @@ export function BoqChecklist({
                           min={0}
                           max={qty}
                           value={done}
-                          disabled={readOnly}
                           onChange={(e) =>
                             update(i.id, {
                               doneQty: Math.min(Math.max(Number(e.target.value) || 0, 0), qty),
@@ -424,7 +423,7 @@ export function BoqChecklist({
                           }
                           className="h-8 w-20 text-xs"
                         />
-                        {!readOnly && (
+                        {(
                           <button
                             type="button"
                             title="סמן כבוצע במלואו"
