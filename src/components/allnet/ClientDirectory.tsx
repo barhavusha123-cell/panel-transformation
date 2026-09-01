@@ -30,6 +30,8 @@ import { Separator } from "@/components/ui/separator";
 const emptyForm = {
   name: "",
   contactName: "",
+  accountingContact: "",
+  office: "",
   phone: "",
   email: "",
   taxId: "",
@@ -86,7 +88,7 @@ export function ClientDirectory() {
     const list = [...clients].sort((a, b) => a.name.localeCompare(b.name, "he"));
     if (!q) return list;
     return list.filter((c) =>
-      [c.name, c.contactName, c.phone, c.email, c.taxId, c.address]
+      [c.name, c.contactName, c.accountingContact, c.office, c.phone, c.email, c.taxId, c.address]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(q)),
     );
@@ -112,6 +114,8 @@ export function ClientDirectory() {
     setForm({
       name: c.name,
       contactName: c.contactName ?? "",
+      accountingContact: c.accountingContact ?? "",
+      office: c.office ?? "",
       phone: c.phone ?? "",
       email: c.email ?? "",
       taxId: c.taxId ?? "",
@@ -144,6 +148,8 @@ export function ClientDirectory() {
                 ...c,
                 name,
                 contactName: form.contactName.trim(),
+                accountingContact: form.accountingContact.trim(),
+                office: form.office.trim(),
                 phone: form.phone.trim(),
                 email: form.email.trim(),
                 taxId: form.taxId.trim(),
@@ -166,6 +172,8 @@ export function ClientDirectory() {
         clientNumber: nextClientNumber(list),
         name,
         contactName: form.contactName.trim(),
+        accountingContact: form.accountingContact.trim(),
+        office: form.office.trim(),
         phone: form.phone.trim(),
         email: form.email.trim(),
         taxId: form.taxId.trim(),
@@ -233,13 +241,15 @@ export function ClientDirectory() {
         </p>
       ) : (
         <div className="surface-panel overflow-hidden rounded-2xl">
-          <div className="hidden items-center gap-3 border-b border-border/60 bg-muted/40 px-4 py-2 text-[11px] font-medium text-muted-foreground md:flex">
+          <div className="hidden items-center gap-3 border-b border-border/60 bg-muted/40 px-4 py-2 text-[11px] font-medium text-muted-foreground lg:flex">
             <span className="w-16">מס׳ לקוח</span>
             <span className="min-w-0 flex-1">שם הלקוח</span>
-            <span className="w-40">איש קשר</span>
-            <span className="w-32">טלפון</span>
-            <span className="w-52">דוא״ל</span>
-            <span className="w-24 text-center">פרויקטים</span>
+            <span className="w-32">הנהלה</span>
+            <span className="w-32">הנהלת חשבונות</span>
+            <span className="w-28">משרד</span>
+            <span className="w-28">טלפון</span>
+            <span className="w-40">דוא״ל</span>
+            <span className="w-20 text-center">פרויקטים</span>
             <span className="w-20" />
           </div>
           <ul className="divide-y divide-border/50">
@@ -262,7 +272,7 @@ export function ClientDirectory() {
                     </span>
                   )}
                 </div>
-                <span className="w-40 shrink-0 truncate text-muted-foreground">
+                <span className="w-32 shrink-0 truncate text-muted-foreground">
                   {c.contactName ? (
                     <span className="flex items-center gap-1.5">
                       <UserRound className="size-3.5 shrink-0" />
@@ -272,7 +282,20 @@ export function ClientDirectory() {
                     ""
                   )}
                 </span>
-                <span className="w-32 shrink-0 truncate text-muted-foreground" dir="ltr" style={{ textAlign: "end" }}>
+                <span className="w-32 shrink-0 truncate text-muted-foreground">
+                  {c.accountingContact ? (
+                    <span className="flex items-center gap-1.5">
+                      <UserRound className="size-3.5 shrink-0" />
+                      {c.accountingContact}
+                    </span>
+                  ) : (
+                    ""
+                  )}
+                </span>
+                <span className="w-28 shrink-0 truncate text-muted-foreground">
+                  {c.office || ""}
+                </span>
+                <span className="w-28 shrink-0 truncate text-muted-foreground" dir="ltr" style={{ textAlign: "end" }}>
                   {c.phone ? (
                     <span className="flex items-center gap-1.5">
                       <Phone className="size-3.5 shrink-0" />
@@ -282,7 +305,7 @@ export function ClientDirectory() {
                     ""
                   )}
                 </span>
-                <span className="w-52 shrink-0 truncate text-muted-foreground">
+                <span className="w-40 shrink-0 truncate text-muted-foreground">
                   {c.email ? (
                     <span className="flex items-center gap-1.5">
                       <Mail className="size-3.5 shrink-0" />
@@ -292,7 +315,7 @@ export function ClientDirectory() {
                     ""
                   )}
                 </span>
-                <span className="w-24 shrink-0 text-center">
+                <span className="w-20 shrink-0 text-center">
                   <Badge variant="secondary" className="text-[11px]">
                     {projectCount.get(c.name.trim()) ?? 0}
                   </Badge>
@@ -366,10 +389,19 @@ export function ClientDirectory() {
               />
             </div>
             <div className="space-y-2">
-              <Label>איש קשר</Label>
+              <Label>הנהלה</Label>
               <Input
                 value={form.contactName}
                 onChange={(e) => setForm({ ...form, contactName: e.target.value })}
+                placeholder="איש קשר הנהלה"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>הנהלת חשבונות</Label>
+              <Input
+                value={form.accountingContact}
+                onChange={(e) => setForm({ ...form, accountingContact: e.target.value })}
+                placeholder="איש קשר הנהלת חשבונות"
               />
             </div>
             <div className="space-y-2">
@@ -387,6 +419,14 @@ export function ClientDirectory() {
                 dir="ltr"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>משרד</Label>
+              <Input
+                value={form.office}
+                onChange={(e) => setForm({ ...form, office: e.target.value })}
+                placeholder="כתובת / מספר משרד"
               />
             </div>
             <div className="space-y-2">

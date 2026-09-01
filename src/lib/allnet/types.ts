@@ -333,8 +333,12 @@ export interface Client {
   /** מספר לקוח רץ אוטומטי (מתחיל ב-26001) */
   clientNumber?: number;
   name: string;
-  /** איש קשר ראשי */
+  /** איש קשר הנהלה */
   contactName?: string;
+  /** איש קשר הנהלת חשבונות */
+  accountingContact?: string;
+  /** משרד / אתר ראשי */
+  office?: string;
   phone?: string;
   email?: string;
   /** ח.פ / עוסק מורשה */
