@@ -1342,30 +1342,6 @@ export function AdminConsole() {
                           onChange={(fixedCosts) => setEditForm({ ...editForm, fixedCosts })}
                         />
                       </div>
-                      <div className="space-y-2 md:col-span-2">
-                        <Label>צוות משויך לפרויקט (ניתן לבחור כמה עובדים)</Label>
-                        <div className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-2 md:grid-cols-3">
-                          {state.users.map((u) => (
-                            <label
-                              key={u.username}
-                              className="flex items-center gap-2 text-sm"
-                            >
-                              <Checkbox
-                                checked={editForm.team.includes(u.full_name)}
-                                onCheckedChange={() =>
-                                  setEditForm((prev) => ({
-                                    ...prev,
-                                    team: prev.team.includes(u.full_name)
-                                      ? prev.team.filter((x) => x !== u.full_name)
-                                      : [...prev.team, u.full_name],
-                                  }))
-                                }
-                              />
-                              {u.full_name}
-                            </label>
-                          ))}
-                        </div>
-                      </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <Button type="submit" variant="brand">
