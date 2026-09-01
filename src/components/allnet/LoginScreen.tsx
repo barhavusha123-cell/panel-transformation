@@ -161,7 +161,7 @@ export function LoginScreen() {
           </div>
           <h1 className="text-gradient text-4xl font-extrabold tracking-tight">ברוך הבא</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            התחבר למערכת ניהול תפעול ארגוני — <span className="text-primary font-semibold">AllNet</span>
+            התחבר למערכת ניהול תפעול ארגוני — <span className="font-semibold text-brand-red">AllNet</span>
           </p>
         </div>
 
