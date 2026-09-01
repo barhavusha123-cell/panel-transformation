@@ -269,7 +269,7 @@ export function AdminConsole() {
   const [urgentIdx, setUrgentIdx] = useState(0);
   useEffect(() => {
     if (urgentCalls.length < 2) return;
-    const t = setInterval(() => setUrgentIdx((i) => (i + 1) % urgentCalls.length), 5000);
+    const t = setInterval(() => setUrgentIdx((i) => (i + 1) % urgentCalls.length), 20000);
     return () => clearInterval(t);
   }, [urgentCalls.length]);
   const urgent = urgentCalls.length ? urgentCalls[urgentIdx % urgentCalls.length] : undefined;
@@ -1884,28 +1884,26 @@ export function AdminConsole() {
         <KpiCard title="קריאות שירות" icon={<Headset className="size-4" />} delay={40}>
           <div className="flex flex-col gap-4 sm:flex-row">
             {/* צד ימין — מוני קריאות */}
-            <div className="shrink-0 sm:w-60">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`text-2xl font-bold ${openServiceCalls ? "text-primary" : ""}`}
+            <div className="flex shrink-0 flex-col items-center justify-center sm:w-60">
+              <div className="text-center">
+                <div
+                  className={`text-5xl font-extrabold leading-none ${openServiceCalls ? "text-primary" : "text-muted-foreground"}`}
                 >
                   {openServiceCalls}
-                </span>
-                {unassignedServiceCalls > 0 && (
-                  <Badge variant="destructive" className="animate-pulse">
-                    {unassignedServiceCalls} ללא טכנאי
-                  </Badge>
-                )}
+                </div>
+                <p className="mt-1 text-sm font-medium text-muted-foreground">
+                  קריאות פתוחות
+                </p>
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {state.serviceCalls.length
-                  ? `סה"כ קריאות במערכת: ${state.serviceCalls.length}`
-                  : "לא נפתחו קריאות שירות"}
-              </p>
+              {unassignedServiceCalls > 0 && (
+                <Badge variant="destructive" className="mt-2 animate-pulse">
+                  {unassignedServiceCalls} ללא טכנאי
+                </Badge>
+              )}
               <Button
                 variant={openServiceCalls ? "brand" : "soft"}
                 size="sm"
-                className="mt-3 w-full"
+                className="mt-4 w-full"
                 onClick={() => setView("service")}
               >
                 נהל קריאות שירות
