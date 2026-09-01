@@ -48,6 +48,7 @@ export function AllNetProvider({ children }: { children: ReactNode }) {
           ...(Array.isArray(p.boq) ? { boq: p.boq } : {}),
           ...(p.boqFileName ? { boqFileName: p.boqFileName } : {}),
           ...(p.boqUpdatedAt ? { boqUpdatedAt: p.boqUpdatedAt } : {}),
+          ...(p.simulation ? { simulation: p.simulation } : {}),
 
 
 
