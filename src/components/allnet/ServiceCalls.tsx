@@ -105,6 +105,17 @@ import {
 
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
+/** סדר חשיבות סטטוסים לתצוגה: חדשה → בטיפול → שויכה לטכנאי → טופלה */
+const STATUS_ORDER: Record<ServiceCallStatus, number> = {
+  new: 0,
+  in_progress: 1,
+  assigned: 2,
+  done: 3,
+};
+
+/** מספר קריאות מרבי בעמוד */
+const PAGE_SIZE = 10;
+
 const readFile = (file: File) =>
   new Promise<ServiceAttachment>((resolve, reject) => {
     const reader = new FileReader();
@@ -333,22 +344,14 @@ function CallCard({
         <span className="brand-gradient flex size-9 items-center justify-center rounded-lg text-primary-foreground">
           <Headset className="size-4" />
         </span>
-        <span className="text-base font-bold tracking-wide text-primary">קריאה {formatCallNumber(call.number)}</span>
+        <span className="text-sm font-semibold text-foreground">קריאה {formatCallNumber(call.number)}</span>
         {statusBadge(call.status)}
         {priorityBadge(call.priority)}
-        <span className="text-sm">
-          <span className="text-muted-foreground">לקוח: </span>
-          <span className="font-semibold">{call.client}</span>
-        </span>
-        <span className="text-sm">
-          <span className="text-muted-foreground">טכנאי: </span>
-          <span className="font-semibold">{technicianName}</span>
-        </span>
-        <span className="text-xs text-muted-foreground">נפתחה {formatDateIL(call.createdAt)}</span>
+        <span className="text-sm text-foreground">לקוח: {call.client}</span>
+        <span className="text-sm text-foreground">טכנאי: {technicianName}</span>
+        <span className="text-sm text-foreground">נפתחה {formatDateIL(call.createdAt)}</span>
         {call.closedAt && (
-          <span className="text-xs font-medium text-emerald-700">
-            נסגרה {formatDateIL(call.closedAt)}
-          </span>
+          <span className="text-sm text-foreground">נסגרה {formatDateIL(call.closedAt)}</span>
         )}
         <ChevronDown
           className={`ms-auto size-5 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`}
@@ -368,31 +371,31 @@ function CallCard({
         </p>
         {call.project && (
           <p>
-            <span className="text-muted-foreground">פרויקט: </span>
+            <span className="text-foreground">פרויקט: </span>
             {call.project}
           </p>
         )}
         {call.contact && (
           <p>
-            <span className="text-muted-foreground">איש קשר: </span>
+            <span className="text-foreground">איש קשר: </span>
             {call.contact}
           </p>
         )}
         {call.address && (
           <p className="sm:col-span-2">
-            <span className="text-muted-foreground">כתובת: </span>
+            <span className="text-foreground">כתובת: </span>
             {call.address}
           </p>
         )}
         {(call.workFrom || call.workTo) && (
           <p>
-            <span className="text-muted-foreground">שעות עבודה באתר: </span>
+            <span className="text-foreground">שעות עבודה באתר: </span>
             {call.workFrom || "—"} - {call.workTo || "—"}
           </p>
         )}
         {call.additionalTechnician !== undefined && (
           <p>
-            <span className="text-muted-foreground">טכנאי נוסף באתר: </span>
+            <span className="text-foreground">טכנאי נוסף באתר: </span>
             {call.additionalTechnician
               ? `כן${call.additionalTechnicianName ? ` — ${call.additionalTechnicianName}` : ""}`
               : "לא"}
@@ -400,13 +403,13 @@ function CallCard({
         )}
         {call.equipmentSupplied && (
           <p className="sm:col-span-2">
-            <span className="text-muted-foreground">ציוד שסופק: </span>
+            <span className="text-foreground">ציוד שסופק: </span>
             <span className="whitespace-pre-wrap">{call.equipmentSupplied}</span>
           </p>
         )}
         {call.followUp && (
           <p className="sm:col-span-2">
-            <span className="text-muted-foreground">נושאים להמשך טיפול / הצעת מחיר: </span>
+            <span className="text-foreground">נושאים להמשך טיפול / הצעת מחיר: </span>
             <span className="whitespace-pre-wrap">{call.followUp}</span>
           </p>
         )}
@@ -414,7 +417,7 @@ function CallCard({
 
       <p className="mt-3 font-semibold">{call.subject}</p>
       {call.description && (
-        <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
+        <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">
           {call.description}
         </p>
       )}
@@ -428,7 +431,7 @@ function CallCard({
           <p className="text-xs font-semibold text-muted-foreground">יומן טיפול</p>
           {call.updates.map((u) => (
             <div key={u.id} className="rounded-xl bg-surface-2/60 p-3 text-sm">
-              <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-foreground">
                 <span className="font-semibold text-foreground">{u.by}</span>
                 <span>{formatDateIL(u.at)}</span>
                 {u.status && <span>· עודכן ל{SERVICE_STATUS_LABELS[u.status]}</span>}
@@ -444,7 +447,7 @@ function CallCard({
           <p className="text-xs font-semibold text-muted-foreground">אישור לקוח</p>
           {call.approverName && (
             <p className="text-sm">
-              <span className="text-muted-foreground">שם הלקוח המאשר: </span>
+              <span className="text-foreground">שם הלקוח המאשר: </span>
               <span className="font-semibold">{call.approverName}</span>
             </p>
           )}
@@ -592,8 +595,18 @@ export function ServiceCallsAdmin() {
         return true;
       })
       .slice()
-      .sort((a, b) => b.number - a.number);
+      .sort((a, b) => {
+        const s = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
+        return s !== 0 ? s : b.number - a.number;
+      });
   }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo]);
+
+  // עימוד — עד 10 קריאות בעמוד
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(calls.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageCalls = calls.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  useEffect(() => setPage(1), [statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo]);
 
   const clientOptions = useMemo(
     () => Array.from(new Set(state.serviceCalls.map((c) => c.client).filter((v): v is string => !!v))).sort((a, b) => a.localeCompare(b, "he")),
@@ -1059,8 +1072,18 @@ export function ServiceCallsAdmin() {
             </Button>
             </div>
           </div>
-          {calls.map((call) => (
-            <CallCard key={call.id} call={call} technicianName={techName(call.technician)}>
+          {pageCalls.map((call, idx) => (
+            <div key={call.id}>
+              {idx > 0 && pageCalls[idx - 1]!.status !== call.status && (
+                <div className="my-2 flex items-center gap-3" role="separator">
+                  <span className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {SERVICE_STATUS_LABELS[call.status]}
+                  </span>
+                  <span className="h-px flex-1 bg-border" />
+                </div>
+              )}
+            <CallCard call={call} technicianName={techName(call.technician)}>
               <div className="flex flex-wrap items-end gap-3">
                 <label className="flex cursor-pointer items-center gap-2 pb-2 text-xs font-medium text-muted-foreground">
                   <Checkbox
@@ -1157,7 +1180,32 @@ export function ServiceCallsAdmin() {
                 </Button>
               </div>
             </CallCard>
+            </div>
           ))}
+          {/* מעבר עמודים */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 border-t border-border pt-4">
+              <Button
+                variant="soft"
+                size="sm"
+                disabled={safePage <= 1}
+                onClick={() => setPage(safePage - 1)}
+              >
+                הקודם
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                עמוד {safePage} מתוך {totalPages} · {calls.length} קריאות
+              </span>
+              <Button
+                variant="soft"
+                size="sm"
+                disabled={safePage >= totalPages}
+                onClick={() => setPage(safePage + 1)}
+              >
+                הבא
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         <p className="rounded-xl border border-dashed border-border bg-surface/60 p-6 text-center text-sm text-muted-foreground">
