@@ -1643,6 +1643,7 @@ export function AdminConsole() {
             </div>
           )}
         </div>
+        <ProjectSimulation open={simOpen} onOpenChange={setSimOpen} project={simProject} />
       </div>
     );
   }
