@@ -75,7 +75,7 @@ export function ClientDirectory() {
       return {
         ...prev,
         clients: list.map((c) =>
-          assigned.has(c.id) ? { ...c, clientNumber: assigned.get(c.id) } : c,
+          assigned.has(c.id) ? { ...c, clientNumber: assigned.get(c.id)! } : c,
         ),
       };
     });
