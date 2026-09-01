@@ -163,6 +163,7 @@ export function ClientDirectory() {
       }
       const client: Client = {
         id: newId(),
+        clientNumber: nextClientNumber(list),
         name,
         contactName: form.contactName.trim(),
         phone: form.phone.trim(),
