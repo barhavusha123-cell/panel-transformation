@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { ClientPicker } from "./ClientPicker";
+import { useNavigate } from "@tanstack/react-router";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -480,6 +481,7 @@ function useTechnicians() {
 
 /** ניהול קריאות שירות — צד מנהל */
 export function ServiceCallsAdmin() {
+  const navigate = useNavigate();
   const { state, setState } = useAllNet();
   const technicians = useTechnicians();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -682,6 +684,12 @@ export function ServiceCallsAdmin() {
     setContact("");
     setAddress("");
     setAttachments([]);
+  };
+
+  const handleCancel = () => {
+    reset();
+    setOpen(false);
+    void navigate({ to: "/" });
   };
 
   const create = (e: React.FormEvent) => {
@@ -933,7 +941,10 @@ export function ServiceCallsAdmin() {
             </div>
           </div>
 
-          <div className="mt-5 flex justify-end">
+          <div className="mt-5 flex justify-end gap-2">
+            <Button type="button" variant="outline" size="lg" onClick={handleCancel}>
+              ביטול
+            </Button>
             <Button type="submit" variant="brand" size="lg">
               <Send className="size-4" />
               פתח קריאת שירות
