@@ -287,6 +287,12 @@ export function AdminConsole() {
     });
   const clearColFilter = (col: string) => setColFilters((prev) => ({ ...prev, [col]: [] }));
 
+  // pagination for hours report log
+  const [hoursPage, setHoursPage] = useState(1);
+  useEffect(() => {
+    setHoursPage(1);
+  }, [colFilters]);
+
   // ייצוא דוח מרוכז לאקסל — לפי פרויקט, חודש ומדווח
   const [excelOpen, setExcelOpen] = useState(false);
   const [excelProject, setExcelProject] = useState("all");
