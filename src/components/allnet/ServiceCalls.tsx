@@ -481,6 +481,7 @@ function useTechnicians() {
 
 /** ניהול קריאות שירות — צד מנהל */
 export function ServiceCallsAdmin() {
+  const navigate = useNavigate();
   const { state, setState } = useAllNet();
   const technicians = useTechnicians();
   const fileRef = useRef<HTMLInputElement>(null);
