@@ -32,7 +32,6 @@ export function BoqChecklist({
   const items = useMemo(() => project?.boq ?? [], [project]);
   const [busy, setBusy] = useState(false);
   const [over, setOver] = useState(false);
-  
   const [checklistCollapsed, setChecklistCollapsed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
