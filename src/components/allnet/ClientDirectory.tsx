@@ -339,6 +339,25 @@ export function ClientDirectory() {
           </DialogHeader>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
+              <Label>מספר לקוח</Label>
+              <Input
+                readOnly
+                disabled
+                dir="ltr"
+                className="bg-muted/50"
+                value={
+                  editingId
+                    ? String(
+                        clients.find((c) => c.id === editingId)?.clientNumber ?? "",
+                      )
+                    : String(nextClientNumber(clients))
+                }
+              />
+              <p className="text-[11px] text-muted-foreground">
+                מספר רץ אוטומטי — אינו ניתן לעריכה.
+              </p>
+            </div>
+            <div className="space-y-2 sm:col-span-2">
               <Label>שם הלקוח *</Label>
               <Input
                 value={form.name}
