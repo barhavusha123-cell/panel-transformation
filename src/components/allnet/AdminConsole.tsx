@@ -1936,7 +1936,9 @@ export function AdminConsole() {
                     key={urgent.id}
                     type="button"
                     onClick={() => setView("service")}
-                    className="animate-urgent-scroll block h-full w-full text-start"
+                    className={`block h-full w-full text-start ${
+                      urgentCalls.length > 1 ? "animate-urgent-scroll" : ""
+                    }`}
                   >
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-bold text-destructive">
