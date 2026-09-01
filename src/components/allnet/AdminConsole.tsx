@@ -1562,6 +1562,18 @@ export function AdminConsole() {
                         <div className="flex flex-wrap gap-2">
                           <Button
                             size="sm"
+                            variant="outline"
+                            className="border-emerald-500 text-emerald-700 hover:bg-emerald-500/10"
+                            onClick={() => {
+                              setSimProject(p);
+                              setSimOpen(true);
+                            }}
+                          >
+                            <Calculator className="size-4" />
+                            סימולציה
+                          </Button>
+                          <Button
+                            size="sm"
                             variant="soft"
                             onClick={() => {
                               startEdit(p);
