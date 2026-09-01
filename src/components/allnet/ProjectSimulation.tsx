@@ -378,6 +378,10 @@ export function ProjectSimulation({
             <Button variant="soft" onClick={() => onOpenChange(false)}>
               סגור
             </Button>
+            <Button variant="outline" className="gap-1.5" onClick={handleExportPdf}>
+              <FileDown className="size-4" />
+              ייצוא ל-PDF
+            </Button>
             <Button
               className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700"
               onClick={handleSave}
