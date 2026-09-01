@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calculator, Save, TrendingUp } from "lucide-react";
+import { Calculator, FileDown, Save, TrendingUp } from "lucide-react";
+import { openSimulationReport } from "@/lib/allnet/simulationReport";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { Button } from "@/components/ui/button";
@@ -135,6 +136,26 @@ export function ProjectSimulation({
       conDays: calc.crewRate > 0 ? conBudget / calc.crewRate : 0,
     };
   });
+
+  const handleExportPdf = () => {
+    const ok = openSimulationReport({
+      name,
+      client,
+      manager,
+      region,
+      saleAmount: Number(saleAmount) || 0,
+      additions: Number(additions) || 0,
+      fixedCosts,
+      crewSize,
+      employeeShare,
+      targetProfit,
+      employeeDayRate: EMPLOYEE_DAY_RATE,
+      employeeHourRate: EMPLOYEE_HOUR_RATE,
+      ...calc,
+      mix: mixRows,
+    });
+    if (!ok) toast.error("החלון נחסם על ידי הדפדפן — אפשר חלונות קופצים ונסה שוב");
+  };
 
   const handleSave = () => {
     if (!project?.name) {
@@ -377,6 +398,10 @@ export function ProjectSimulation({
           <div className="flex gap-2">
             <Button variant="soft" onClick={() => onOpenChange(false)}>
               סגור
+            </Button>
+            <Button variant="outline" className="gap-1.5" onClick={handleExportPdf}>
+              <FileDown className="size-4" />
+              ייצוא ל-PDF
             </Button>
             <Button
               className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700"
