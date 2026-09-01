@@ -105,6 +105,8 @@ export interface Project {
 export interface BoqDiscount {
   type: "percent" | "fixed";
   value: number;
+  /** true לאחר לחיצה על "אישור" — ההנחה נעולה לעריכה */
+  locked?: boolean;
 }
 
 /** מחשב את סכום ההנחה מתוך סכום */

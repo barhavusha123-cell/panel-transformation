@@ -241,18 +241,18 @@ export function BoqChecklist({
         <span className="font-bold">הנחה לכלל הפרויקט:</span>
         <select
           value={discount?.type ?? "percent"}
-          disabled={readOnly}
+          disabled={readOnly || discount?.locked}
           onChange={(e) =>
             setState((prev) => ({
               ...prev,
               projects: prev.projects.map((p) =>
                 p.name === projectName
-                  ? { ...p, boqDiscount: { type: e.target.value as "percent" | "fixed", value: p.boqDiscount?.value ?? 0 }, boqUpdatedAt: new Date().toISOString() }
+                  ? { ...p, boqDiscount: { type: e.target.value as "percent" | "fixed", value: p.boqDiscount?.value ?? 0, locked: false }, boqUpdatedAt: new Date().toISOString() }
                   : p,
               ),
             }))
           }
-          className="h-8 rounded-md border border-border bg-background px-2"
+          className="h-8 rounded-md border border-border bg-background px-2 disabled:opacity-60"
         >
           <option value="percent">אחוזים (%)</option>
           <option value="fixed">מחיר קבוע (₪)</option>
@@ -262,19 +262,64 @@ export function BoqChecklist({
           min={0}
           max={discount?.type === "percent" ? 100 : undefined}
           value={discount?.value ?? 0}
-          disabled={readOnly}
+          disabled={readOnly || discount?.locked}
           onChange={(e) =>
             setState((prev) => ({
               ...prev,
               projects: prev.projects.map((p) =>
                 p.name === projectName
-                  ? { ...p, boqDiscount: { type: p.boqDiscount?.type ?? "percent", value: Number(e.target.value) || 0 }, boqUpdatedAt: new Date().toISOString() }
+                  ? { ...p, boqDiscount: { type: p.boqDiscount?.type ?? "percent", value: Number(e.target.value) || 0, locked: false }, boqUpdatedAt: new Date().toISOString() }
                   : p,
               ),
             }))
           }
           className="h-8 w-24"
         />
+        {discount?.locked ? (
+          <>
+            <Badge className="gap-1 border-emerald-300 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+              <CheckCircle2 className="h-3 w-3" />
+              ההנחה אושרה ונקבעה
+            </Badge>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 gap-1 text-[11px]"
+              onClick={() => {
+                setState((prev) => ({
+                  ...prev,
+                  projects: prev.projects.map((p) =>
+                    p.name === projectName && p.boqDiscount
+                      ? { ...p, boqDiscount: { ...p.boqDiscount, locked: false }, boqUpdatedAt: new Date().toISOString() }
+                      : p,
+                  ),
+                }));
+                toast.info("ההנחה שוחררה לעריכה");
+              }}
+            >
+              ערוך הנחה
+            </Button>
+          </>
+        ) : (
+          <Button
+            size="sm"
+            className="h-7 gap-1 bg-emerald-600 text-[11px] text-white hover:bg-emerald-700"
+            onClick={() => {
+              setState((prev) => ({
+                ...prev,
+                projects: prev.projects.map((p) =>
+                  p.name === projectName
+                    ? { ...p, boqDiscount: { type: p.boqDiscount?.type ?? "percent", value: p.boqDiscount?.value ?? 0, locked: true }, boqUpdatedAt: new Date().toISOString() }
+                    : p,
+                ),
+              }));
+              toast.success("ההנחה אושרה ונקבעה בפרויקט");
+            }}
+          >
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            אשר וקבע הנחה
+          </Button>
+        )}
         <span className="text-muted-foreground">
           שווי הנחה: <b className="text-destructive">{ils(discountVal)}</b>
         </span>
