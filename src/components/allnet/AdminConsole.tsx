@@ -1524,15 +1524,21 @@ export function AdminConsole() {
                               const daysLeft = Math.ceil(
                                 (new Date(`${end}T00:00:00`).getTime() - Date.now()) / 86400000,
                               );
+                              const formattedEnd = new Date(`${end}T00:00:00`).toLocaleDateString("he-IL");
                               return (
-                                <Badge
-                                  variant={daysLeft <= 30 ? "destructive" : "secondary"}
-                                  className="w-fit"
-                                >
-                                  {daysLeft <= 0
-                                    ? "השירות הסתיים — יש לשלוח הסכם שירות"
-                                    : `${daysLeft} ימים`}
-                                </Badge>
+                                <div className="flex flex-col items-start gap-1">
+                                  <Badge
+                                    variant={daysLeft <= 30 ? "destructive" : "secondary"}
+                                    className="w-fit"
+                                  >
+                                    {daysLeft <= 0
+                                      ? "השירות הסתיים — יש לשלוח הסכם שירות"
+                                      : `${daysLeft} ימים`}
+                                  </Badge>
+                                  <span className="text-xs text-muted-foreground">
+                                    תאריך יעד: {formattedEnd}
+                                  </span>
+                                </div>
                               );
                             })()}
                           </TableCell>
