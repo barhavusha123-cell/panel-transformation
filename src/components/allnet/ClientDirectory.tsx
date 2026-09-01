@@ -412,6 +412,15 @@ export function ClientDirectory() {
               />
             </div>
             <div className="space-y-2">
+              <Label>טלפון הנהלה</Label>
+              <Input
+                dir="ltr"
+                value={form.managementPhone}
+                onChange={(e) => setForm({ ...form, managementPhone: e.target.value })}
+                placeholder="טלפון איש קשר הנהלה"
+              />
+            </div>
+            <div className="space-y-2">
               <Label>הנהלת חשבונות</Label>
               <Input
                 value={form.accountingContact}
@@ -420,11 +429,12 @@ export function ClientDirectory() {
               />
             </div>
             <div className="space-y-2">
-              <Label>טלפון</Label>
+              <Label>טלפון הנהלת חשבונות</Label>
               <Input
                 dir="ltr"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                value={form.accountingPhone}
+                onChange={(e) => setForm({ ...form, accountingPhone: e.target.value })}
+                placeholder="טלפון איש קשר הנהלת חשבונות"
               />
             </div>
             <div className="space-y-2">
@@ -444,7 +454,7 @@ export function ClientDirectory() {
                 placeholder="כתובת / מספר משרד"
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 sm:col-span-2">
               <Label>ח.פ / עוסק מורשה</Label>
               <Input
                 dir="ltr"
