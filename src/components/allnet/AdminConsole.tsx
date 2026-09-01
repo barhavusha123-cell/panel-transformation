@@ -35,6 +35,7 @@ import {
   MIN_BUDGET,
   PROJECT_CATEGORIES,
   SERVICE_STATUS_LABELS,
+  formatCallNumber,
   REGIONS,
   ROLES,
   SUB_DAY_RATES,
@@ -255,6 +256,23 @@ export function AdminConsole() {
 
   const openServiceCalls = state.serviceCalls.filter((c) => c.status !== "done").length;
   const unassignedServiceCalls = state.serviceCalls.filter((c) => !c.technician).length;
+
+  /** קריאות דחופות פתוחות — מוצגות ברצף מתחלף בדשבורד */
+  const urgentCalls = useMemo(
+    () =>
+      state.serviceCalls
+        .filter((c) => c.priority === "high" && c.status !== "done")
+        .slice()
+        .sort((a, b) => b.number - a.number),
+    [state.serviceCalls],
+  );
+  const [urgentIdx, setUrgentIdx] = useState(0);
+  useEffect(() => {
+    if (urgentCalls.length < 2) return;
+    const t = setInterval(() => setUrgentIdx((i) => (i + 1) % urgentCalls.length), 4000);
+    return () => clearInterval(t);
+  }, [urgentCalls.length]);
+  const urgent = urgentCalls.length ? urgentCalls[urgentIdx % urgentCalls.length] : undefined;
 
   useEffect(() => {
     const goHome = () => {
