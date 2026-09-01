@@ -775,18 +775,9 @@ export function ServiceCallsAdmin() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label>שם לקוח</Label>
-              <Input
-                list="service-clients"
-                value={client}
-                onChange={(e) => setClient(e.target.value)}
-                placeholder="שם הלקוח"
-              />
-              <datalist id="service-clients">
-                {clients.map((c) => (
-                  <option key={c} value={c} />
-                ))}
-              </datalist>
+              <ClientPicker value={client} onChange={setClient} clients={clients} />
             </div>
+
 
             <div className="space-y-2">
               <Label>אתר (לא חובה)</Label>
@@ -1180,12 +1171,13 @@ export function ServiceCallsAdmin() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>שם לקוח</Label>
-                <Input
-                  list="service-clients"
+                <ClientPicker
                   value={editing.client}
-                  onChange={(e) => setEditing({ ...editing, client: e.target.value })}
+                  onChange={(v) => setEditing({ ...editing, client: v })}
+                  clients={clients}
                 />
               </div>
+
               <div className="space-y-2">
                 <Label>אתר (לא חובה)</Label>
                 <Input
