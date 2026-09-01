@@ -350,6 +350,8 @@ export interface Client {
   taxId?: string;
   address?: string;
   notes?: string;
+  /** לקוח SLA — קריאות שירות יתועדפו אוטומטית כדחופות */
+  sla?: boolean;
   createdAt: string;
 }
 

@@ -26,6 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const emptyForm = {
   name: "",
@@ -38,6 +39,7 @@ const emptyForm = {
   taxId: "",
   address: "",
   notes: "",
+  sla: false,
 };
 
 const FIRST_CLIENT_NUMBER = 26001;
@@ -123,6 +125,7 @@ export function ClientDirectory() {
       taxId: c.taxId ?? "",
       address: c.address ?? "",
       notes: c.notes ?? "",
+      sla: c.sla ?? false,
     });
     setOpen(true);
   };
@@ -159,6 +162,7 @@ export function ClientDirectory() {
                 taxId: form.taxId.trim(),
                 address: form.address.trim(),
                 notes: form.notes.trim(),
+                sla: form.sla,
               }
             : c,
         );
@@ -185,6 +189,7 @@ export function ClientDirectory() {
         taxId: form.taxId.trim(),
         address: form.address.trim(),
         notes: form.notes.trim(),
+        sla: form.sla,
         createdAt: new Date().toISOString(),
       };
       return { ...prev, clients: [...list, client] };
@@ -475,6 +480,22 @@ export function ClientDirectory() {
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
               />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-muted/40 p-3">
+                <Checkbox
+                  checked={form.sla}
+                  onCheckedChange={(v) => setForm({ ...form, sla: v === true })}
+                  className="mt-0.5"
+                />
+                <span className="space-y-0.5">
+                  <span className="block text-sm font-medium">SLA</span>
+                  <span className="block text-xs text-muted-foreground">
+                    בסימון אפשרות זו, קריאות שירות שייפתחו עבור לקוח זה יתועדפו
+                    אוטומטית כדחופות.
+                  </span>
+                </span>
+              </label>
             </div>
           </div>
           <DialogFooter>

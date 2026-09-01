@@ -508,6 +508,9 @@ export function ServiceCallsAdmin() {
     if (matched?.address) {
       setProject(matched.address);
     }
+    if (matched?.sla) {
+      setPriority("high");
+    }
   };
 
   const [subject, setSubject] = useState("");
