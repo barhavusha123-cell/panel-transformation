@@ -12,6 +12,7 @@ import {
   Briefcase,
   Calculator,
   FileSpreadsheet,
+  FileText,
   FolderKanban,
   ListChecks,
   Headset,
@@ -30,6 +31,7 @@ import { ClientDirectory } from "./ClientDirectory";
 import { ClientPicker } from "./ClientPicker";
 import { ServiceCallsAdmin } from "./ServiceCalls";
 import { toast } from "sonner";
+import { openServiceCallsBulkReport } from "@/lib/allnet/serviceReport";
 import { useAllNet } from "@/lib/allnet/store";
 import {
   CATEGORY_LABELS,
