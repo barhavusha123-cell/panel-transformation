@@ -269,7 +269,7 @@ export function AdminConsole() {
   const [urgentIdx, setUrgentIdx] = useState(0);
   useEffect(() => {
     if (urgentCalls.length < 2) return;
-    const t = setInterval(() => setUrgentIdx((i) => (i + 1) % urgentCalls.length), 4000);
+    const t = setInterval(() => setUrgentIdx((i) => (i + 1) % urgentCalls.length), 5000);
     return () => clearInterval(t);
   }, [urgentCalls.length]);
   const urgent = urgentCalls.length ? urgentCalls[urgentIdx % urgentCalls.length] : undefined;
@@ -1912,7 +1912,7 @@ export function AdminConsole() {
               </Button>
             </div>
 
-            {/* צד שמאל — קריאות דחופות ברצף מתחלף */}
+            {/* צד שמאל — קריאות דחופות בגלילה מלמטה למעלה */}
             <div className="flex-1 overflow-hidden rounded-xl border border-destructive/30 bg-destructive/5 p-3">
               <div className="mb-2 flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-xs font-bold text-destructive">
@@ -1932,35 +1932,37 @@ export function AdminConsole() {
                   </span>
                 )}
               </div>
-              {urgent ? (
-                <button
-                  key={urgent.id}
-                  type="button"
-                  onClick={() => setView("service")}
-                  className="animate-fade block w-full text-start"
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-bold text-destructive">
-                      {formatCallNumber(urgent.number)}
-                    </span>
-                    <span className="text-sm font-semibold text-foreground">{urgent.client}</span>
-                    <Badge variant="outline" className="text-[10px]">
-                      {SERVICE_STATUS_LABELS[urgent.status]}
-                    </Badge>
-                    {urgent.technician && (
-                      <span className="text-xs text-muted-foreground">טכנאי: {urgent.technician}</span>
-                    )}
-                  </div>
-                  <p className="mt-1 line-clamp-2 text-xs text-foreground">
-                    {urgent.subject}
-                    {urgent.description ? ` — ${urgent.description}` : ""}
+              <div className="h-20 overflow-hidden">
+                {urgent ? (
+                  <button
+                    key={urgent.id}
+                    type="button"
+                    onClick={() => setView("service")}
+                    className="animate-urgent-scroll block h-full w-full text-start"
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-bold text-destructive">
+                        {formatCallNumber(urgent.number)}
+                      </span>
+                      <span className="text-sm font-semibold text-foreground">{urgent.client}</span>
+                      <Badge variant="outline" className="text-[10px]">
+                        {SERVICE_STATUS_LABELS[urgent.status]}
+                      </Badge>
+                      {urgent.technician && (
+                        <span className="text-xs text-muted-foreground">טכנאי: {urgent.technician}</span>
+                      )}
+                    </div>
+                    <p className="mt-1 line-clamp-2 text-xs text-foreground">
+                      {urgent.subject}
+                      {urgent.description ? ` — ${urgent.description}` : ""}
+                    </p>
+                  </button>
+                ) : (
+                  <p className="py-2 text-center text-xs text-muted-foreground">
+                    אין קריאות דחופות פתוחות
                   </p>
-                </button>
-              ) : (
-                <p className="py-2 text-center text-xs text-muted-foreground">
-                  אין קריאות דחופות פתוחות
-                </p>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </KpiCard>

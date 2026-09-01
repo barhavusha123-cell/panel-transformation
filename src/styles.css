@@ -402,3 +402,27 @@
     transform: translateY(-10px);
   }
 }
+
+/* Urgent service-call ticker — scrolls up from bottom, holds, then scrolls out */
+@utility animate-urgent-scroll {
+  animation: urgent-scroll 5000ms ease-in-out both;
+}
+
+@keyframes urgent-scroll {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  12% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  88% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
