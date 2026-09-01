@@ -76,7 +76,10 @@ export function openSimulationReport(d: SimulationReportData): boolean {
   const logoUrl = new URL(logo.url, window.location.origin).href;
   const fixedRows = d.fixedCosts.length
     ? d.fixedCosts
-        .map((c) => `<tr><td>${esc(c.label)}</td><td>${ils(Number(c.amount) || 0)}</td></tr>`)
+        .map(
+          (c) =>
+            `<tr><td>${esc(c.description || c.type)}</td><td>${ils(Number(c.amount) || 0)}</td></tr>`,
+        )
         .join("")
     : `<tr><td colspan="2" style="color:#cbd5e1">לא הוזנו עלויות קבועות</td></tr>`;
 
