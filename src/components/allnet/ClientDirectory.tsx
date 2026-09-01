@@ -389,10 +389,19 @@ export function ClientDirectory() {
               />
             </div>
             <div className="space-y-2">
-              <Label>איש קשר</Label>
+              <Label>הנהלה</Label>
               <Input
                 value={form.contactName}
                 onChange={(e) => setForm({ ...form, contactName: e.target.value })}
+                placeholder="איש קשר הנהלה"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>הנהלת חשבונות</Label>
+              <Input
+                value={form.accountingContact}
+                onChange={(e) => setForm({ ...form, accountingContact: e.target.value })}
+                placeholder="איש קשר הנהלת חשבונות"
               />
             </div>
             <div className="space-y-2">
@@ -410,6 +419,14 @@ export function ClientDirectory() {
                 dir="ltr"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>משרד</Label>
+              <Input
+                value={form.office}
+                onChange={(e) => setForm({ ...form, office: e.target.value })}
+                placeholder="כתובת / מספר משרד"
               />
             </div>
             <div className="space-y-2">
