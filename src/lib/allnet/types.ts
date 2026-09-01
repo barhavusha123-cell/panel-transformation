@@ -368,6 +368,7 @@ export const defaultState = (): AllNetState => ({
     },
   ],
   projects: [],
+  clients: [],
   hours: [],
   files: [],
   serviceCalls: [],
