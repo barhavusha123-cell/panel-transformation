@@ -483,6 +483,19 @@ export function ServiceCallsAdmin() {
   const [open, setOpen] = useState(false);
   const [client, setClient] = useState("");
   const [project, setProject] = useState("");
+
+  /** פתיחת טופס קריאה חדשה עם נתוני פרויקט מאזור "פרויקטים בשנת שירות" */
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent<{ client?: string; project?: string }>).detail ?? {};
+      setClient(d.client ?? "");
+      setProject(d.project ?? "");
+      setOpen(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    window.addEventListener("allnet:new-service-call", handler);
+    return () => window.removeEventListener("allnet:new-service-call", handler);
+  }, []);
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<ServiceCallPriority>("normal");
