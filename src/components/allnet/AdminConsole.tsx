@@ -269,7 +269,7 @@ export function AdminConsole() {
   const [urgentIdx, setUrgentIdx] = useState(0);
   useEffect(() => {
     if (urgentCalls.length < 2) return;
-    const t = setInterval(() => setUrgentIdx((i) => (i + 1) % urgentCalls.length), 20000);
+    const t = setInterval(() => setUrgentIdx((i) => (i + 1) % urgentCalls.length), 40000);
     return () => clearInterval(t);
   }, [urgentCalls.length]);
   const urgent = urgentCalls.length ? urgentCalls[urgentIdx % urgentCalls.length] : undefined;
