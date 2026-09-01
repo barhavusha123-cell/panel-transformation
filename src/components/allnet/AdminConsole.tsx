@@ -343,9 +343,12 @@ export function AdminConsole() {
   const clientHistory = useMemo(
     () =>
       Array.from(
-        new Set(state.projects.map((p) => (p.client ?? "").trim()).filter(Boolean)),
+        new Set([
+          ...state.projects.map((p) => (p.client ?? "").trim()),
+          ...(state.clients ?? []).map((c) => (c.name ?? "").trim()),
+        ].filter(Boolean)),
       ).sort((a, b) => a.localeCompare(b, "he")),
-    [state.projects],
+    [state.projects, state.clients],
   );
   const projectNameHistory = useMemo(
     () =>
