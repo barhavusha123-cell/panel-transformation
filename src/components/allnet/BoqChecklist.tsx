@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { CheckCircle2, FileSpreadsheet, ListChecks, Loader2, Plus, Trash2, Upload } from "lucide-react";
+import { CheckCircle2, ChevronDown, ChevronUp, FileSpreadsheet, ListChecks, Loader2, Plus, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { parseBoqFile } from "@/lib/allnet/boq.functions";
@@ -32,6 +32,7 @@ export function BoqChecklist({
   const items = useMemo(() => project?.boq ?? [], [project]);
   const [busy, setBusy] = useState(false);
   const [over, setOver] = useState(false);
+  const [progressCollapsed, setProgressCollapsed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const summary = boqSummary(items);
@@ -332,9 +333,22 @@ export function BoqChecklist({
       <div className="mb-4">
         <div className="mb-1 flex items-center justify-between text-xs">
           <span className="font-semibold">התקדמות ביצוע כספית</span>
-          <span className="font-bold text-primary">{summary.percent}%</span>
+          <div className="flex items-center gap-2">
+            {!progressCollapsed && (
+              <span className="font-bold text-primary">{summary.percent}%</span>
+            )}
+            <button
+              type="button"
+              onClick={() => setProgressCollapsed((v) => !v)}
+              className="inline-flex items-center justify-center rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              aria-label={progressCollapsed ? "הרחב התקדמות" : "צמצם התקדמות"}
+              title={progressCollapsed ? "הרחב התקדמות" : "צמצם התקדמות"}
+            >
+              {progressCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
-        <Progress value={summary.percent} />
+        {!progressCollapsed && <Progress value={summary.percent} />}
       </div>
 
       {items.length === 0 ? (
