@@ -327,8 +327,24 @@ export interface ServiceCall {
   additionalTechnicianName?: string | undefined;
 }
 
+/** לקוח במערכת */
+export interface Client {
+  id: string;
+  name: string;
+  /** איש קשר ראשי */
+  contactName?: string;
+  phone?: string;
+  email?: string;
+  /** ח.פ / עוסק מורשה */
+  taxId?: string;
+  address?: string;
+  notes?: string;
+  createdAt: string;
+}
+
 export interface AllNetState {
   users: User[];
+  clients: Client[];
   projects: Project[];
   hours: HoursEntry[];
   files: FileRecord[];
@@ -352,6 +368,7 @@ export const defaultState = (): AllNetState => ({
     },
   ],
   projects: [],
+  clients: [],
   hours: [],
   files: [],
   serviceCalls: [],
