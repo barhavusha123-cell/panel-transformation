@@ -333,7 +333,7 @@ export function EmployeePortal() {
             {managedProjects.map((name) => (
               <div key={name} className="space-y-2">
                 <p className="text-sm font-bold">{name}</p>
-                <BoqChecklist projectName={name} />
+                <BoqChecklist projectName={name} readOnly />
               </div>
             ))}
           </TabsContent>
