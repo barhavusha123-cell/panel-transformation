@@ -1188,7 +1188,32 @@ export function ServiceCallsAdmin() {
                 </Button>
               </div>
             </CallCard>
+            </div>
           ))}
+          {/* מעבר עמודים */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 border-t border-border pt-4">
+              <Button
+                variant="soft"
+                size="sm"
+                disabled={safePage <= 1}
+                onClick={() => setPage(safePage - 1)}
+              >
+                הקודם
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                עמוד {safePage} מתוך {totalPages} · {calls.length} קריאות
+              </span>
+              <Button
+                variant="soft"
+                size="sm"
+                disabled={safePage >= totalPages}
+                onClick={() => setPage(safePage + 1)}
+              >
+                הבא
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         <p className="rounded-xl border border-dashed border-border bg-surface/60 p-6 text-center text-sm text-muted-foreground">
