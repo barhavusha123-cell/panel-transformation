@@ -10,6 +10,7 @@ import {
 
   CalendarClock,
   Briefcase,
+  Calculator,
   FileSpreadsheet,
   FolderKanban,
   ListChecks,
@@ -1601,16 +1602,28 @@ export function AdminConsole() {
                               </>
                             )}
                            <Button
+                              size="sm"
+                              variant="soft"
+                              onClick={() => {
+                                startEdit(p);
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                            >
+                             <Pencil className="size-4" />
+                             ערוך
+                           </Button>
+                           <Button
                              size="sm"
                              variant="soft"
+                             className="border border-emerald-500/50 text-emerald-700 hover:bg-emerald-500/10"
                              onClick={() => {
-                               startEdit(p);
-                               window.scrollTo({ top: 0, behavior: "smooth" });
+                               setSimProject(p);
+                               setSimOpen(true);
                              }}
                            >
-                            <Pencil className="size-4" />
-                            ערוך
-                          </Button>
+                             <Calculator className="size-4" />
+                             סימולציה
+                           </Button>
                           <Button
                             size="sm"
                             variant="ghost"
