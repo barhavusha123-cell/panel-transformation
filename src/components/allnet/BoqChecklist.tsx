@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { CheckCircle2, FileSpreadsheet, ListChecks, Loader2, Plus, Trash2, Upload } from "lucide-react";
+import { CheckCircle2, ChevronDown, ChevronUp, FileSpreadsheet, ListChecks, Loader2, Plus, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { parseBoqFile } from "@/lib/allnet/boq.functions";
@@ -32,6 +32,7 @@ export function BoqChecklist({
   const items = useMemo(() => project?.boq ?? [], [project]);
   const [busy, setBusy] = useState(false);
   const [over, setOver] = useState(false);
+  const [progressCollapsed, setProgressCollapsed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const summary = boqSummary(items);
