@@ -513,7 +513,7 @@ export function ProjectHoursDetail({
               </div>
               <div className="space-y-2 self-start text-sm">
                 <div className="flex items-center justify-between rounded-lg border border-border p-2">
-                  <span>סכום מכירת הפרויקט</span>
+                  <span>סה"כ שווי פרויקט</span>
                   <span className="font-bold">{ils(saleAmount)}</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-border p-2">
