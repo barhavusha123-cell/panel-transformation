@@ -403,9 +403,9 @@
   }
 }
 
-/* Urgent service-call ticker — scrolls up from bottom, holds, then scrolls out */
+/* Urgent service-call ticker — scrolls up from bottom, holds for 40s, then scrolls out */
 @utility animate-urgent-scroll {
-  animation: urgent-scroll 5000ms ease-in-out both;
+  animation: urgent-scroll 40000ms ease-in-out both;
 }
 
 @keyframes urgent-scroll {
@@ -413,11 +413,11 @@
     transform: translateY(100%);
     opacity: 0;
   }
-  12% {
+  5% {
     transform: translateY(0);
     opacity: 1;
   }
-  88% {
+  95% {
     transform: translateY(0);
     opacity: 1;
   }
