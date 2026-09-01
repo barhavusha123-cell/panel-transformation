@@ -1940,19 +1940,19 @@ export function AdminConsole() {
                       urgentCalls.length > 1 ? "animate-urgent-scroll" : ""
                     }`}
                   >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-base font-bold text-destructive">
+                    <div className="flex flex-wrap items-center gap-2 text-black">
+                      <span className="text-base font-bold text-black">
                         {formatCallNumber(urgent.number)}
                       </span>
-                      <span className="text-base font-semibold text-foreground">{urgent.client}</span>
-                      <Badge variant="outline" className="text-xs">
+                      <span className="text-base font-bold text-black">{urgent.client}</span>
+                      <Badge variant="outline" className="text-xs text-black border-black/30">
                         {SERVICE_STATUS_LABELS[urgent.status]}
                       </Badge>
                       {urgent.technician && (
-                        <span className="text-sm text-muted-foreground">טכנאי: {urgent.technician}</span>
+                        <span className="text-sm text-black">טכנאי: {urgent.technician}</span>
                       )}
                     </div>
-                    <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-foreground">
+                    <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-black">
                       {urgent.subject}
                       {urgent.description ? ` — ${urgent.description}` : ""}
                     </p>
