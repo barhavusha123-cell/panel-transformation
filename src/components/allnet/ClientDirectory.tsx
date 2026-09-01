@@ -277,21 +277,41 @@ export function ClientDirectory() {
                     </span>
                   )}
                 </div>
-                <span className="w-32 shrink-0 truncate text-muted-foreground">
-                  {c.contactName ? (
-                    <span className="flex items-center gap-1.5">
-                      <UserRound className="size-3.5 shrink-0" />
-                      {c.contactName}
+                <span className="w-36 shrink-0 truncate text-muted-foreground">
+                  {c.contactName || c.managementPhone || c.phone ? (
+                    <span className="flex flex-col gap-0.5">
+                      {c.contactName && (
+                        <span className="flex items-center gap-1.5">
+                          <UserRound className="size-3.5 shrink-0" />
+                          {c.contactName}
+                        </span>
+                      )}
+                      {(c.managementPhone || c.phone) && (
+                        <span className="flex items-center gap-1.5 text-[11px]" dir="ltr" style={{ textAlign: "end" }}>
+                          <Phone className="size-3 shrink-0" />
+                          {c.managementPhone || c.phone}
+                        </span>
+                      )}
                     </span>
                   ) : (
                     ""
                   )}
                 </span>
-                <span className="w-32 shrink-0 truncate text-muted-foreground">
-                  {c.accountingContact ? (
-                    <span className="flex items-center gap-1.5">
-                      <UserRound className="size-3.5 shrink-0" />
-                      {c.accountingContact}
+                <span className="w-36 shrink-0 truncate text-muted-foreground">
+                  {c.accountingContact || c.accountingPhone ? (
+                    <span className="flex flex-col gap-0.5">
+                      {c.accountingContact && (
+                        <span className="flex items-center gap-1.5">
+                          <UserRound className="size-3.5 shrink-0" />
+                          {c.accountingContact}
+                        </span>
+                      )}
+                      {c.accountingPhone && (
+                        <span className="flex items-center gap-1.5 text-[11px]" dir="ltr" style={{ textAlign: "end" }}>
+                          <Phone className="size-3 shrink-0" />
+                          {c.accountingPhone}
+                        </span>
+                      )}
                     </span>
                   ) : (
                     ""
@@ -299,16 +319,6 @@ export function ClientDirectory() {
                 </span>
                 <span className="w-28 shrink-0 truncate text-muted-foreground">
                   {c.office || ""}
-                </span>
-                <span className="w-28 shrink-0 truncate text-muted-foreground" dir="ltr" style={{ textAlign: "end" }}>
-                  {c.phone ? (
-                    <span className="flex items-center gap-1.5">
-                      <Phone className="size-3.5 shrink-0" />
-                      {c.phone}
-                    </span>
-                  ) : (
-                    ""
-                  )}
                 </span>
                 <span className="w-40 shrink-0 truncate text-muted-foreground">
                   {c.email ? (
