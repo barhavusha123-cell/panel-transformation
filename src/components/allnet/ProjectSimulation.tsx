@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calculator, FileDown, RotateCcw, Save, TrendingUp } from "lucide-react";
+import { Calculator, Eraser, FileDown, RotateCcw, Save, TrendingUp } from "lucide-react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import { openSimulationReport } from "@/lib/allnet/simulationReport";
 import { toast } from "sonner";
@@ -197,6 +197,20 @@ export function ProjectSimulation({
     setEmployeeShare(50);
     setTargetProfit(0);
     toast.info("הסימולציה אופסה לערכי הפרויקט המקוריים");
+  };
+
+  const handleClearFields = () => {
+    setName("");
+    setClient("");
+    setManager("");
+    setRegion("מרכז");
+    setSaleAmount(0);
+    setAdditions(0);
+    setFixedCosts([]);
+    setCrewSize(2);
+    setEmployeeShare(50);
+    setTargetProfit(0);
+    toast.info("כל השדות נוקו");
   };
 
   return (
@@ -432,7 +446,11 @@ export function ProjectSimulation({
             </Button>
             <Button variant="outline" className="gap-1.5" onClick={handleReset}>
               <RotateCcw className="size-4" />
-              איפוס לערכים מקוריים
+              איפוס לערכי הפרויקט
+            </Button>
+            <Button variant="outline" className="gap-1.5" onClick={handleClearFields}>
+              <Eraser className="size-4" />
+              איפוס שדות
             </Button>
             <Button variant="outline" className="gap-1.5" onClick={handleExportPdf}>
               <FileDown className="size-4" />
