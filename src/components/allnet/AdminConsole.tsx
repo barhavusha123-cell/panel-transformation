@@ -524,6 +524,14 @@ export function AdminConsole() {
     .slice()
     .sort((a, b) => (a.date === b.date ? b.id - a.id : a.date < b.date ? 1 : -1));
 
+  const HOURS_PER_PAGE = 10;
+  const totalHoursPages = Math.max(1, Math.ceil(filteredHours.length / HOURS_PER_PAGE));
+  const safeHoursPage = Math.min(hoursPage, totalHoursPages);
+  const paginatedHours = filteredHours.slice(
+    (safeHoursPage - 1) * HOURS_PER_PAGE,
+    safeHoursPage * HOURS_PER_PAGE,
+  );
+
 
   const toggle = (arr: string[], v: string, set: (x: string[]) => void) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
