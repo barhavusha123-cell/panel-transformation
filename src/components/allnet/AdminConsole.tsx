@@ -2309,6 +2309,29 @@ export function AdminConsole() {
                       ))}
                     </TableBody>
                   </Table>
+                  {totalHoursPages > 1 && (
+                    <div className="mt-4 flex items-center justify-between">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setHoursPage((p) => Math.max(1, p - 1))}
+                        disabled={safeHoursPage <= 1}
+                      >
+                        הקודם
+                      </Button>
+                      <span className="text-sm text-muted-foreground">
+                        עמוד {safeHoursPage} מתוך {totalHoursPages} ({filteredHours.length} דיווחים)
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setHoursPage((p) => Math.min(totalHoursPages, p + 1))}
+                        disabled={safeHoursPage >= totalHoursPages}
+                      >
+                        הבא
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
