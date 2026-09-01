@@ -1062,6 +1062,7 @@ export function ServiceCallsAdmin() {
               <FileText className="size-4" />
               הפק דוח PDF לקריאות שנבחרו
             </Button>
+            </div>
           </div>
           {calls.map((call) => (
             <CallCard key={call.id} call={call} technicianName={techName(call.technician)}>
