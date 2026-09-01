@@ -498,6 +498,15 @@ export function ServiceCallsAdmin() {
     window.addEventListener("allnet:new-service-call", handler);
     return () => window.removeEventListener("allnet:new-service-call", handler);
   }, []);
+
+  const handleClientChange = (name: string) => {
+    setClient(name);
+    const matched = state.clients?.find((c) => (c.name ?? "").trim() === name.trim());
+    if (matched?.address) {
+      setProject(matched.address);
+    }
+  };
+
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<ServiceCallPriority>("normal");
@@ -772,7 +781,7 @@ export function ServiceCallsAdmin() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label>שם לקוח</Label>
-              <ClientPicker value={client} onChange={setClient} clients={clients} />
+              <ClientPicker value={client} onChange={handleClientChange} clients={clients} />
             </div>
 
 
