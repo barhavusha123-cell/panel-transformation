@@ -101,6 +101,8 @@ export function EmployeePortal() {
   const [workerNames, setWorkerNames] = useState("");
   const [attachments, setAttachments] = useState<ServiceAttachment[]>([]);
   const [attPreview, setAttPreview] = useState<ServiceAttachment | null>(null);
+  const [boqProject, setBoqProject] = useState("");
+
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -270,7 +272,7 @@ export function EmployeePortal() {
       </div>
 
       <Tabs defaultValue="report" dir="rtl">
-        <TabsList className="bg-surface-2/70 p-1">
+        <TabsList className="flex w-full flex-nowrap justify-start overflow-x-auto bg-surface-2/70 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <TabsTrigger
             value="report"
             className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
@@ -326,18 +328,41 @@ export function EmployeePortal() {
           <TabsContent value="boq" className="animate-fade mt-6 space-y-6">
             <div className="surface-panel rounded-2xl p-6">
               <h3 className="mb-1 text-lg font-semibold">כתב כמויות וביצוע בפרויקטים שלך</h3>
-              <p className="text-sm text-muted-foreground">
-                סימון פריטים שבוצעו מתעדכן אונליין ומשתקף בדשבורד הניהולי.
+              <p className="mb-4 text-sm text-muted-foreground">
+                בחר פרויקט ולאחר מכן עדכן את הצ'קליסט — הסימון מתעדכן אונליין ומשתקף בדשבורד הניהולי.
               </p>
-            </div>
-            {managedProjects.map((name) => (
-              <div key={name} className="space-y-2">
-                <p className="text-sm font-bold">{name}</p>
-                <BoqChecklist projectName={name} readOnly />
+              <div className="max-w-md">
+                <label className="mb-1 block text-xs font-semibold text-muted-foreground">
+                  בחירת פרויקט
+                </label>
+                <Select value={boqProject} onValueChange={setBoqProject}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="בחר פרויקט לעדכון כתב כמויות" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    {managedProjects.map((name) => (
+                      <SelectItem key={name} value={name}>
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            ))}
+            </div>
+
+            {managedProjects.length === 0 ? (
+              <p className="text-sm text-muted-foreground">לא משויכים אליך פרויקטים.</p>
+            ) : !boqProject ? (
+              <p className="text-sm text-muted-foreground">בחר פרויקט מהרשימה כדי להציג את הצ'קליסט.</p>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-sm font-bold">{boqProject}</p>
+                <BoqChecklist projectName={boqProject} readOnly />
+              </div>
+            )}
           </TabsContent>
         )}
+
 
 
         {isManager && (
