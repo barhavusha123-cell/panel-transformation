@@ -119,7 +119,7 @@ function RegionRates({ region }: { region: Region }) {
         עובד 1: {ils(rates[1]!)} · צוות 2 עובדים: {ils(rates[2]!)} · 3 עובדים: {ils(rates[3]!)} ·
         4 עובדים: {ils(rates[4]!)}
       </p>
-      <p className="text-muted-foreground">עובד חברה: 1,200 ₪ ליום עבודה</p>
+      <p className="text-muted-foreground">עובד חברה: 1,500 ₪ ליום עבודה</p>
     </div>
   );
 }

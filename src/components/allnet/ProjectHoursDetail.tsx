@@ -281,7 +281,7 @@ export function ProjectHoursDetail({
       return { date, workers, names, rate: subDayRate(region, workers), approved, approvedAt, approvedBy };
     });
   const subCost = subBreakdown.reduce((sum, d) => sum + d.rate, 0);
-  // עלות עובדי חברה: 1,200 ₪ ליום עבודה לעובד
+  // עלות עובדי חברה: 1,500 ₪ ליום עבודה לעובד
   const employeeCostRows = employeeDayCosts(employees);
   const employeeFullDays = employeeCostRows.filter((d) => d.fullDay);
   const employeePartialDays = employeeCostRows.filter((d) => !d.fullDay);

@@ -180,7 +180,7 @@ export const subDayRate = (region: Region, workers: number): number => {
   return SUB_DAY_RATES[region][w] ?? 0;
 };
 /** עלות עובד חברה ליום עבודה מלא (5 שעות ומעלה) */
-export const EMPLOYEE_DAY_RATE = 1200;
+export const EMPLOYEE_DAY_RATE = 1500;
 /** מינימום דקות לדיווח עובד חברה כדי להיחשב יום עבודה מלא (5 שעות) */
 export const EMPLOYEE_FULL_DAY_MINUTES = 300;
 /** תעריף שעתי לעובד חברה כאשר דווחו פחות מ-5 שעות ביום */
