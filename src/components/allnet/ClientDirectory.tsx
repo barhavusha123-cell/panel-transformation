@@ -250,7 +250,7 @@ export function ClientDirectory() {
           <div className="hidden items-center gap-3 border-b border-border/60 bg-muted/40 px-4 py-2 text-[11px] font-medium text-muted-foreground lg:flex">
             <span className="w-16">מס׳ לקוח</span>
             <span className="min-w-0 flex-1">שם הלקוח</span>
-            <span className="w-36">הנהלה</span>
+            <span className="w-36">מנהל / בעלים</span>
             <span className="w-36">הנהלת חשבונות</span>
             <span className="w-28">משרד</span>
             <span className="w-40">דוא״ל</span>
