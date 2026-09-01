@@ -1882,7 +1882,7 @@ export function AdminConsole() {
 
         <div className="service-green md:col-span-2 xl:col-span-4">
         <KpiCard title="קריאות שירות" icon={<Headset className="size-4" />} delay={40}>
-          <div className="flex flex-col gap-4 sm:flex-row">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
             {/* צד ימין — מוני קריאות */}
             <div className="flex shrink-0 flex-col items-center justify-center sm:w-60">
               <div className="text-center">
@@ -1911,8 +1911,8 @@ export function AdminConsole() {
             </div>
 
             {/* צד שמאל — קריאות דחופות בגלילה מלמטה למעלה */}
-            <div className="flex-1 overflow-hidden rounded-xl border border-destructive/30 bg-destructive/5 p-3">
-              <div className="mb-2 flex items-center justify-between">
+            <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-destructive/30 bg-destructive/5 p-3">
+              <div className="mb-2 flex shrink-0 items-center justify-between">
                 <span className="flex items-center gap-1.5 text-xs font-bold text-destructive">
                   <AlertTriangle className="size-3.5" />
                   קריאות דחופות{urgentCalls.length ? ` (${urgentCalls.length})` : ""}
@@ -1930,35 +1930,35 @@ export function AdminConsole() {
                   </span>
                 )}
               </div>
-              <div className="h-20 overflow-hidden">
+              <div className="flex-1 min-h-0 overflow-hidden">
                 {urgent ? (
                   <button
                     key={urgent.id}
                     type="button"
                     onClick={() => setView("service")}
-                    className={`block h-full w-full text-start ${
+                    className={`flex h-full w-full flex-col justify-center text-start ${
                       urgentCalls.length > 1 ? "animate-urgent-scroll" : ""
                     }`}
                   >
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-bold text-destructive">
+                      <span className="text-base font-bold text-destructive">
                         {formatCallNumber(urgent.number)}
                       </span>
-                      <span className="text-sm font-semibold text-foreground">{urgent.client}</span>
-                      <Badge variant="outline" className="text-[10px]">
+                      <span className="text-base font-semibold text-foreground">{urgent.client}</span>
+                      <Badge variant="outline" className="text-xs">
                         {SERVICE_STATUS_LABELS[urgent.status]}
                       </Badge>
                       {urgent.technician && (
-                        <span className="text-xs text-muted-foreground">טכנאי: {urgent.technician}</span>
+                        <span className="text-sm text-muted-foreground">טכנאי: {urgent.technician}</span>
                       )}
                     </div>
-                    <p className="mt-1 line-clamp-2 text-xs text-foreground">
+                    <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-foreground">
                       {urgent.subject}
                       {urgent.description ? ` — ${urgent.description}` : ""}
                     </p>
                   </button>
                 ) : (
-                  <p className="py-2 text-center text-xs text-muted-foreground">
+                  <p className="flex h-full items-center justify-center text-sm text-muted-foreground">
                     אין קריאות דחופות פתוחות
                   </p>
                 )}
