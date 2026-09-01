@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Calculator, FileDown, RotateCcw, Save, TrendingUp } from "lucide-react";
+import * as SliderPrimitive from "@radix-ui/react-slider";
 import { openSimulationReport } from "@/lib/allnet/simulationReport";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
