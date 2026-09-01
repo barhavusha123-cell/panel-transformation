@@ -132,9 +132,9 @@ const readFile = (file: File) =>
 
 function statusBadge(status: ServiceCallStatus) {
   const map: Record<ServiceCallStatus, string> = {
-    new: "bg-destructive/10 text-destructive border-destructive/30",
-    assigned: "bg-primary/10 text-primary border-primary/30",
-    in_progress: "bg-amber-500/10 text-amber-600 border-amber-500/30",
+    new: "bg-red-500/10 text-red-600 border-red-500/30",
+    assigned: "bg-orange-500/10 text-orange-600 border-orange-500/30",
+    in_progress: "bg-yellow-400/10 text-yellow-600 border-yellow-400/30",
     done: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30",
   };
   return (
