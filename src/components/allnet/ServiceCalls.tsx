@@ -344,22 +344,14 @@ function CallCard({
         <span className="brand-gradient flex size-9 items-center justify-center rounded-lg text-primary-foreground">
           <Headset className="size-4" />
         </span>
-        <span className="text-base font-bold tracking-wide text-primary">קריאה {formatCallNumber(call.number)}</span>
+        <span className="text-sm font-semibold text-foreground">קריאה {formatCallNumber(call.number)}</span>
         {statusBadge(call.status)}
         {priorityBadge(call.priority)}
-        <span className="text-sm">
-          <span className="text-muted-foreground">לקוח: </span>
-          <span className="font-semibold">{call.client}</span>
-        </span>
-        <span className="text-sm">
-          <span className="text-muted-foreground">טכנאי: </span>
-          <span className="font-semibold">{technicianName}</span>
-        </span>
-        <span className="text-xs text-muted-foreground">נפתחה {formatDateIL(call.createdAt)}</span>
+        <span className="text-sm text-foreground">לקוח: {call.client}</span>
+        <span className="text-sm text-foreground">טכנאי: {technicianName}</span>
+        <span className="text-sm text-foreground">נפתחה {formatDateIL(call.createdAt)}</span>
         {call.closedAt && (
-          <span className="text-xs font-medium text-emerald-700">
-            נסגרה {formatDateIL(call.closedAt)}
-          </span>
+          <span className="text-sm text-foreground">נסגרה {formatDateIL(call.closedAt)}</span>
         )}
         <ChevronDown
           className={`ms-auto size-5 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`}
