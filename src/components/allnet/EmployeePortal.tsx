@@ -101,6 +101,8 @@ export function EmployeePortal() {
   const [workerNames, setWorkerNames] = useState("");
   const [attachments, setAttachments] = useState<ServiceAttachment[]>([]);
   const [attPreview, setAttPreview] = useState<ServiceAttachment | null>(null);
+  const [boqProject, setBoqProject] = useState("");
+
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
