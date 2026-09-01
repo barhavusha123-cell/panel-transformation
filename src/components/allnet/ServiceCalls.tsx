@@ -941,7 +941,10 @@ export function ServiceCallsAdmin() {
             </div>
           </div>
 
-          <div className="mt-5 flex justify-end">
+          <div className="mt-5 flex justify-end gap-2">
+            <Button type="button" variant="outline" size="lg" onClick={handleCancel}>
+              ביטול
+            </Button>
             <Button type="submit" variant="brand" size="lg">
               <Send className="size-4" />
               פתח קריאת שירות
