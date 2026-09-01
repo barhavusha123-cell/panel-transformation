@@ -1080,8 +1080,18 @@ export function ServiceCallsAdmin() {
             </Button>
             </div>
           </div>
-          {calls.map((call) => (
-            <CallCard key={call.id} call={call} technicianName={techName(call.technician)}>
+          {pageCalls.map((call, idx) => (
+            <div key={call.id}>
+              {idx > 0 && pageCalls[idx - 1]!.status !== call.status && (
+                <div className="my-2 flex items-center gap-3" role="separator">
+                  <span className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {SERVICE_STATUS_LABELS[call.status]}
+                  </span>
+                  <span className="h-px flex-1 bg-border" />
+                </div>
+              )}
+            <CallCard call={call} technicianName={techName(call.technician)}>
               <div className="flex flex-wrap items-end gap-3">
                 <label className="flex cursor-pointer items-center gap-2 pb-2 text-xs font-medium text-muted-foreground">
                   <Checkbox
