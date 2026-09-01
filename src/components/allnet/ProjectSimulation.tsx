@@ -419,7 +419,7 @@ export function ProjectSimulation({
               ייצוא ל-PDF
             </Button>
             <Button
-              className="gap-1.5 bg-emerald-600 text-white hover:bg-em-emerald-700"
+              className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700"
               onClick={handleSave}
             >
               <Save className="size-4" />
