@@ -15,7 +15,6 @@ import {
   ListChecks,
   Headset,
   Pencil,
-  Calculator,
   Paperclip,
   Plus,
   ShieldCheck,
