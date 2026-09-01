@@ -280,13 +280,15 @@ export function EmployeePortal() {
             <Timer className="size-4" />
             דיווח שעות
           </TabsTrigger>
-          <TabsTrigger
-            value="docs"
-            className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
-          >
-            <FolderOpen className="size-4" />
-            תוכניות ומסמכים
-          </TabsTrigger>
+          {user?.role !== "קבלן משנה" && (
+            <TabsTrigger
+              value="docs"
+              className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
+            >
+              <FolderOpen className="size-4" />
+              תוכניות ומסמכים
+            </TabsTrigger>
+          )}
           <TabsTrigger
             value="service"
             className="rounded-lg text-emerald-600 data-[state=active]:service-green data-[state=active]:brand-gradient data-[state=active]:text-primary-foreground"
