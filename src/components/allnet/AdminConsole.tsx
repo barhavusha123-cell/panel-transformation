@@ -26,6 +26,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { FixedCostsEditor } from "./FixedCostsEditor";
 import { UserDirectory } from "./UserDirectory";
 import { ClientDirectory } from "./ClientDirectory";
+import { ClientPicker } from "./ClientPicker";
 import { ServiceCallsAdmin } from "./ServiceCalls";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
@@ -357,19 +358,20 @@ export function AdminConsole() {
       ),
     [state.projects],
   );
+  /** שמות לקוחות רשומים (מניהול לקוחות) להשלמה אוטומטית בטפסי פרויקט */
+  const registeredClientNames = useMemo(
+    () =>
+      Array.from(new Set((state.clients ?? []).map((c) => (c.name ?? "").trim()).filter(Boolean))).sort(
+        (a, b) => a.localeCompare(b, "he"),
+      ),
+    [state.clients],
+  );
   const historyDatalists = (
-    <>
-      <datalist id="allnet-client-history">
-        {clientHistory.map((c) => (
-          <option key={c} value={c} />
-        ))}
-      </datalist>
-      <datalist id="allnet-project-history">
-        {projectNameHistory.map((n) => (
-          <option key={n} value={n} />
-        ))}
-      </datalist>
-    </>
+    <datalist id="allnet-project-history">
+      {projectNameHistory.map((n) => (
+        <option key={n} value={n} />
+      ))}
+    </datalist>
   );
   const archivedProjects = useMemo(
     () => state.projects.filter((p) => p.archived),
@@ -1177,13 +1179,11 @@ export function AdminConsole() {
                       {historyDatalists}
                       <div className="space-y-2">
                         <Label>שם לקוח</Label>
-                        <Input
-                          list="allnet-client-history"
+                        <ClientPicker
                           value={editForm.client}
-                          onChange={(e) =>
-                            setEditForm({ ...editForm, client: e.target.value })
-                          }
-                          placeholder="שם הלקוח"
+                          onChange={(v) => setEditForm({ ...editForm, client: v })}
+                          clients={registeredClientNames}
+                          history={clientHistory}
                         />
                       </div>
                       <div className="space-y-2">
@@ -2534,11 +2534,11 @@ export function AdminConsole() {
                 {historyDatalists}
                 <div className="space-y-2">
                   <Label>שם לקוח</Label>
-                  <Input
-                    list="allnet-client-history"
+                  <ClientPicker
                     value={np.client}
-                    onChange={(e) => setNp({ ...np, client: e.target.value })}
-                    placeholder="שם הלקוח"
+                    onChange={(v) => setNp({ ...np, client: v })}
+                    clients={registeredClientNames}
+                    history={clientHistory}
                   />
                 </div>
                 <div className="space-y-2">
