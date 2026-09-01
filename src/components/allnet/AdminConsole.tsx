@@ -1661,14 +1661,21 @@ export function AdminConsole() {
               </DialogDescription>
             </DialogHeader>
             {(() => {
+              const norm = (s?: string) => (s ?? "").trim().toLowerCase();
               const proj = state.projects.find((x) => x.name === callsProject);
+              const pName = norm(callsProject ?? "");
+              const pClient = norm(proj?.client);
               const calls = state.serviceCalls
-                .filter(
-                  (c) =>
-                    (c.project && c.project === callsProject) ||
-                    (!c.project && proj?.client && c.client === proj.client),
-                )
+                .filter((c) => {
+                  const cProj = norm(c.project);
+                  const cClient = norm(c.client);
+                  if (cProj && (cProj === pName || (pClient && cProj === pClient))) return true;
+                  if (cClient && (cClient === pName || (pClient && cClient === pClient)))
+                    return true;
+                  return false;
+                })
                 .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
               const totalMinutes = calls.reduce((a, c) => {
                 if (c.workFrom && c.workTo) {
                   try {
