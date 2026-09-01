@@ -245,6 +245,8 @@ export function AdminConsole() {
   const [detailProject, setDetailProject] = useState<string | null>(null);
   const [simProject, setSimProject] = useState<Project | null>(null);
   const [simOpen, setSimOpen] = useState(false);
+  /** פרויקט בשנת שירות שעבורו מוצגות קריאות השירות */
+  const [callsProject, setCallsProject] = useState<string | null>(null);
   const [tab, setTab] = useState("reports");
   const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
 
