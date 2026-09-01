@@ -2245,7 +2245,7 @@ export function AdminConsole() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredHours.map((h) => (
+                      {paginatedHours.map((h) => (
                         <TableRow key={h.id} className="transition-colors hover:bg-surface-2/60">
                           <TableCell className="font-medium">{h.reporter}</TableCell>
                           <TableCell>{hourClient(h)}</TableCell>
