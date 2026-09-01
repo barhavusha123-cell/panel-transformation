@@ -12,6 +12,7 @@ import {
   Briefcase,
   Calculator,
   FileSpreadsheet,
+  FileText,
   FolderKanban,
   ListChecks,
   Headset,
@@ -30,6 +31,7 @@ import { ClientDirectory } from "./ClientDirectory";
 import { ClientPicker } from "./ClientPicker";
 import { ServiceCallsAdmin } from "./ServiceCalls";
 import { toast } from "sonner";
+import { openServiceCallsBulkReport } from "@/lib/allnet/serviceReport";
 import { useAllNet } from "@/lib/allnet/store";
 import {
   CATEGORY_LABELS,
@@ -1727,8 +1729,25 @@ export function AdminConsole() {
                     לא נמצאו קריאות שירות עבור פרויקט זה.
                   </p>
                 );
+              const techName = (un?: string) =>
+                state.users.find((u) => u.username === un)?.full_name ?? "לא שויך";
               return (
                 <div className="space-y-4">
+                  <Button
+                    variant="brand"
+                    className="w-full"
+                    onClick={() => {
+                      const ok = openServiceCallsBulkReport(calls, techName);
+                      if (ok)
+                        toast.success(
+                          `הופק דוח PDF עבור ${calls.length} קריאות — ניתן לשמור כ-PDF.`,
+                        );
+                      else toast.error("החלון נחסם על ידי הדפדפן. יש לאשר חלונות קופצים.");
+                    }}
+                  >
+                    <FileText className="size-4" />
+                    ייצוא הדוח ל-PDF
+                  </Button>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="rounded-xl border border-border bg-surface-2/60 p-3 text-center">
                       <p className="text-xs text-muted-foreground">סה"כ קריאות</p>
