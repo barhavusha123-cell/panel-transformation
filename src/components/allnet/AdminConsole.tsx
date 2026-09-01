@@ -248,6 +248,8 @@ export function AdminConsole() {
   const [closeDeliveryDate, setCloseDeliveryDate] = useState("");
 
   const [detailProject, setDetailProject] = useState<string | null>(null);
+  const [simProject, setSimProject] = useState<Project | null>(null);
+  const [simOpen, setSimOpen] = useState(false);
   const [tab, setTab] = useState("reports");
   const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
 
