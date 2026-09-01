@@ -272,7 +272,7 @@ export function ClientDirectory() {
                     </span>
                   )}
                 </div>
-                <span className="w-40 shrink-0 truncate text-muted-foreground">
+                <span className="w-32 shrink-0 truncate text-muted-foreground">
                   {c.contactName ? (
                     <span className="flex items-center gap-1.5">
                       <UserRound className="size-3.5 shrink-0" />
@@ -282,7 +282,20 @@ export function ClientDirectory() {
                     ""
                   )}
                 </span>
-                <span className="w-32 shrink-0 truncate text-muted-foreground" dir="ltr" style={{ textAlign: "end" }}>
+                <span className="w-32 shrink-0 truncate text-muted-foreground">
+                  {c.accountingContact ? (
+                    <span className="flex items-center gap-1.5">
+                      <UserRound className="size-3.5 shrink-0" />
+                      {c.accountingContact}
+                    </span>
+                  ) : (
+                    ""
+                  )}
+                </span>
+                <span className="w-28 shrink-0 truncate text-muted-foreground">
+                  {c.office || ""}
+                </span>
+                <span className="w-28 shrink-0 truncate text-muted-foreground" dir="ltr" style={{ textAlign: "end" }}>
                   {c.phone ? (
                     <span className="flex items-center gap-1.5">
                       <Phone className="size-3.5 shrink-0" />
@@ -292,7 +305,7 @@ export function ClientDirectory() {
                     ""
                   )}
                 </span>
-                <span className="w-52 shrink-0 truncate text-muted-foreground">
+                <span className="w-40 shrink-0 truncate text-muted-foreground">
                   {c.email ? (
                     <span className="flex items-center gap-1.5">
                       <Mail className="size-3.5 shrink-0" />
@@ -302,7 +315,7 @@ export function ClientDirectory() {
                     ""
                   )}
                 </span>
-                <span className="w-24 shrink-0 text-center">
+                <span className="w-20 shrink-0 text-center">
                   <Badge variant="secondary" className="text-[11px]">
                     {projectCount.get(c.name.trim()) ?? 0}
                   </Badge>
