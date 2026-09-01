@@ -22,7 +22,7 @@ export interface EmployeeDayCost {
 /**
  * חישוב עלות עובדי חברה — כל תאריך מחושב בנפרד:
  * 5 שעות ומעלה ביום = יום עבודה מלא (1,500 ₪),
- * פחות מ-5 שעות = חישוב שעתי (180 ₪ לשעה).
+ * פחות מ-5 שעות = חישוב שעתי (215 ₪ לשעה).
  */
 export function employeeDayCosts(entries: HoursEntry[]): EmployeeDayCost[] {
   const map = new Map<string, { reporter: string; date: string; minutes: number }>();
