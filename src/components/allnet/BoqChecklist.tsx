@@ -136,6 +136,15 @@ export function BoqChecklist({
               {project.boqFileName}
             </Badge>
           )}
+          <button
+            type="button"
+            onClick={() => setChecklistCollapsed((v) => !v)}
+            className="inline-flex items-center justify-center rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            aria-label={checklistCollapsed ? "הרחב צ'קליסט" : "צמצם צ'קליסט"}
+            title={checklistCollapsed ? "הרחב צ'קליסט" : "צמצם צ'קליסט"}
+          >
+            {checklistCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+          </button>
         </h3>
         {items.length > 0 && project && (
           <Button
