@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calculator, TrendingUp } from "lucide-react";
+import { Calculator, Save, TrendingUp } from "lucide-react";
+import { toast } from "sonner";
+import { useAllNet } from "@/lib/allnet/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,6 +47,7 @@ export function ProjectSimulation({
   onOpenChange: (v: boolean) => void;
   project?: Project | null;
 }) {
+  const { setState } = useAllNet();
   const [name, setName] = useState("");
   const [client, setClient] = useState("");
   const [manager, setManager] = useState("");
@@ -66,6 +69,21 @@ export function ProjectSimulation({
     setSaleAmount(Number(project?.saleAmount) || 0);
     setAdditions(Number(project?.additions) || 0);
     setFixedCosts(project?.fixedCosts ? project.fixedCosts.map((c) => ({ ...c })) : []);
+    // טוען סימולציה שמורה אם קיימת
+    const sim = project?.simulation;
+    if (sim) {
+      setRegion(sim.region);
+      setSaleAmount(sim.saleAmount);
+      setAdditions(sim.additions);
+      setFixedCosts(sim.fixedCosts.map((c) => ({ ...c })));
+      setCrewSize(sim.crewSize);
+      setEmployeeShare(sim.employeeShare);
+      setTargetProfit(sim.targetProfit);
+    } else {
+      setCrewSize(2);
+      setEmployeeShare(50);
+      setTargetProfit(0);
+    }
   }, [open, project]);
 
   const calc = useMemo(() => {
@@ -240,7 +258,7 @@ export function ProjectSimulation({
               <div className="mt-3 grid gap-1 text-sm text-muted-foreground">
                 <span>הכנסה כוללת: {ils(calc.revenue)}</span>
                 <span>עלויות קבועות: {ils(calc.fixed)}</span>
-                <span>רווח יעד שנשמר: {ils(calc.profitTarget)}</span>
+                <span>רווח גולמי שנשמר: {ils(calc.profitTarget)}</span>
               </div>
             </div>
 
@@ -320,10 +338,26 @@ export function ProjectSimulation({
           </div>
         </div>
 
-        <div className="flex justify-end pt-2">
-          <Button variant="soft" onClick={() => onOpenChange(false)}>
-            סגור
-          </Button>
+        <div className="flex items-center justify-between pt-2">
+          {project?.simulation?.savedAt ? (
+            <span className="text-xs text-muted-foreground">
+              נשמר לאחרונה: {new Date(project.simulation.savedAt).toLocaleString("he-IL")}
+            </span>
+          ) : (
+            <span />
+          )}
+          <div className="flex gap-2">
+            <Button variant="soft" onClick={() => onOpenChange(false)}>
+              סגור
+            </Button>
+            <Button
+              className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700"
+              onClick={handleSave}
+            >
+              <Save className="size-4" />
+              שמור סימולציה
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
