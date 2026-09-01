@@ -786,12 +786,12 @@ export function ServiceCallsAdmin() {
 
 
             <div className="space-y-2">
-              <Label>אתר (לא חובה)</Label>
+              <Label>כתובת / אתר (ניתן לשנות / להוסיף ידנית)</Label>
               <Input
                 list="service-projects"
                 value={project}
                 onChange={(e) => setProject(e.target.value)}
-                placeholder="שם האתר / הפרויקט"
+                placeholder="כתובת / שם האתר / הפרויקט"
               />
               <datalist id="service-projects">
                 {projectNames.map((p) => (
