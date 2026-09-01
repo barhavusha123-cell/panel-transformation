@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calculator, FileDown, Save, TrendingUp } from "lucide-react";
+import { Calculator, FileDown, RotateCcw, Save, TrendingUp } from "lucide-react";
 import { openSimulationReport } from "@/lib/allnet/simulationReport";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
@@ -183,6 +183,17 @@ export function ProjectSimulation({
       ),
     }));
     toast.success("הסימולציה נשמרה ותיטען בפתיחה הבאה");
+  };
+
+  const handleReset = () => {
+    setRegion(project?.region ?? "מרכז");
+    setSaleAmount(Number(project?.saleAmount) || 0);
+    setAdditions(Number(project?.additions) || 0);
+    setFixedCosts(project?.fixedCosts ? project.fixedCosts.map((c) => ({ ...c })) : []);
+    setCrewSize(2);
+    setEmployeeShare(50);
+    setTargetProfit(0);
+    toast.info("הסימולציה אופסה לערכי הפרויקט המקוריים");
   };
 
   return (
@@ -398,6 +409,10 @@ export function ProjectSimulation({
           <div className="flex gap-2">
             <Button variant="soft" onClick={() => onOpenChange(false)}>
               סגור
+            </Button>
+            <Button variant="outline" className="gap-1.5" onClick={handleReset}>
+              <RotateCcw className="size-4" />
+              איפוס לערכים מקוריים
             </Button>
             <Button variant="outline" className="gap-1.5" onClick={handleExportPdf}>
               <FileDown className="size-4" />
