@@ -280,13 +280,15 @@ export function EmployeePortal() {
             <Timer className="size-4" />
             דיווח שעות
           </TabsTrigger>
-          <TabsTrigger
-            value="docs"
-            className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
-          >
-            <FolderOpen className="size-4" />
-            תוכניות ומסמכים
-          </TabsTrigger>
+          {user?.role !== "קבלן משנה" && (
+            <TabsTrigger
+              value="docs"
+              className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
+            >
+              <FolderOpen className="size-4" />
+              תוכניות ומסמכים
+            </TabsTrigger>
+          )}
           <TabsTrigger
             value="service"
             className="rounded-lg text-emerald-600 data-[state=active]:service-green data-[state=active]:brand-gradient data-[state=active]:text-primary-foreground"
@@ -723,7 +725,11 @@ export function EmployeePortal() {
           </div>
         </TabsContent>
 
-        <TabsContent value="docs" className="animate-fade mt-6">
+        <TabsContent
+          value="docs"
+          className="animate-fade mt-6"
+          hidden={user?.role === "קבלן משנה"}
+        >
           <div className="surface-panel space-y-4 rounded-2xl p-6">
             <h3 className="text-lg font-semibold">מסמכי פרויקט ותוכניות עבודה</h3>
             <div className="max-w-xs space-y-2">
