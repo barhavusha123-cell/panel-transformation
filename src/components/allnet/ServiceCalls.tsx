@@ -431,7 +431,7 @@ function CallCard({
           <p className="text-xs font-semibold text-muted-foreground">יומן טיפול</p>
           {call.updates.map((u) => (
             <div key={u.id} className="rounded-xl bg-surface-2/60 p-3 text-sm">
-              <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-foreground">
                 <span className="font-semibold text-foreground">{u.by}</span>
                 <span>{formatDateIL(u.at)}</span>
                 {u.status && <span>· עודכן ל{SERVICE_STATUS_LABELS[u.status]}</span>}
