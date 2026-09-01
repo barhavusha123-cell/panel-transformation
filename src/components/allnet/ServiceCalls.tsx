@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import { ClientPicker } from "./ClientPicker";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CalendarIcon,
