@@ -874,6 +874,11 @@ export function ServiceCallsAdmin() {
                   ))}
                 </SelectContent>
               </Select>
+              {selectedClientSla && (
+                <p className="text-xs font-semibold text-[var(--brand-red)]">
+                  לקוח בשירות SLA
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
