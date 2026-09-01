@@ -30,6 +30,8 @@ import { Separator } from "@/components/ui/separator";
 const emptyForm = {
   name: "",
   contactName: "",
+  accountingContact: "",
+  office: "",
   phone: "",
   email: "",
   taxId: "",
