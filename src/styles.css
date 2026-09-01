@@ -42,6 +42,7 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-blue: var(--blue);
   --color-blue-foreground: var(--blue-foreground);
+  --color-blue-dark: var(--blue-dark);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -99,6 +100,7 @@
   /* "Active projects" highlight — soft blue */
   --blue: oklch(0.72 0.1 230);
   --blue-foreground: oklch(0.99 0.005 230);
+  --blue-dark: oklch(0.55 0.14 230);
 
   --destructive: oklch(0.62 0.19 25);
   --destructive-foreground: oklch(0.99 0 0);
@@ -176,6 +178,7 @@
 
   --blue: oklch(0.78 0.1 225);
   --blue-foreground: oklch(0.2 0.02 50);
+  --blue-dark: oklch(0.65 0.12 225);
 
   --destructive: oklch(0.7 0.15 25);
   --destructive-foreground: oklch(0.98 0.005 60);
