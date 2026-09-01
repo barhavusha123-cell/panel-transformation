@@ -35,6 +35,7 @@ import {
   MIN_BUDGET,
   PROJECT_CATEGORIES,
   SERVICE_STATUS_LABELS,
+  formatCallNumber,
   REGIONS,
   ROLES,
   SUB_DAY_RATES,
@@ -255,6 +256,23 @@ export function AdminConsole() {
 
   const openServiceCalls = state.serviceCalls.filter((c) => c.status !== "done").length;
   const unassignedServiceCalls = state.serviceCalls.filter((c) => !c.technician).length;
+
+  /** קריאות דחופות פתוחות — מוצגות ברצף מתחלף בדשבורד */
+  const urgentCalls = useMemo(
+    () =>
+      state.serviceCalls
+        .filter((c) => c.priority === "high" && c.status !== "done")
+        .slice()
+        .sort((a, b) => b.number - a.number),
+    [state.serviceCalls],
+  );
+  const [urgentIdx, setUrgentIdx] = useState(0);
+  useEffect(() => {
+    if (urgentCalls.length < 2) return;
+    const t = setInterval(() => setUrgentIdx((i) => (i + 1) % urgentCalls.length), 4000);
+    return () => clearInterval(t);
+  }, [urgentCalls.length]);
+  const urgent = urgentCalls.length ? urgentCalls[urgentIdx % urgentCalls.length] : undefined;
 
   useEffect(() => {
     const goHome = () => {
@@ -1862,33 +1880,89 @@ export function AdminConsole() {
           </Button>
         </KpiCard>
 
-        <div className="service-green">
+        <div className="service-green md:col-span-2 xl:col-span-4">
         <KpiCard title="קריאות שירות" icon={<Headset className="size-4" />} delay={40}>
-          <div className="flex items-center gap-2">
-            <span
-              className={`text-2xl font-bold ${openServiceCalls ? "text-primary" : ""}`}
-            >
-              {openServiceCalls}
-            </span>
-            {unassignedServiceCalls > 0 && (
-              <Badge variant="destructive" className="animate-pulse">
-                {unassignedServiceCalls} ללא טכנאי
-              </Badge>
-            )}
+          <div className="flex flex-col gap-4 sm:flex-row">
+            {/* צד ימין — מוני קריאות */}
+            <div className="shrink-0 sm:w-60">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-2xl font-bold ${openServiceCalls ? "text-primary" : ""}`}
+                >
+                  {openServiceCalls}
+                </span>
+                {unassignedServiceCalls > 0 && (
+                  <Badge variant="destructive" className="animate-pulse">
+                    {unassignedServiceCalls} ללא טכנאי
+                  </Badge>
+                )}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {state.serviceCalls.length
+                  ? `סה"כ קריאות במערכת: ${state.serviceCalls.length}`
+                  : "לא נפתחו קריאות שירות"}
+              </p>
+              <Button
+                variant={openServiceCalls ? "brand" : "soft"}
+                size="sm"
+                className="mt-3 w-full"
+                onClick={() => setView("service")}
+              >
+                נהל קריאות שירות
+              </Button>
+            </div>
+
+            {/* צד שמאל — קריאות דחופות ברצף מתחלף */}
+            <div className="flex-1 overflow-hidden rounded-xl border border-destructive/30 bg-destructive/5 p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-destructive">
+                  <AlertTriangle className="size-3.5" />
+                  קריאות דחופות{urgentCalls.length ? ` (${urgentCalls.length})` : ""}
+                </span>
+                {urgentCalls.length > 1 && (
+                  <span className="flex items-center gap-1">
+                    {urgentCalls.map((c, i) => (
+                      <span
+                        key={c.id}
+                        className={`size-1.5 rounded-full transition-colors ${
+                          i === urgentIdx % urgentCalls.length ? "bg-destructive" : "bg-destructive/25"
+                        }`}
+                      />
+                    ))}
+                  </span>
+                )}
+              </div>
+              {urgent ? (
+                <button
+                  key={urgent.id}
+                  type="button"
+                  onClick={() => setView("service")}
+                  className="animate-fade block w-full text-start"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-bold text-destructive">
+                      {formatCallNumber(urgent.number)}
+                    </span>
+                    <span className="text-sm font-semibold text-foreground">{urgent.client}</span>
+                    <Badge variant="outline" className="text-[10px]">
+                      {SERVICE_STATUS_LABELS[urgent.status]}
+                    </Badge>
+                    {urgent.technician && (
+                      <span className="text-xs text-muted-foreground">טכנאי: {urgent.technician}</span>
+                    )}
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-xs text-foreground">
+                    {urgent.subject}
+                    {urgent.description ? ` — ${urgent.description}` : ""}
+                  </p>
+                </button>
+              ) : (
+                <p className="py-2 text-center text-xs text-muted-foreground">
+                  אין קריאות דחופות פתוחות
+                </p>
+              )}
+            </div>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {state.serviceCalls.length
-              ? `סה"כ קריאות במערכת: ${state.serviceCalls.length}`
-              : "לא נפתחו קריאות שירות"}
-          </p>
-          <Button
-            variant={openServiceCalls ? "brand" : "soft"}
-            size="sm"
-            className="mt-3 w-full"
-            onClick={() => setView("service")}
-          >
-            נהל קריאות שירות
-          </Button>
         </KpiCard>
         </div>
       </div>
