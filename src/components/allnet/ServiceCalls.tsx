@@ -371,31 +371,31 @@ function CallCard({
         </p>
         {call.project && (
           <p>
-            <span className="text-muted-foreground">פרויקט: </span>
+            <span className="text-foreground">פרויקט: </span>
             {call.project}
           </p>
         )}
         {call.contact && (
           <p>
-            <span className="text-muted-foreground">איש קשר: </span>
+            <span className="text-foreground">איש קשר: </span>
             {call.contact}
           </p>
         )}
         {call.address && (
           <p className="sm:col-span-2">
-            <span className="text-muted-foreground">כתובת: </span>
+            <span className="text-foreground">כתובת: </span>
             {call.address}
           </p>
         )}
         {(call.workFrom || call.workTo) && (
           <p>
-            <span className="text-muted-foreground">שעות עבודה באתר: </span>
+            <span className="text-foreground">שעות עבודה באתר: </span>
             {call.workFrom || "—"} - {call.workTo || "—"}
           </p>
         )}
         {call.additionalTechnician !== undefined && (
           <p>
-            <span className="text-muted-foreground">טכנאי נוסף באתר: </span>
+            <span className="text-foreground">טכנאי נוסף באתר: </span>
             {call.additionalTechnician
               ? `כן${call.additionalTechnicianName ? ` — ${call.additionalTechnicianName}` : ""}`
               : "לא"}
@@ -403,13 +403,13 @@ function CallCard({
         )}
         {call.equipmentSupplied && (
           <p className="sm:col-span-2">
-            <span className="text-muted-foreground">ציוד שסופק: </span>
+            <span className="text-foreground">ציוד שסופק: </span>
             <span className="whitespace-pre-wrap">{call.equipmentSupplied}</span>
           </p>
         )}
         {call.followUp && (
           <p className="sm:col-span-2">
-            <span className="text-muted-foreground">נושאים להמשך טיפול / הצעת מחיר: </span>
+            <span className="text-foreground">נושאים להמשך טיפול / הצעת מחיר: </span>
             <span className="whitespace-pre-wrap">{call.followUp}</span>
           </p>
         )}
@@ -417,7 +417,7 @@ function CallCard({
 
       <p className="mt-3 font-semibold">{call.subject}</p>
       {call.description && (
-        <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
+        <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">
           {call.description}
         </p>
       )}
@@ -447,7 +447,7 @@ function CallCard({
           <p className="text-xs font-semibold text-muted-foreground">אישור לקוח</p>
           {call.approverName && (
             <p className="text-sm">
-              <span className="text-muted-foreground">שם הלקוח המאשר: </span>
+              <span className="text-foreground">שם הלקוח המאשר: </span>
               <span className="font-semibold">{call.approverName}</span>
             </p>
           )}
