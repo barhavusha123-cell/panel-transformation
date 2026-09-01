@@ -115,9 +115,10 @@ export function ClientDirectory() {
     setForm({
       name: c.name,
       contactName: c.contactName ?? "",
+      managementPhone: c.managementPhone ?? c.phone ?? "",
       accountingContact: c.accountingContact ?? "",
+      accountingPhone: c.accountingPhone ?? "",
       office: c.office ?? "",
-      phone: c.phone ?? "",
       email: c.email ?? "",
       taxId: c.taxId ?? "",
       address: c.address ?? "",
