@@ -100,6 +100,7 @@
   /* "Active projects" highlight — soft blue */
   --blue: oklch(0.72 0.1 230);
   --blue-foreground: oklch(0.99 0.005 230);
+  --blue-dark: oklch(0.55 0.14 230);
 
   --destructive: oklch(0.62 0.19 25);
   --destructive-foreground: oklch(0.99 0 0);
