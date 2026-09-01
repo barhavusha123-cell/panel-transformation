@@ -592,8 +592,18 @@ export function ServiceCallsAdmin() {
         return true;
       })
       .slice()
-      .sort((a, b) => b.number - a.number);
+      .sort((a, b) => {
+        const s = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
+        return s !== 0 ? s : b.number - a.number;
+      });
   }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo]);
+
+  // עימוד — עד 10 קריאות בעמוד
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(calls.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageCalls = calls.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  useEffect(() => setPage(1), [statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo]);
 
   const clientOptions = useMemo(
     () => Array.from(new Set(state.serviceCalls.map((c) => c.client).filter((v): v is string => !!v))).sort((a, b) => a.localeCompare(b, "he")),
