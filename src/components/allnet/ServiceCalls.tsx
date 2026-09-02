@@ -1215,7 +1215,7 @@ export function ServiceCallsAdmin() {
                           ...c,
                           status: next,
                           closedAt:
-                            next === "done" || next === "closed" ? (c.closedAt ?? nowStamp()) : undefined,
+                            next === "closed" ? (c.closedAt ?? nowStamp()) : undefined,
                         }));
                       }}
                     >
@@ -1539,7 +1539,7 @@ export function ServiceCallsTechnician() {
   const myCalls = useMemo(
     () =>
       state.serviceCalls
-        .filter((c) => c.technician === user?.username && !isClosedStatus(c.status))
+        .filter((c) => c.technician === user?.username && c.status !== "done" && c.status !== "closed")
         .slice()
         .sort((a, b) => b.number - a.number),
     [state.serviceCalls, user],
