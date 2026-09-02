@@ -333,6 +333,10 @@ export interface ServiceCall {
   source?: "client" | "internal" | undefined;
   /** שם האתר שנבחר על ידי הלקוח */
   site?: string | undefined;
+  /** מועד אישור הלקוח שהתקלה נסגרה */
+  clientClosedAt?: string | undefined;
+  /** שם המאשר מצד הלקוח */
+  clientClosedBy?: string | undefined;
 }
 
 /** אתר של לקוח — קריאות שירות נפתחות עבור אתר מסוים */
