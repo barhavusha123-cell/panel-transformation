@@ -180,8 +180,11 @@ export function ClientDirectory() {
     setOpen(true);
   };
 
-  const addDocRow = () =>
-    setForm((f) => ({ ...f, docRows: [...f.docRows, { id: newId() }] }));
+  const addDocRow = (category: string) =>
+    setForm((f) => ({ ...f, docRows: [...f.docRows, { id: newId(), category }] }));
+
+  const docRowsFor = (category: string) =>
+    form.docRows.filter((r) => (r.category ?? "") === category);
 
   const updateDocRow = (id: string, key: keyof ClientDocRow, value: string) =>
     setForm((f) => ({
