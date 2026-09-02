@@ -326,22 +326,52 @@ export function ClientPortal() {
         </h3>
         <div className="mt-4 space-y-3">
           {myCalls.map((c) => (
-            <div
-              key={c.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border p-4"
-            >
-              <div className="min-w-0">
-                <p className="font-semibold text-foreground">
-                  {formatCallNumber(c.number)} · {c.subject}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {c.site ? `${c.site} · ` : ""}
-                  {c.createdAt}
-                </p>
+            <div key={c.id} className="rounded-xl border border-border p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold text-foreground">
+                    {formatCallNumber(c.number)} · {c.subject}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {c.site ? `${c.site} · ` : ""}
+                    {c.createdAt}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="outline" className={statusTone[c.status]}>
+                    {SERVICE_STATUS_LABELS[c.status]}
+                  </Badge>
+                  {c.clientClosedAt && (
+                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                      אושרה סגירה · {c.clientClosedAt}
+                    </Badge>
+                  )}
+                </div>
               </div>
-              <Badge variant="outline" className={statusTone[c.status]}>
-                {SERVICE_STATUS_LABELS[c.status]}
-              </Badge>
+
+              {/* עדכוני סטטוס מהמוקד — מסונכרן תמיד */}
+              {c.updates.length > 0 && (
+                <ul className="mt-3 space-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
+                  {c.updates.map((u) => (
+                    <li key={u.id}>
+                      <span className="font-medium text-foreground">{u.at}</span> · {u.by}
+                      {u.status ? ` · ${SERVICE_STATUS_LABELS[u.status]}` : ""} — {u.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {c.status === "done" && !c.clientClosedAt && (
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-emerald-50 p-3">
+                  <span className="text-sm text-emerald-800">
+                    הטיפול הסתיים — נא לאשר שהתקלה נסגרה.
+                  </span>
+                  <Button type="button" size="sm" onClick={() => confirmClosure(c)}>
+                    <CheckCircle2 className="size-4" />
+                    מאשר שהתקלה נסגרה
+                  </Button>
+                </div>
+              )}
             </div>
           ))}
           {!myCalls.length && (
