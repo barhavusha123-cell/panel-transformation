@@ -48,26 +48,27 @@ const emptyForm = {
   docRows: [] as ClientDocRow[],
 };
 
-const DOC_FIELDS: { key: keyof ClientDocRow; label: string; width: string }[] = [
-  { key: "category", label: "קטגוריה", width: "9rem" },
-  { key: "item", label: "מערכת / פריט", width: "minmax(0,1fr)" },
-  { key: "model", label: "יצרן / דגם", width: "9rem" },
-  { key: "ip", label: "כתובת IP / מזהה", width: "9rem" },
-  { key: "location", label: "מיקום", width: "8rem" },
-  { key: "access", label: "גישה / משתמש", width: "8rem" },
-  { key: "notes", label: "הערות", width: "minmax(0,1fr)" },
-];
-
+/** קטגוריות תיעוד קבועות — עד 5 שורות לכל קטגוריה */
 const DOC_CATEGORIES = [
-  "מערכות מחשוב",
-  "תקשורת ורשת",
-  "מתח נמוך",
+  "תקשורת",
   "מצלמות אבטחה",
-  "בקרת כניסה",
-  "טלפוניה",
-  "כתובות IP",
-  "שרתים ואחסון",
-  "אחר",
+  "מערכות אזעקה",
+  "בקרות כניסה ואינטרקומים",
+  "מחשוב",
+  "רישיונות",
+  "אינטרנט",
+] as const;
+
+const MAX_DOC_ROWS_PER_CATEGORY = 5;
+
+const DOC_FIELDS: { key: keyof ClientDocRow; label: string }[] = [
+  { key: "item", label: "הפריט" },
+  { key: "ip", label: "כתובת IP" },
+  { key: "location", label: "מיקום" },
+  { key: "serial", label: "מספר סידורי" },
+  { key: "access", label: "משתמש" },
+  { key: "password", label: "סיסמא" },
+  { key: "notes", label: "הערות" },
 ];
 
 /** התאמת כותרות עמודות מאקסל לשדות התיעוד */
@@ -77,7 +78,9 @@ const HEADER_MAP: { field: keyof ClientDocRow; hints: string[] }[] = [
   { field: "model", hints: ["דגם", "יצרן", "model", "vendor", "manufacturer", "brand"] },
   { field: "ip", hints: ["ip", "כתובת ip", "כתובת", "mac", "address", "host"] },
   { field: "location", hints: ["מיקום", "אתר", "חדר", "קומה", "location", "site", "room"] },
-  { field: "access", hints: ["גישה", "משתמש", "user", "login", "access", "port"] },
+  { field: "serial", hints: ["מספר סידורי", "סידורי", "serial", "s/n", "sn"] },
+  { field: "access", hints: ["גישה", "משתמש", "user", "username", "login", "access"] },
+  { field: "password", hints: ["סיסמא", "סיסמה", "password", "pass", "pwd"] },
   { field: "notes", hints: ["הערות", "הערה", "notes", "comment", "remark"] },
 ];
 
