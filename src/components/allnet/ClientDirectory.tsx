@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Building2,
-  FileSpreadsheet,
   Mail,
   MapPin,
   Pencil,
@@ -9,7 +8,6 @@ import {
   Plus,
   Search,
   Trash2,
-  UploadCloud,
   UserRound,
 } from "lucide-react";
 import { toast } from "sonner";
