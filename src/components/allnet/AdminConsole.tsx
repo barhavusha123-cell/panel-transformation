@@ -10,7 +10,6 @@ import {
 
   CalendarClock,
   Briefcase,
-  Calculator,
   FileSpreadsheet,
   FileText,
   FolderKanban,
@@ -98,7 +97,6 @@ import {
 } from "@/components/ui/dialog";
 
 import { ProjectHoursDetail } from "./ProjectHoursDetail";
-import { ProjectSimulation } from "./ProjectSimulation";
 
 
 const CHART_COLORS = [
@@ -251,8 +249,6 @@ export function AdminConsole() {
   const [closeDeliveryDate, setCloseDeliveryDate] = useState("");
 
   const [detailProject, setDetailProject] = useState<string | null>(null);
-  const [simProject, setSimProject] = useState<Project | null>(null);
-  const [simOpen, setSimOpen] = useState(false);
   /** פרויקט בשנת שירות שעבורו מוצגות קריאות השירות */
   const [callsProject, setCallsProject] = useState<string | null>(null);
   const [tab, setTab] = useState("reports");
@@ -1617,20 +1613,8 @@ export function AdminConsole() {
                             >
                              <Pencil className="size-4" />
                              ערוך
-                           </Button>
+                            </Button>
                            <Button
-                             size="sm"
-                             variant="soft"
-                             className="border border-emerald-500/50 text-emerald-700 hover:bg-emerald-500/10"
-                             onClick={() => {
-                               setSimProject(p);
-                               setSimOpen(true);
-                             }}
-                           >
-                             <Calculator className="size-4" />
-                             סימולציה
-                           </Button>
-                          <Button
                             size="sm"
                             variant="ghost"
                             className="text-destructive hover:bg-destructive/10"
@@ -1689,7 +1673,6 @@ export function AdminConsole() {
             </div>
           )}
         </div>
-        <ProjectSimulation open={simOpen} onOpenChange={setSimOpen} project={simProject} />
         <Dialog open={!!callsProject} onOpenChange={(o) => !o && setCallsProject(null)}>
           <DialogContent dir="rtl" className="max-h-[85vh] overflow-y-auto text-right sm:max-w-2xl">
             <DialogHeader className="text-right">
