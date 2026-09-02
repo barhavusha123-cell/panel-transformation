@@ -362,7 +362,7 @@ export interface Client {
 /** שורת תיעוד טכני של לקוח */
 export interface ClientDocRow {
   id: string;
-  /** קטגוריה — מערכות מחשוב / מתח נמוך / תקשורת / כתובות IP ... */
+  /** קטגוריה — תקשורת / מצלמות אבטחה / מערכות אזעקה / בקרות כניסה ואינטרקומים / מחשוב / רישיונות / אינטרנט */
   category?: string;
   /** שם הפריט / המערכת */
   item?: string;
@@ -372,8 +372,12 @@ export interface ClientDocRow {
   ip?: string;
   /** מיקום באתר */
   location?: string;
-  /** פרטי גישה / משתמש (ללא סיסמאות רגישות) */
+  /** מספר סידורי */
+  serial?: string;
+  /** פרטי גישה / משתמש */
   access?: string;
+  /** סיסמה */
+  password?: string;
   /** הערות */
   notes?: string;
 }
