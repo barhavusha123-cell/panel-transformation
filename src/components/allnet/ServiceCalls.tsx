@@ -1467,9 +1467,11 @@ export function ServiceCallsAdmin() {
         </div>
       ) : (
         <p className="rounded-xl border border-dashed border-border bg-surface/60 p-6 text-center text-sm text-muted-foreground">
-          {view === "active"
-            ? "אין קריאות שירות פעילות להצגה."
-            : "אין קריאות שירות סגורות בהיסטוריה."}
+          {searchActive
+            ? "לא נמצאו תוצאות לחיפוש בהיסטוריית הקריאות."
+            : view === "active"
+              ? "אין קריאות שירות פעילות להצגה."
+              : "אין קריאות שירות סגורות בהיסטוריה."}
         </p>
       )}
 
