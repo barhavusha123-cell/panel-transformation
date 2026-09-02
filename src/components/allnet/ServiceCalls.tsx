@@ -1199,14 +1199,25 @@ export function ServiceCallsAdmin() {
                     <Label className="text-xs">סטטוס</Label>
                     <Select
                       value={call.status}
-                      onValueChange={(v) =>
+                      onValueChange={(v) => {
+                        const next = v as ServiceCallStatus;
+                        if (
+                          (next === "done" || next === "closed") &&
+                          call.source === "client" &&
+                          !(replyTexts[call.id] ?? "").trim()
+                        ) {
+                          setReplyTexts((prev) => ({
+                            ...prev,
+                            [call.id]: "התקלה טופלה אנא סגור את הקריאה מצידך באפליקציה",
+                          }));
+                        }
                         patch(call.id, (c) => ({
                           ...c,
-                          status: v as ServiceCallStatus,
+                          status: next,
                           closedAt:
-                            v === "done" || v === "closed" ? (c.closedAt ?? nowStamp()) : undefined,
-                        }))
-                      }
+                            next === "done" || next === "closed" ? (c.closedAt ?? nowStamp()) : undefined,
+                        }));
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue />
