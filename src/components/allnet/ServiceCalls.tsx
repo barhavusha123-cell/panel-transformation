@@ -14,6 +14,7 @@ import {
   Paperclip,
   Pencil,
   Plus,
+  Search,
   Send,
   Trash2,
   UserCog,
@@ -546,6 +547,8 @@ export function ServiceCallsAdmin() {
   const dalekRef = useRef<HTMLInputElement>(null);
 
   const [numberFilter, setNumberFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchActive, setSearchActive] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   /** מצב תצוגה: פעילות / היסטוריה (סגורות) */
   const [view, setView] = useState<"active" | "history">("active");
@@ -599,9 +602,14 @@ export function ServiceCallsAdmin() {
     [state.projects, state.serviceCalls],
   );
 
+  const techName = (username?: string) =>
+    technicians.find((u) => u.username === username)?.full_name ?? "לא שויך";
+
   const calls = useMemo(() => {
     return state.serviceCalls
-      .filter((c) => (view === "active" ? !isClosedStatus(c.status) : isClosedStatus(c.status)))
+      .filter((c) =>
+        searchActive ? true : view === "active" ? !isClosedStatus(c.status) : isClosedStatus(c.status),
+      )
       .filter((c) => (statusFilter === "all" ? true : c.status === statusFilter))
       .filter((c) => (techFilter === "all" ? true : c.technician === techFilter))
       .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
@@ -624,6 +632,28 @@ export function ServiceCallsAdmin() {
         if (dateTo && key > dayKey(dateTo)) return false;
         return true;
       })
+      .filter((c) => {
+        if (!searchActive || !searchQuery.trim()) return true;
+        const q = searchQuery.trim().toLowerCase();
+        const technicianName = techName(c.technician).toLowerCase();
+        const haystack = [
+          c.client,
+          c.project,
+          c.subject,
+          c.description,
+          c.contact,
+          c.address,
+          c.equipmentSupplied,
+          c.followUp,
+          technicianName,
+          formatCallNumber(c.number),
+          c.approverName,
+          ...c.updates.map((u) => u.text),
+        ]
+          .filter((v): v is string => !!v)
+          .join(" ");
+        return haystack.toLowerCase().includes(q);
+      })
       .slice()
       .sort((a, b) => {
         const s = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
@@ -639,6 +669,9 @@ export function ServiceCallsAdmin() {
     numberFilter,
     dateFrom,
     dateTo,
+    searchActive,
+    searchQuery,
+    techName,
   ]);
 
   // עימוד — עד 10 קריאות בעמוד
@@ -648,7 +681,18 @@ export function ServiceCallsAdmin() {
   const pageCalls = calls.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
   useEffect(
     () => setPage(1),
-    [view, statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo],
+    [
+      view,
+      statusFilter,
+      techFilter,
+      clientFilter,
+      siteFilter,
+      numberFilter,
+      dateFrom,
+      dateTo,
+      searchQuery,
+      searchActive,
+    ],
   );
 
   const clientOptions = useMemo(
@@ -666,9 +710,6 @@ export function ServiceCallsAdmin() {
       ).sort((a, b) => a.localeCompare(b, "he")),
     [state.serviceCalls],
   );
-
-  const techName = (username?: string) =>
-    technicians.find((u) => u.username === username)?.full_name ?? "לא שויך";
 
   const importDalekPdf = async (files: FileList | null) => {
     const file = files?.[0];
@@ -1025,6 +1066,54 @@ export function ServiceCallsAdmin() {
         </form>
       )}
 
+      {/* סרגל חיפוש בהיסטוריה */}
+      <div className="surface-panel flex flex-wrap items-end gap-2 rounded-2xl p-3">
+        <div className="min-w-0 flex-1 space-y-1">
+          <Label className="text-[11px]">חיפוש בכל היסטוריית הקריאות</Label>
+          <Input
+            className="h-9 text-xs"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                setSearchActive(true);
+              }
+            }}
+            placeholder="לקוח, אתר, נושא, תיאור, טכנאי, מספר קריאה..."
+          />
+        </div>
+        <Button
+          variant="brand"
+          size="sm"
+          className="h-9"
+          onClick={() => setSearchActive(true)}
+          disabled={!searchQuery.trim()}
+        >
+          <Search className="size-4" />
+          חפש
+        </Button>
+        {searchActive && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9"
+            onClick={() => {
+              setSearchActive(false);
+              setSearchQuery("");
+            }}
+          >
+            <X className="size-4" />
+            נקה חיפוש
+          </Button>
+        )}
+        {searchActive && (
+          <Badge variant="secondary" className="h-9 px-2">
+            {calls.length} תוצאות
+          </Badge>
+        )}
+      </div>
+
       <div className="surface-panel grid grid-cols-7 items-start gap-2 rounded-2xl p-3">
         <div className="min-w-0 space-y-1">
           <Label className="text-[11px]">סטטוס</Label>
@@ -1135,7 +1224,11 @@ export function ServiceCallsAdmin() {
         <div className="space-y-4">
           <div className="flex items-center justify-between rounded-xl border border-border bg-surface/60 px-4 py-2.5">
             <h4 className="text-sm font-semibold">
-              {view === "active" ? "קריאות פעילות" : "היסטוריית קריאות — סגורות"}
+              {searchActive
+                ? "תוצאות חיפוש בהיסטוריית קריאות"
+                : view === "active"
+                  ? "קריאות פעילות"
+                  : "היסטוריית קריאות — סגורות"}
             </h4>
             <span className="text-xs text-muted-foreground">{calls.length} קריאות</span>
           </div>
@@ -1378,9 +1471,11 @@ export function ServiceCallsAdmin() {
         </div>
       ) : (
         <p className="rounded-xl border border-dashed border-border bg-surface/60 p-6 text-center text-sm text-muted-foreground">
-          {view === "active"
-            ? "אין קריאות שירות פעילות להצגה."
-            : "אין קריאות שירות סגורות בהיסטוריה."}
+          {searchActive
+            ? "לא נמצאו תוצאות לחיפוש בהיסטוריית הקריאות."
+            : view === "active"
+              ? "אין קריאות שירות פעילות להצגה."
+              : "אין קריאות שירות סגורות בהיסטוריה."}
         </p>
       )}
 
