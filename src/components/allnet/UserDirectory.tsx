@@ -473,21 +473,20 @@ function UserDetailsDialog({
             onClick={() => {
               setState((prev) => ({
                 ...prev,
-                users: prev.users.map((u) =>
-                  u.username === username
-                    ? {
-                        ...u,
-                        clientId: undefined,
-                        full_name: form.full_name.trim(),
-                        password: form.password.trim(),
-                        email: form.email.trim(),
-                        role: form.role,
-                        ...(form.role === "לקוח" && form.clientId
-                          ? { clientId: form.clientId }
-                          : {}),
-                      }
-                    : u,
-                ),
+                users: prev.users.map((u) => {
+                  if (u.username !== username) return u;
+                  const { clientId: _drop, ...rest } = u;
+                  return {
+                    ...rest,
+                    full_name: form.full_name.trim(),
+                    password: form.password.trim(),
+                    email: form.email.trim(),
+                    role: form.role,
+                    ...(form.role === "לקוח" && form.clientId
+                      ? { clientId: form.clientId }
+                      : {}),
+                  };
+                }),
               }));
               toast.success("פרטי המשתמש עודכנו בהצלחה.");
               onClose();
