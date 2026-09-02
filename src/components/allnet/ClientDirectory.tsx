@@ -496,13 +496,26 @@ export function ClientDirectory() {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent dir="rtl" className="max-w-lg">
+        <DialogContent dir="rtl" className="max-h-[90vh] max-w-3xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingId ? "עריכת לקוח" : "פתיחת לקוח חדש"}</DialogTitle>
             <DialogDescription>
               פרטי הלקוח ישמשו בהקמת פרויקטים ובקריאות שירות.
             </DialogDescription>
           </DialogHeader>
+          <Tabs value={tab} onValueChange={setTab} className="w-full">
+            <TabsList className="w-full justify-start">
+              <TabsTrigger value="details">פרטי לקוח</TabsTrigger>
+              <TabsTrigger value="docs">
+                תיעוד ומידע נוסף
+                {form.docRows.length > 0 && (
+                  <span className="ms-2 rounded-full bg-primary/10 px-1.5 text-[10px] text-primary">
+                    {form.docRows.length}
+                  </span>
+                )}
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="details" className="mt-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
               <Label>מספר לקוח</Label>
