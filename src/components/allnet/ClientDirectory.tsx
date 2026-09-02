@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Building2,
+  FileSpreadsheet,
   Mail,
   MapPin,
   Pencil,
@@ -8,14 +9,17 @@ import {
   Plus,
   Search,
   Trash2,
+  UploadCloud,
   UserRound,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
-import type { Client } from "@/lib/allnet/types";
+import type { Client, ClientDocRow } from "@/lib/allnet/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import {
   Dialog,
@@ -40,6 +44,50 @@ const emptyForm = {
   address: "",
   notes: "",
   sla: false,
+  docNotes: "",
+  docRows: [] as ClientDocRow[],
+};
+
+const DOC_FIELDS: { key: keyof ClientDocRow; label: string; width: string }[] = [
+  { key: "category", label: "קטגוריה", width: "9rem" },
+  { key: "item", label: "מערכת / פריט", width: "minmax(0,1fr)" },
+  { key: "model", label: "יצרן / דגם", width: "9rem" },
+  { key: "ip", label: "כתובת IP / מזהה", width: "9rem" },
+  { key: "location", label: "מיקום", width: "8rem" },
+  { key: "access", label: "גישה / משתמש", width: "8rem" },
+  { key: "notes", label: "הערות", width: "minmax(0,1fr)" },
+];
+
+const DOC_CATEGORIES = [
+  "מערכות מחשוב",
+  "תקשורת ורשת",
+  "מתח נמוך",
+  "מצלמות אבטחה",
+  "בקרת כניסה",
+  "טלפוניה",
+  "כתובות IP",
+  "שרתים ואחסון",
+  "אחר",
+];
+
+/** התאמת כותרות עמודות מאקסל לשדות התיעוד */
+const HEADER_MAP: { field: keyof ClientDocRow; hints: string[] }[] = [
+  { field: "category", hints: ["קטגוריה", "סוג", "מערכת ראשית", "category", "type"] },
+  { field: "item", hints: ["פריט", "מערכת", "רכיב", "תיאור", "שם", "item", "device", "name", "description"] },
+  { field: "model", hints: ["דגם", "יצרן", "model", "vendor", "manufacturer", "brand"] },
+  { field: "ip", hints: ["ip", "כתובת ip", "כתובת", "mac", "address", "host"] },
+  { field: "location", hints: ["מיקום", "אתר", "חדר", "קומה", "location", "site", "room"] },
+  { field: "access", hints: ["גישה", "משתמש", "user", "login", "access", "port"] },
+  { field: "notes", hints: ["הערות", "הערה", "notes", "comment", "remark"] },
+];
+
+const matchField = (header: string): keyof ClientDocRow | null => {
+  const h = header.trim().toLowerCase();
+  if (!h) return null;
+  for (const { field, hints } of HEADER_MAP) {
+    if (hints.some((x) => h === x.toLowerCase() || h.includes(x.toLowerCase()))) return field;
+  }
+  return null;
 };
 
 const FIRST_CLIENT_NUMBER = 26001;
