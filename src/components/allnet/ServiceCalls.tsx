@@ -1133,6 +1133,12 @@ export function ServiceCallsAdmin() {
 
       {calls.length ? (
         <div className="space-y-4">
+          <div className="flex items-center justify-between rounded-xl border border-border bg-surface/60 px-4 py-2.5">
+            <h4 className="text-sm font-semibold">
+              {view === "active" ? "קריאות פעילות" : "היסטוריית קריאות — סגורות"}
+            </h4>
+            <span className="text-xs text-muted-foreground">{calls.length} קריאות</span>
+          </div>
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface/60 px-4 py-2.5">
             <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
               <Checkbox
