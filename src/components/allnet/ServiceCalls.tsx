@@ -602,6 +602,9 @@ export function ServiceCallsAdmin() {
     [state.projects, state.serviceCalls],
   );
 
+  const techName = (username?: string) =>
+    technicians.find((u) => u.username === username)?.full_name ?? "לא שויך";
+
   const calls = useMemo(() => {
     return state.serviceCalls
       .filter((c) =>
