@@ -1224,7 +1224,11 @@ export function ServiceCallsAdmin() {
         <div className="space-y-4">
           <div className="flex items-center justify-between rounded-xl border border-border bg-surface/60 px-4 py-2.5">
             <h4 className="text-sm font-semibold">
-              {view === "active" ? "קריאות פעילות" : "היסטוריית קריאות — סגורות"}
+              {searchActive
+                ? "תוצאות חיפוש בהיסטוריית קריאות"
+                : view === "active"
+                  ? "קריאות פעילות"
+                  : "היסטוריית קריאות — סגורות"}
             </h4>
             <span className="text-xs text-muted-foreground">{calls.length} קריאות</span>
           </div>
