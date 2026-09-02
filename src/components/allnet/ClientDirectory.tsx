@@ -257,6 +257,7 @@ export function ClientDirectory() {
         sla: form.sla,
         docNotes: form.docNotes,
         docRows: form.docRows,
+        sites: form.sites,
         createdAt: new Date().toISOString(),
       };
       return { ...prev, clients: [...list, client] };
