@@ -1,11 +1,6 @@
-export type Role = "מנהל פרויקט בכיר" | "קבלן משנה" | "מנהל פרויקט" | "מנהל מערכת";
+export type Role = "מנהל פרויקט בכיר" | "קבלן משנה" | "מנהל פרויקט" | "מנהל מערכת" | "לקוח";
 
-export const ROLES: Role[] = [
-  "מנהל פרויקט בכיר",
-  "קבלן משנה",
-  "מנהל פרויקט",
-  "מנהל מערכת",
-];
+export const ROLES: Role[] = ["מנהל פרויקט בכיר", "קבלן משנה", "מנהל פרויקט", "מנהל מערכת", "לקוח"];
 
 export interface User {
   username: string;
@@ -13,6 +8,8 @@ export interface User {
   full_name: string;
   role: Role;
   email?: string;
+  /** שיוך ללקוח — רלוונטי למשתמש בתפקיד "לקוח" */
+  clientId?: string;
 }
 
 export type Region = "צפון" | "דרום" | "מרכז";
@@ -48,7 +45,16 @@ export interface ProjectClosure {
   /** האם יצאה חשבונית גמר חשבון */
   invoiceIssued: boolean;
   /** פירוט סיבה לכל שאלה שסומנה "לא" (מפתח = שם השדה) */
-  reasons?: Partial<Record<"deliveredToClient" | "docFileSaved" | "docFileSentToClient" | "equipmentOnSite" | "invoiceIssued", string>>;
+  reasons?: Partial<
+    Record<
+      | "deliveredToClient"
+      | "docFileSaved"
+      | "docFileSentToClient"
+      | "equipmentOnSite"
+      | "invoiceIssued",
+      string
+    >
+  >;
   closedAt: string;
 }
 
@@ -58,7 +64,6 @@ export interface FixedCost {
   description: string;
   amount: number;
 }
-
 
 export interface Project {
   name: string;
@@ -151,11 +156,13 @@ export interface BoqItem {
 
 /** סיכום ביצוע כתב כמויות */
 export const boqSummary = (items: BoqItem[] = []) => {
-  const total = items.reduce((a, i) => a + (Number(i.quantity) || 0) * (Number(i.unitPrice) || 0), 0);
+  const total = items.reduce(
+    (a, i) => a + (Number(i.quantity) || 0) * (Number(i.unitPrice) || 0),
+    0,
+  );
   const done = items.reduce(
     (a, i) =>
-      a +
-      Math.min(Number(i.doneQty) || 0, Number(i.quantity) || 0) * (Number(i.unitPrice) || 0),
+      a + Math.min(Number(i.doneQty) || 0, Number(i.quantity) || 0) * (Number(i.unitPrice) || 0),
     0,
   );
   const completedItems = items.filter(
@@ -170,8 +177,6 @@ export const boqSummary = (items: BoqItem[] = []) => {
     count: items.length,
   };
 };
-
-
 
 /** יעד שעות מנהל פרויקט / עובד אפקטיבי כולל תוספת חריגה מאושרת */
 export const effectiveBudget = (p?: { budget?: number; extraHours?: number }) =>
@@ -201,7 +206,6 @@ export const EMPLOYEE_DAY_RATE = 1500;
 export const EMPLOYEE_FULL_DAY_MINUTES = 300;
 /** תעריף שעתי לעובד חברה כאשר דווחו פחות מ-5 שעות ביום */
 export const EMPLOYEE_HOUR_RATE = 215;
-
 
 export const MIN_BUDGET = 1;
 export const MAX_BUDGET = Number.MAX_SAFE_INTEGER;
@@ -325,6 +329,19 @@ export interface ServiceCall {
   additionalTechnician?: boolean | undefined;
   /** שם הטכנאי הנוסף */
   additionalTechnicianName?: string | undefined;
+  /** מקור הקריאה — "client" = נפתחה על ידי הלקוח בפורטל הלקוחות */
+  source?: "client" | "internal" | undefined;
+  /** שם האתר שנבחר על ידי הלקוח */
+  site?: string | undefined;
+}
+
+/** אתר של לקוח — קריאות שירות נפתחות עבור אתר מסוים */
+export interface ClientSite {
+  id: string;
+  name: string;
+  address?: string;
+  contact?: string;
+  phone?: string;
 }
 
 /** לקוח במערכת */
@@ -354,6 +371,8 @@ export interface Client {
   sla?: boolean;
   /** תיעוד טכני — שורות מידע (מערכות מחשוב, מתח נמוך, תקשורת, כתובות IP וכו') */
   docRows?: ClientDocRow[];
+  /** אתרים של הלקוח — לבחירה בעת פתיחת קריאת שירות */
+  sites?: ClientSite[];
   /** הערות תיעוד חופשיות */
   docNotes?: string;
   createdAt: string;
