@@ -1254,6 +1254,44 @@ export function ServiceCallsAdmin() {
                       שלח
                     </Button>
                   </div>
+                  <Button
+                    onClick={() => {
+                      const d = drafts[call.id];
+                      if (d) {
+                        patch(call.id, (c) => {
+                          const tech =
+                            d.technician === undefined
+                              ? c.technician
+                              : d.technician === "none"
+                                ? undefined
+                                : d.technician;
+                          let status = d.status ?? c.status;
+                          if (d.status === undefined && d.technician !== undefined) {
+                            status = !tech ? "new" : c.status === "new" ? "assigned" : c.status;
+                          }
+                          return {
+                            ...c,
+                            technician: tech,
+                            status,
+                            closedAt:
+                              status === "closed" ? (c.closedAt ?? nowStamp()) : undefined,
+                          };
+                        });
+                      }
+                      if ((replyTexts[call.id] ?? "").trim()) sendReply(call);
+                      setDrafts((prev) => {
+                        const next = { ...prev };
+                        delete next[call.id];
+                        return next;
+                      });
+                      setStatusFilter("all");
+                      toast.success(`הנתונים נשמרו לקריאה ${formatCallNumber(call.number)}.`);
+                    }}
+                  >
+                    <CheckCircle2 className="size-4" />
+                    אישור
+                  </Button>
+
                   <Button variant="soft" onClick={() => setEditing(call)}>
                     <Pencil className="size-4" />
                     ערוך קריאה
