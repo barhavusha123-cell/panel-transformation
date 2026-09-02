@@ -1178,12 +1178,11 @@ export function ServiceCallsAdmin() {
                       שיוך טכנאי
                     </Label>
                     <Select
-                      value={call.technician || "none"}
+                      value={drafts[call.id]?.technician ?? call.technician ?? "none"}
                       onValueChange={(v) =>
-                        patch(call.id, (c) => ({
-                          ...c,
-                          technician: v === "none" ? undefined : v,
-                          status: v === "none" ? "new" : c.status === "new" ? "assigned" : c.status,
+                        setDrafts((prev) => ({
+                          ...prev,
+                          [call.id]: { ...prev[call.id], technician: v },
                         }))
                       }
                     >
@@ -1203,7 +1202,7 @@ export function ServiceCallsAdmin() {
                   <div className="min-w-40 space-y-1">
                     <Label className="text-xs">סטטוס</Label>
                     <Select
-                      value={call.status}
+                      value={drafts[call.id]?.status ?? call.status}
                       onValueChange={(v) => {
                         const next = v as ServiceCallStatus;
                         if (
@@ -1216,11 +1215,9 @@ export function ServiceCallsAdmin() {
                             [call.id]: "התקלה טופלה אנא סגור את הקריאה מצידך באפליקציה",
                           }));
                         }
-                        patch(call.id, (c) => ({
-                          ...c,
-                          status: next,
-                          closedAt:
-                            next === "closed" ? (c.closedAt ?? nowStamp()) : undefined,
+                        setDrafts((prev) => ({
+                          ...prev,
+                          [call.id]: { ...prev[call.id], status: next },
                         }));
                       }}
                     >
@@ -1236,6 +1233,7 @@ export function ServiceCallsAdmin() {
                       </SelectContent>
                     </Select>
                   </div>
+
                   <div className="flex min-w-64 flex-1 items-end gap-2">
                     <div className="flex-1 space-y-1">
                       <Label className="text-xs">מענה ללקוח</Label>
