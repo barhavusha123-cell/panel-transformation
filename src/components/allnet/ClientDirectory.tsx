@@ -634,6 +634,151 @@ export function ClientDirectory() {
               </label>
             </div>
           </div>
+            </TabsContent>
+
+            <TabsContent value="docs" className="mt-4 space-y-4">
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  const f = e.dataTransfer.files?.[0];
+                  if (f) void importExcel(f);
+                }}
+                className={`rounded-xl border-2 border-dashed p-4 text-center transition-colors ${
+                  dragOver ? "border-primary bg-primary/5" : "border-border bg-muted/30"
+                }`}
+              >
+                <UploadCloud className="mx-auto size-6 text-primary" />
+                <p className="mt-1 text-sm font-medium">
+                  גרור לכאן תיק תיעוד באקסל (xlsx / xls / csv)
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  הנתונים ייפרסו אוטומטית לטבלה — כל גיליון יזוהה כקטגוריה והכותרות
+                  יותאמו לשדות (מערכת, יצרן/דגם, IP, מיקום, גישה, הערות).
+                </p>
+                <Button
+                  variant="soft"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <FileSpreadsheet className="size-4" />
+                  בחר קובץ
+                </Button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void importExcel(f);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">
+                  {form.docRows.length} שורות תיעוד
+                </p>
+                <div className="flex gap-2">
+                  {form.docRows.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => setForm((f) => ({ ...f, docRows: [] }))}
+                    >
+                      <Trash2 className="size-4" />
+                      נקה הכל
+                    </Button>
+                  )}
+                  <Button variant="brand" size="sm" onClick={addDocRow}>
+                    <Plus className="size-4" />
+                    שורה חדשה
+                  </Button>
+                </div>
+              </div>
+
+              {form.docRows.length > 0 && (
+                <div className="max-h-[45vh] overflow-auto rounded-xl border border-border">
+                  <table className="w-full text-xs">
+                    <thead className="sticky top-0 bg-muted/60 text-[11px] text-muted-foreground">
+                      <tr>
+                        {DOC_FIELDS.map((f) => (
+                          <th key={f.key} className="p-1.5 text-start font-medium">
+                            {f.label}
+                          </th>
+                        ))}
+                        <th className="w-8" />
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/60">
+                      {form.docRows.map((row) => (
+                        <tr key={row.id} className="align-top">
+                          {DOC_FIELDS.map((f) => (
+                            <td key={f.key} className="p-1">
+                              {f.key === "category" ? (
+                                <Input
+                                  list="allnet-doc-categories"
+                                  className="h-8 text-xs"
+                                  value={row[f.key] ?? ""}
+                                  onChange={(e) =>
+                                    updateDocRow(row.id, f.key, e.target.value)
+                                  }
+                                />
+                              ) : (
+                                <Input
+                                  className="h-8 text-xs"
+                                  dir={f.key === "ip" ? "ltr" : undefined}
+                                  value={row[f.key] ?? ""}
+                                  onChange={(e) =>
+                                    updateDocRow(row.id, f.key, e.target.value)
+                                  }
+                                />
+                              )}
+                            </td>
+                          ))}
+                          <td className="p-1">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="size-8 text-destructive hover:bg-destructive/10"
+                              title="מחק שורה"
+                              onClick={() => removeDocRow(row.id)}
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <datalist id="allnet-doc-categories">
+                    {DOC_CATEGORIES.map((c) => (
+                      <option key={c} value={c} />
+                    ))}
+                  </datalist>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label>מידע טכני חופשי / הערות תיעוד</Label>
+                <Textarea
+                  rows={5}
+                  value={form.docNotes}
+                  onChange={(e) => setForm({ ...form, docNotes: e.target.value })}
+                  placeholder="טופולוגיית רשת, טווחי IP, VLANים, ספקי אינטרנט, פרטי ארונות תקשורת, מערכות מתח נמוך, הרשאות גישה וכו'"
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
           <DialogFooter>
             <Button variant="soft" onClick={() => setOpen(false)}>
               ביטול
