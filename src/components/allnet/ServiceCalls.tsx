@@ -700,9 +700,6 @@ export function ServiceCallsAdmin() {
     [state.serviceCalls],
   );
 
-  const techName = (username?: string) =>
-    technicians.find((u) => u.username === username)?.full_name ?? "לא שויך";
-
   const importDalekPdf = async (files: FileList | null) => {
     const file = files?.[0];
     if (!file) return;
