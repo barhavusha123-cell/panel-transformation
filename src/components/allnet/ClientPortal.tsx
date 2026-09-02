@@ -163,6 +163,34 @@ export function ClientPortal() {
     setAttachments([]);
   };
 
+  const confirmClosure = (call: ServiceCall) => {
+    const at = nowStamp();
+    const by = user?.full_name ?? client?.name ?? "לקוח";
+    setState((prev) => ({
+      ...prev,
+      serviceCalls: prev.serviceCalls.map((c) =>
+        c.id === call.id
+          ? {
+              ...c,
+              clientClosedAt: at,
+              clientClosedBy: by,
+              updates: [
+                ...c.updates,
+                {
+                  id: uid(),
+                  at,
+                  by,
+                  text: "הלקוח אישר שהתקלה נסגרה וניתן לסגור את הקריאה.",
+                  status: "done" as ServiceCallStatus,
+                },
+              ],
+            }
+          : c,
+      ),
+    }));
+    toast.success("תודה! אישור סגירת הקריאה נשלח למוקד.");
+  };
+
   if (!user) return null;
 
   return (
