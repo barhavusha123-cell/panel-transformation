@@ -451,6 +451,114 @@ export function ClientPortal() {
                 </ul>
               )}
 
+              {/* עריכה והוספת מידע — כל עוד הקריאה לא טופלה/נסגרה */}
+              {c.status !== "done" && c.status !== "closed" && (
+                <div className="mt-3">
+                  {editingId === c.id ? (
+                    <div className="space-y-3 rounded-lg border border-border bg-surface/60 p-3">
+                      <Label className="text-xs">מידע נוסף לקריאה</Label>
+                      <Textarea
+                        value={editInfo}
+                        onChange={(e) => setEditInfo(e.target.value)}
+                        rows={3}
+                        placeholder="הוסף פרטים, עדכונים או הבהרות לטכנאי"
+                      />
+                      <div className="flex flex-wrap items-center gap-2">
+                        <input
+                          ref={editFileRef}
+                          type="file"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => {
+                            addEditFiles(e.target.files);
+                            e.target.value = "";
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => editFileRef.current?.click()}
+                        >
+                          <Paperclip className="size-4" />
+                          צרף תמונה / קובץ
+                        </Button>
+                        {editFiles.length > 0 && (
+                          <span className="text-xs text-muted-foreground">
+                            {editFiles.length} קבצים מוכנים לצירוף
+                          </span>
+                        )}
+                      </div>
+                      {editFiles.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {editFiles.map((a) => (
+                            <div
+                              key={a.id}
+                              className="relative flex w-20 flex-col items-center gap-1 rounded-lg border border-border p-1.5"
+                            >
+                              {a.isImage ? (
+                                <img
+                                  src={a.dataUrl}
+                                  alt={a.name}
+                                  className="h-12 w-full rounded object-cover"
+                                />
+                              ) : (
+                                <Paperclip className="size-6 text-muted-foreground" />
+                              )}
+                              <span className="w-full truncate text-[10px] text-muted-foreground">
+                                {a.name}
+                              </span>
+                              <button
+                                type="button"
+                                aria-label="הסר קובץ"
+                                onClick={() =>
+                                  setEditFiles((prev) => prev.filter((x) => x.id !== a.id))
+                                }
+                                className="absolute -left-1.5 -top-1.5 rounded-full bg-destructive p-0.5 text-destructive-foreground"
+                              >
+                                <X className="size-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex gap-2">
+                        <Button type="button" size="sm" variant="brand" onClick={() => saveEdit(c)}>
+                          <Send className="size-4" />
+                          שמור ושלח למוקד
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditingId(null);
+                            setEditInfo("");
+                            setEditFiles([]);
+                          }}
+                        >
+                          ביטול
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="soft"
+                      onClick={() => {
+                        setEditingId(c.id);
+                        setEditInfo("");
+                        setEditFiles([]);
+                      }}
+                    >
+                      <Pencil className="size-4" />
+                      ערוך קריאה / הוסף מידע
+                    </Button>
+                  )}
+                </div>
+              )}
+
               {c.status === "done" && !c.clientClosedAt && (
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-emerald-50 p-3">
                   <span className="text-sm text-emerald-800">
