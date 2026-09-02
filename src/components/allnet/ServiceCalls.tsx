@@ -1066,6 +1066,54 @@ export function ServiceCallsAdmin() {
         </form>
       )}
 
+      {/* סרגל חיפוש בהיסטוריה */}
+      <div className="surface-panel flex flex-wrap items-end gap-2 rounded-2xl p-3">
+        <div className="min-w-0 flex-1 space-y-1">
+          <Label className="text-[11px]">חיפוש בכל היסטוריית הקריאות</Label>
+          <Input
+            className="h-9 text-xs"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                setSearchActive(true);
+              }
+            }}
+            placeholder="לקוח, אתר, נושא, תיאור, טכנאי, מספר קריאה..."
+          />
+        </div>
+        <Button
+          variant="brand"
+          size="sm"
+          className="h-9"
+          onClick={() => setSearchActive(true)}
+          disabled={!searchQuery.trim()}
+        >
+          <Search className="size-4" />
+          חפש
+        </Button>
+        {searchActive && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9"
+            onClick={() => {
+              setSearchActive(false);
+              setSearchQuery("");
+            }}
+          >
+            <X className="size-4" />
+            נקה חיפוש
+          </Button>
+        )}
+        {searchActive && (
+          <Badge variant="secondary" className="h-9 px-2">
+            {calls.length} תוצאות
+          </Badge>
+        )}
+      </div>
+
       <div className="surface-panel grid grid-cols-7 items-start gap-2 rounded-2xl p-3">
         <div className="min-w-0 space-y-1">
           <Label className="text-[11px]">סטטוס</Label>
