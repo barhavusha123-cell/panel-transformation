@@ -352,7 +352,7 @@ function CallCard({
         </span>
         <span className="text-sm font-semibold text-foreground">קריאה {formatCallNumber(call.number)}</span>
         {statusBadge(call.status)}
-        {priorityBadge(call.priority)}
+        {priorityBadge(call.priority, call.status)}
         <span className="text-sm text-foreground">לקוח: {call.client}</span>
         <span className="text-sm text-foreground">טכנאי: {technicianName}</span>
         <span className="text-sm text-foreground">נפתחה {formatDateIL(call.createdAt)}</span>
