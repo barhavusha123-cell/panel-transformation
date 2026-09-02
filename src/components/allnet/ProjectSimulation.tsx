@@ -406,29 +406,6 @@ export function ProjectSimulation({
                 <Progress value={Math.min(100, calc.usedPercent)} />
               </div>
             </div>
-
-            <div className="overflow-x-auto rounded-xl border border-border">
-              <table className="w-full text-sm">
-                <thead className="bg-surface/60 text-xs text-muted-foreground">
-                  <tr>
-                    <th className="p-2 text-right">תמהיל</th>
-                    <th className="p-2 text-right">שעות עובדי חברה</th>
-                    <th className="p-2 text-right">ימי עובדי חברה</th>
-                    <th className="p-2 text-right">ימי צוות קבלן</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mixRows.map((r) => (
-                    <tr key={r.share} className="border-t border-border">
-                      <td className="p-2">{r.share}% חברה</td>
-                      <td className="p-2">{r.empHours.toFixed(0)}</td>
-                      <td className="p-2">{r.empDays.toFixed(1)}</td>
-                      <td className="p-2">{r.conDays.toFixed(1)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           </div>
         </div>
 
