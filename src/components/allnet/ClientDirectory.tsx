@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Building2,
+  ClipboardPaste,
   Mail,
   MapPin,
   Pencil,
@@ -9,6 +10,7 @@ import {
   Search,
   Trash2,
   UserRound,
+  Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
