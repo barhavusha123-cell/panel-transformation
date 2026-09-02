@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Building2,
+  FileSpreadsheet,
   Mail,
   MapPin,
   Pencil,
@@ -8,14 +9,17 @@ import {
   Plus,
   Search,
   Trash2,
+  UploadCloud,
   UserRound,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
-import type { Client } from "@/lib/allnet/types";
+import type { Client, ClientDocRow } from "@/lib/allnet/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import {
   Dialog,
@@ -40,6 +44,50 @@ const emptyForm = {
   address: "",
   notes: "",
   sla: false,
+  docNotes: "",
+  docRows: [] as ClientDocRow[],
+};
+
+const DOC_FIELDS: { key: keyof ClientDocRow; label: string; width: string }[] = [
+  { key: "category", label: "קטגוריה", width: "9rem" },
+  { key: "item", label: "מערכת / פריט", width: "minmax(0,1fr)" },
+  { key: "model", label: "יצרן / דגם", width: "9rem" },
+  { key: "ip", label: "כתובת IP / מזהה", width: "9rem" },
+  { key: "location", label: "מיקום", width: "8rem" },
+  { key: "access", label: "גישה / משתמש", width: "8rem" },
+  { key: "notes", label: "הערות", width: "minmax(0,1fr)" },
+];
+
+const DOC_CATEGORIES = [
+  "מערכות מחשוב",
+  "תקשורת ורשת",
+  "מתח נמוך",
+  "מצלמות אבטחה",
+  "בקרת כניסה",
+  "טלפוניה",
+  "כתובות IP",
+  "שרתים ואחסון",
+  "אחר",
+];
+
+/** התאמת כותרות עמודות מאקסל לשדות התיעוד */
+const HEADER_MAP: { field: keyof ClientDocRow; hints: string[] }[] = [
+  { field: "category", hints: ["קטגוריה", "סוג", "מערכת ראשית", "category", "type"] },
+  { field: "item", hints: ["פריט", "מערכת", "רכיב", "תיאור", "שם", "item", "device", "name", "description"] },
+  { field: "model", hints: ["דגם", "יצרן", "model", "vendor", "manufacturer", "brand"] },
+  { field: "ip", hints: ["ip", "כתובת ip", "כתובת", "mac", "address", "host"] },
+  { field: "location", hints: ["מיקום", "אתר", "חדר", "קומה", "location", "site", "room"] },
+  { field: "access", hints: ["גישה", "משתמש", "user", "login", "access", "port"] },
+  { field: "notes", hints: ["הערות", "הערה", "notes", "comment", "remark"] },
+];
+
+const matchField = (header: string): keyof ClientDocRow | null => {
+  const h = header.trim().toLowerCase();
+  if (!h) return null;
+  for (const { field, hints } of HEADER_MAP) {
+    if (hints.some((x) => h === x.toLowerCase() || h.includes(x.toLowerCase()))) return field;
+  }
+  return null;
 };
 
 const FIRST_CLIENT_NUMBER = 26001;
@@ -62,6 +110,9 @@ export function ClientDirectory() {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [tab, setTab] = useState("details");
+  const [dragOver, setDragOver] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   // השלמת מספרי לקוח ללקוחות ותיקים (לפי סדר ההקמה)
   useEffect(() => {
@@ -101,6 +152,7 @@ export function ClientDirectory() {
   const openNew = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setTab("details");
     setOpen(true);
   };
 
@@ -118,8 +170,85 @@ export function ClientDirectory() {
       address: c.address ?? "",
       notes: c.notes ?? "",
       sla: c.sla ?? false,
+      docNotes: c.docNotes ?? "",
+      docRows: c.docRows ?? [],
     });
+    setTab("details");
     setOpen(true);
+  };
+
+  const addDocRow = () =>
+    setForm((f) => ({ ...f, docRows: [...f.docRows, { id: newId() }] }));
+
+  const updateDocRow = (id: string, key: keyof ClientDocRow, value: string) =>
+    setForm((f) => ({
+      ...f,
+      docRows: f.docRows.map((r) => (r.id === id ? { ...r, [key]: value } : r)),
+    }));
+
+  const removeDocRow = (id: string) =>
+    setForm((f) => ({ ...f, docRows: f.docRows.filter((r) => r.id !== id) }));
+
+  /** ייבוא תיק תיעוד מקובץ אקסל — כל גיליון, זיהוי כותרות אוטומטי */
+  const importExcel = async (file: File) => {
+    try {
+      const XLSX = await import("xlsx");
+      const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+      const rows: ClientDocRow[] = [];
+      wb.SheetNames.forEach((sheetName) => {
+        const sheet = wb.Sheets[sheetName];
+        if (!sheet) return;
+        const grid = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
+          header: 1,
+          blankrows: false,
+          defval: "",
+        });
+        if (!grid.length) return;
+        // איתור שורת הכותרות (השורה הראשונה עם 2+ תאים מזוהים)
+        let headerIdx = -1;
+        let mapping: (keyof ClientDocRow | null)[] = [];
+        for (let i = 0; i < Math.min(grid.length, 10); i++) {
+          const cand = (grid[i] ?? []).map((c) => matchField(String(c ?? "")));
+          if (cand.filter(Boolean).length >= 2) {
+            headerIdx = i;
+            mapping = cand;
+            break;
+          }
+        }
+        const headers = headerIdx >= 0 ? (grid[headerIdx] as unknown[]) : [];
+        const start = headerIdx >= 0 ? headerIdx + 1 : 0;
+        for (let i = start; i < grid.length; i++) {
+          const line = grid[i] ?? [];
+          if (!line.some((c) => String(c ?? "").trim())) continue;
+          const row: ClientDocRow = { id: newId(), category: sheetName };
+          const extras: string[] = [];
+          line.forEach((cell, idx) => {
+            const val = String(cell ?? "").trim();
+            if (!val) return;
+            const field = mapping[idx] ?? null;
+            if (field && field !== "id") {
+              row[field] = row[field] ? `${row[field]} | ${val}` : val;
+            } else {
+              const h = String(headers[idx] ?? "").trim();
+              extras.push(h ? `${h}: ${val}` : val);
+            }
+          });
+          if (extras.length) {
+            row.notes = [row.notes, extras.join(" · ")].filter(Boolean).join(" · ");
+          }
+          if (!row.item && !row.ip && !row.notes && !row.model) continue;
+          rows.push(row);
+        }
+      });
+      if (!rows.length) {
+        toast.error("לא נמצאו שורות מידע בקובץ.");
+        return;
+      }
+      setForm((f) => ({ ...f, docRows: [...f.docRows, ...rows] }));
+      toast.success(`יובאו ${rows.length} שורות תיעוד מהקובץ.`);
+    } catch {
+      toast.error("שגיאה בקריאת קובץ האקסל.");
+    }
   };
 
   const save = () => {
@@ -155,6 +284,8 @@ export function ClientDirectory() {
                 address: form.address.trim(),
                 notes: form.notes.trim(),
                 sla: form.sla,
+                docNotes: form.docNotes,
+                docRows: form.docRows,
               }
             : c,
         );
@@ -182,6 +313,8 @@ export function ClientDirectory() {
         address: form.address.trim(),
         notes: form.notes.trim(),
         sla: form.sla,
+        docNotes: form.docNotes,
+        docRows: form.docRows,
         createdAt: new Date().toISOString(),
       };
       return { ...prev, clients: [...list, client] };
@@ -363,13 +496,26 @@ export function ClientDirectory() {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent dir="rtl" className="max-w-lg">
+        <DialogContent dir="rtl" className="max-h-[90vh] max-w-3xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingId ? "עריכת לקוח" : "פתיחת לקוח חדש"}</DialogTitle>
             <DialogDescription>
               פרטי הלקוח ישמשו בהקמת פרויקטים ובקריאות שירות.
             </DialogDescription>
           </DialogHeader>
+          <Tabs value={tab} onValueChange={setTab} className="w-full">
+            <TabsList className="w-full justify-start">
+              <TabsTrigger value="details">פרטי לקוח</TabsTrigger>
+              <TabsTrigger value="docs">
+                תיעוד ומידע נוסף
+                {form.docRows.length > 0 && (
+                  <span className="ms-2 rounded-full bg-primary/10 px-1.5 text-[10px] text-primary">
+                    {form.docRows.length}
+                  </span>
+                )}
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="details" className="mt-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
               <Label>מספר לקוח</Label>
@@ -488,6 +634,151 @@ export function ClientDirectory() {
               </label>
             </div>
           </div>
+            </TabsContent>
+
+            <TabsContent value="docs" className="mt-4 space-y-4">
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  const f = e.dataTransfer.files?.[0];
+                  if (f) void importExcel(f);
+                }}
+                className={`rounded-xl border-2 border-dashed p-4 text-center transition-colors ${
+                  dragOver ? "border-primary bg-primary/5" : "border-border bg-muted/30"
+                }`}
+              >
+                <UploadCloud className="mx-auto size-6 text-primary" />
+                <p className="mt-1 text-sm font-medium">
+                  גרור לכאן תיק תיעוד באקסל (xlsx / xls / csv)
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  הנתונים ייפרסו אוטומטית לטבלה — כל גיליון יזוהה כקטגוריה והכותרות
+                  יותאמו לשדות (מערכת, יצרן/דגם, IP, מיקום, גישה, הערות).
+                </p>
+                <Button
+                  variant="soft"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <FileSpreadsheet className="size-4" />
+                  בחר קובץ
+                </Button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void importExcel(f);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">
+                  {form.docRows.length} שורות תיעוד
+                </p>
+                <div className="flex gap-2">
+                  {form.docRows.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => setForm((f) => ({ ...f, docRows: [] }))}
+                    >
+                      <Trash2 className="size-4" />
+                      נקה הכל
+                    </Button>
+                  )}
+                  <Button variant="brand" size="sm" onClick={addDocRow}>
+                    <Plus className="size-4" />
+                    שורה חדשה
+                  </Button>
+                </div>
+              </div>
+
+              {form.docRows.length > 0 && (
+                <div className="max-h-[45vh] overflow-auto rounded-xl border border-border">
+                  <table className="w-full text-xs">
+                    <thead className="sticky top-0 bg-muted/60 text-[11px] text-muted-foreground">
+                      <tr>
+                        {DOC_FIELDS.map((f) => (
+                          <th key={f.key} className="p-1.5 text-start font-medium">
+                            {f.label}
+                          </th>
+                        ))}
+                        <th className="w-8" />
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/60">
+                      {form.docRows.map((row) => (
+                        <tr key={row.id} className="align-top">
+                          {DOC_FIELDS.map((f) => (
+                            <td key={f.key} className="p-1">
+                              {f.key === "category" ? (
+                                <Input
+                                  list="allnet-doc-categories"
+                                  className="h-8 text-xs"
+                                  value={row[f.key] ?? ""}
+                                  onChange={(e) =>
+                                    updateDocRow(row.id, f.key, e.target.value)
+                                  }
+                                />
+                              ) : (
+                                <Input
+                                  className="h-8 text-xs"
+                                  dir={f.key === "ip" ? "ltr" : undefined}
+                                  value={row[f.key] ?? ""}
+                                  onChange={(e) =>
+                                    updateDocRow(row.id, f.key, e.target.value)
+                                  }
+                                />
+                              )}
+                            </td>
+                          ))}
+                          <td className="p-1">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="size-8 text-destructive hover:bg-destructive/10"
+                              title="מחק שורה"
+                              onClick={() => removeDocRow(row.id)}
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <datalist id="allnet-doc-categories">
+                    {DOC_CATEGORIES.map((c) => (
+                      <option key={c} value={c} />
+                    ))}
+                  </datalist>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label>מידע טכני חופשי / הערות תיעוד</Label>
+                <Textarea
+                  rows={5}
+                  value={form.docNotes}
+                  onChange={(e) => setForm({ ...form, docNotes: e.target.value })}
+                  placeholder="טופולוגיית רשת, טווחי IP, VLANים, ספקי אינטרנט, פרטי ארונות תקשורת, מערכות מתח נמוך, הרשאות גישה וכו'"
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
           <DialogFooter>
             <Button variant="soft" onClick={() => setOpen(false)}>
               ביטול

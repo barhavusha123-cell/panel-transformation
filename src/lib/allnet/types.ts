@@ -352,7 +352,30 @@ export interface Client {
   notes?: string;
   /** לקוח SLA — קריאות שירות יתועדפו אוטומטית כדחופות */
   sla?: boolean;
+  /** תיעוד טכני — שורות מידע (מערכות מחשוב, מתח נמוך, תקשורת, כתובות IP וכו') */
+  docRows?: ClientDocRow[];
+  /** הערות תיעוד חופשיות */
+  docNotes?: string;
   createdAt: string;
+}
+
+/** שורת תיעוד טכני של לקוח */
+export interface ClientDocRow {
+  id: string;
+  /** קטגוריה — מערכות מחשוב / מתח נמוך / תקשורת / כתובות IP ... */
+  category?: string;
+  /** שם הפריט / המערכת */
+  item?: string;
+  /** יצרן / דגם */
+  model?: string;
+  /** כתובת IP / מזהה */
+  ip?: string;
+  /** מיקום באתר */
+  location?: string;
+  /** פרטי גישה / משתמש (ללא סיסמאות רגישות) */
+  access?: string;
+  /** הערות */
+  notes?: string;
 }
 
 export interface AllNetState {
