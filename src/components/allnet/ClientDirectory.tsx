@@ -693,86 +693,91 @@ export function ClientDirectory() {
                 <p className="text-xs text-muted-foreground">
                   {form.docRows.length} שורות תיעוד
                 </p>
-                <div className="flex gap-2">
-                  {form.docRows.length > 0 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-destructive"
-                      onClick={() => setForm((f) => ({ ...f, docRows: [] }))}
-                    >
-                      <Trash2 className="size-4" />
-                      נקה הכל
-                    </Button>
-                  )}
-                  <Button variant="brand" size="sm" onClick={addDocRow}>
-                    <Plus className="size-4" />
-                    שורה חדשה
+                {form.docRows.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive"
+                    onClick={() => setForm((f) => ({ ...f, docRows: [] }))}
+                  >
+                    <Trash2 className="size-4" />
+                    נקה הכל
                   </Button>
-                </div>
+                )}
               </div>
 
-              {form.docRows.length > 0 && (
-                <div className="max-h-[45vh] overflow-auto rounded-xl border border-border">
-                  <table className="w-full text-xs">
-                    <thead className="sticky top-0 bg-muted/60 text-[11px] text-muted-foreground">
-                      <tr>
-                        {DOC_FIELDS.map((f) => (
-                          <th key={f.key} className="p-1.5 text-start font-medium">
-                            {f.label}
-                          </th>
-                        ))}
-                        <th className="w-8" />
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border/60">
-                      {form.docRows.map((row) => (
-                        <tr key={row.id} className="align-top">
-                          {DOC_FIELDS.map((f) => (
-                            <td key={f.key} className="p-1">
-                              {f.key === "category" ? (
-                                <Input
-                                  list="allnet-doc-categories"
-                                  className="h-8 text-xs"
-                                  value={row[f.key] ?? ""}
-                                  onChange={(e) =>
-                                    updateDocRow(row.id, f.key, e.target.value)
-                                  }
-                                />
-                              ) : (
-                                <Input
-                                  className="h-8 text-xs"
-                                  dir={f.key === "ip" ? "ltr" : undefined}
-                                  value={row[f.key] ?? ""}
-                                  onChange={(e) =>
-                                    updateDocRow(row.id, f.key, e.target.value)
-                                  }
-                                />
-                              )}
-                            </td>
-                          ))}
-                          <td className="p-1">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="size-8 text-destructive hover:bg-destructive/10"
-                              title="מחק שורה"
-                              onClick={() => removeDocRow(row.id)}
+              <div className="max-h-[50vh] space-y-3 overflow-auto pe-1">
+                {DOC_CATEGORIES.map((cat) => {
+                  const rows = docRowsFor(cat);
+                  return (
+                    <section
+                      key={cat}
+                      className="rounded-xl border border-border bg-muted/20 p-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold text-foreground">
+                          {cat}
+                          <span className="ms-2 text-[11px] font-normal text-muted-foreground">
+                            {rows.length}/{MAX_DOC_ROWS_PER_CATEGORY} שורות
+                          </span>
+                        </h4>
+                        <Button
+                          variant="soft"
+                          size="sm"
+                          disabled={rows.length >= MAX_DOC_ROWS_PER_CATEGORY}
+                          onClick={() => addDocRow(cat)}
+                        >
+                          <Plus className="size-4" />
+                          הוסף שורה
+                        </Button>
+                      </div>
+
+                      {rows.length > 0 && (
+                        <div className="mt-3 space-y-3">
+                          {rows.map((row, idx) => (
+                            <div
+                              key={row.id}
+                              className="rounded-lg border border-border/70 bg-background p-3"
                             >
-                              <Trash2 className="size-4" />
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <datalist id="allnet-doc-categories">
-                    {DOC_CATEGORIES.map((c) => (
-                      <option key={c} value={c} />
-                    ))}
-                  </datalist>
-                </div>
-              )}
+                              <div className="mb-2 flex items-center justify-between">
+                                <span className="text-xs font-medium text-muted-foreground">
+                                  שורה {idx + 1}
+                                </span>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="size-7 text-destructive hover:bg-destructive/10"
+                                  title="מחק שורה"
+                                  onClick={() => removeDocRow(row.id)}
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </Button>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                                {DOC_FIELDS.map((f) => (
+                                  <div key={f.key} className="space-y-1">
+                                    <Label className="text-[11px] text-muted-foreground">
+                                      {f.label}
+                                    </Label>
+                                    <Input
+                                      className="h-8 text-xs"
+                                      dir={f.key === "ip" || f.key === "password" ? "ltr" : undefined}
+                                      value={row[f.key] ?? ""}
+                                      onChange={(e) =>
+                                        updateDocRow(row.id, f.key, e.target.value)
+                                      }
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </section>
+                  );
+                })}
+              </div>
 
               <div className="space-y-2">
                 <Label>מידע טכני חופשי / הערות תיעוד</Label>
