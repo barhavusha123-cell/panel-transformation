@@ -166,8 +166,83 @@ export function ClientDirectory() {
       address: c.address ?? "",
       notes: c.notes ?? "",
       sla: c.sla ?? false,
+      docNotes: c.docNotes ?? "",
+      docRows: c.docRows ?? [],
     });
+    setTab("details");
     setOpen(true);
+  };
+
+  const addDocRow = () =>
+    setForm((f) => ({ ...f, docRows: [...f.docRows, { id: newId() }] }));
+
+  const updateDocRow = (id: string, key: keyof ClientDocRow, value: string) =>
+    setForm((f) => ({
+      ...f,
+      docRows: f.docRows.map((r) => (r.id === id ? { ...r, [key]: value } : r)),
+    }));
+
+  const removeDocRow = (id: string) =>
+    setForm((f) => ({ ...f, docRows: f.docRows.filter((r) => r.id !== id) }));
+
+  /** ייבוא תיק תיעוד מקובץ אקסל — כל גיליון, זיהוי כותרות אוטומטי */
+  const importExcel = async (file: File) => {
+    try {
+      const XLSX = await import("xlsx");
+      const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+      const rows: ClientDocRow[] = [];
+      wb.SheetNames.forEach((sheetName) => {
+        const grid = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[sheetName], {
+          header: 1,
+          blankrows: false,
+          defval: "",
+        });
+        if (!grid.length) return;
+        // איתור שורת הכותרות (השורה הראשונה עם 2+ תאים מזוהים)
+        let headerIdx = -1;
+        let mapping: (keyof ClientDocRow | null)[] = [];
+        for (let i = 0; i < Math.min(grid.length, 10); i++) {
+          const cand = (grid[i] ?? []).map((c) => matchField(String(c ?? "")));
+          if (cand.filter(Boolean).length >= 2) {
+            headerIdx = i;
+            mapping = cand;
+            break;
+          }
+        }
+        const headers = headerIdx >= 0 ? (grid[headerIdx] as unknown[]) : [];
+        const start = headerIdx >= 0 ? headerIdx + 1 : 0;
+        for (let i = start; i < grid.length; i++) {
+          const line = grid[i] ?? [];
+          if (!line.some((c) => String(c ?? "").trim())) continue;
+          const row: ClientDocRow = { id: newId(), category: sheetName };
+          const extras: string[] = [];
+          line.forEach((cell, idx) => {
+            const val = String(cell ?? "").trim();
+            if (!val) return;
+            const field = mapping[idx] ?? null;
+            if (field && field !== "id") {
+              row[field] = row[field] ? `${row[field]} | ${val}` : val;
+            } else {
+              const h = String(headers[idx] ?? "").trim();
+              extras.push(h ? `${h}: ${val}` : val);
+            }
+          });
+          if (extras.length) {
+            row.notes = [row.notes, extras.join(" · ")].filter(Boolean).join(" · ");
+          }
+          if (!row.item && !row.ip && !row.notes && !row.model) continue;
+          rows.push(row);
+        }
+      });
+      if (!rows.length) {
+        toast.error("לא נמצאו שורות מידע בקובץ.");
+        return;
+      }
+      setForm((f) => ({ ...f, docRows: [...f.docRows, ...rows] }));
+      toast.success(`יובאו ${rows.length} שורות תיעוד מהקובץ.`);
+    } catch {
+      toast.error("שגיאה בקריאת קובץ האקסל.");
+    }
   };
 
   const save = () => {
