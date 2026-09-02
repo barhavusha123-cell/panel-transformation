@@ -145,8 +145,8 @@ export function ClientPortal() {
       state.serviceCalls
         .filter(
           (c) =>
-            c.source === "client" &&
-            (c.createdBy === user?.username || (client && c.client.trim() === client.name.trim())),
+            c.createdBy === user?.username ||
+            (client && c.client.trim() === client.name.trim()),
         )
         .slice()
         .sort((a, b) => b.number - a.number),
