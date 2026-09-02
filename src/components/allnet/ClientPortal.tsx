@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { Camera, CheckCircle2, Headset, MapPin, Paperclip, Send, X } from "lucide-react";
+import { Camera, CheckCircle2, Headset, MapPin, Paperclip, Pencil, Send, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { nowStamp } from "@/lib/allnet/utils";
@@ -78,6 +78,67 @@ export function ClientPortal() {
   const [attachments, setAttachments] = useState<ServiceAttachment[]>([]);
   const cameraRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  /** עריכת קריאה קיימת — הוספת מידע/קבצים כל עוד הקריאה לא טופלה/נסגרה */
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editInfo, setEditInfo] = useState("");
+  const [editFiles, setEditFiles] = useState<ServiceAttachment[]>([]);
+  const editFileRef = useRef<HTMLInputElement>(null);
+
+  const addEditFiles = (files: FileList | null) => {
+    if (!files) return;
+    Array.from(files).forEach((f) => {
+      const reader = new FileReader();
+      reader.onload = () =>
+        setEditFiles((prev) => [
+          ...prev,
+          {
+            id: uid(),
+            name: f.name,
+            dataUrl: String(reader.result),
+            isImage: f.type.startsWith("image/"),
+          },
+        ]);
+      reader.readAsDataURL(f);
+    });
+  };
+
+  const saveEdit = (call: ServiceCall) => {
+    const info = editInfo.trim();
+    if (!info && !editFiles.length) {
+      toast.error("יש להוסיף מידע או קובץ לפני השמירה.");
+      return;
+    }
+    const at = nowStamp();
+    const by = user?.full_name ?? client?.name ?? "לקוח";
+    setState((prev) => ({
+      ...prev,
+      serviceCalls: prev.serviceCalls.map((c) =>
+        c.id === call.id
+          ? {
+              ...c,
+              description: info ? `${c.description}${c.description ? "\n" : ""}[עדכון לקוח ${at}] ${info}` : c.description,
+              attachments: [...c.attachments, ...editFiles],
+              updates: [
+                ...c.updates,
+                {
+                  id: uid(),
+                  at,
+                  by,
+                  text: info
+                    ? `הלקוח הוסיף מידע לקריאה: ${info}${editFiles.length ? ` (+${editFiles.length} קבצים)` : ""}`
+                    : `הלקוח צירף ${editFiles.length} קבצים לקריאה.`,
+                },
+              ],
+            }
+          : c,
+      ),
+    }));
+    toast.success("המידע נוסף לקריאה ונשלח למוקד.");
+    setEditingId(null);
+    setEditInfo("");
+    setEditFiles([]);
+  };
 
   const myCalls = useMemo(
     () =>
