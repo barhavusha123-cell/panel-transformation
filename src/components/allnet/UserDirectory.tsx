@@ -477,13 +477,14 @@ function UserDetailsDialog({
                   u.username === username
                     ? {
                         ...u,
+                        clientId: undefined,
                         full_name: form.full_name.trim(),
                         password: form.password.trim(),
                         email: form.email.trim(),
                         role: form.role,
-                        ...(form.role === "לקוח"
+                        ...(form.role === "לקוח" && form.clientId
                           ? { clientId: form.clientId }
-                          : { clientId: undefined }),
+                          : {}),
                       }
                     : u,
                 ),
