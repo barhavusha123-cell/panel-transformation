@@ -547,6 +547,8 @@ export function ServiceCallsAdmin() {
 
   const [numberFilter, setNumberFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  /** מצב תצוגה: פעילות / היסטוריה (סגורות) */
+  const [view, setView] = useState<"active" | "history">("active");
   /** טיוטת שינויים לכל קריאה — נשמרת רק בלחיצה על "אישור" */
   const [drafts, setDrafts] = useState<
     Record<string, { technician?: string | undefined; status?: ServiceCallStatus }>
