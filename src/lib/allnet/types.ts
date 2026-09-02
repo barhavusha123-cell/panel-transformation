@@ -338,10 +338,12 @@ export interface ServiceCall {
 /** אתר של לקוח — קריאות שירות נפתחות עבור אתר מסוים */
 export interface ClientSite {
   id: string;
+  /** מיקום / שם הסניף */
   name: string;
   address?: string;
   contact?: string;
   phone?: string;
+  notes?: string;
 }
 
 /** לקוח במערכת */
