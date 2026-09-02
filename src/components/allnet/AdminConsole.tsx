@@ -1691,6 +1691,7 @@ export function AdminConsole() {
             </div>
           )}
         </div>
+        <ProjectSimulation open={simOpen} onOpenChange={setSimOpen} project={simProject} />
         <Dialog open={!!callsProject} onOpenChange={(o) => !o && setCallsProject(null)}>
           <DialogContent dir="rtl" className="max-h-[85vh] overflow-y-auto text-right sm:max-w-2xl">
             <DialogHeader className="text-right">
