@@ -69,27 +69,6 @@ const DOC_FIELDS: { key: keyof ClientDocRow; label: string }[] = [
   { key: "notes", label: "הערות" },
 ];
 
-/** התאמת כותרות עמודות מאקסל לשדות התיעוד */
-const HEADER_MAP: { field: keyof ClientDocRow; hints: string[] }[] = [
-  { field: "category", hints: ["קטגוריה", "סוג", "מערכת ראשית", "category", "type"] },
-  { field: "item", hints: ["פריט", "מערכת", "רכיב", "תיאור", "שם", "item", "device", "name", "description"] },
-  { field: "model", hints: ["דגם", "יצרן", "model", "vendor", "manufacturer", "brand"] },
-  { field: "ip", hints: ["ip", "כתובת ip", "כתובת", "mac", "address", "host"] },
-  { field: "location", hints: ["מיקום", "אתר", "חדר", "קומה", "location", "site", "room"] },
-  { field: "serial", hints: ["מספר סידורי", "סידורי", "serial", "s/n", "sn"] },
-  { field: "access", hints: ["גישה", "משתמש", "user", "username", "login", "access"] },
-  { field: "password", hints: ["סיסמא", "סיסמה", "password", "pass", "pwd"] },
-  { field: "notes", hints: ["הערות", "הערה", "notes", "comment", "remark"] },
-];
-
-const matchField = (header: string): keyof ClientDocRow | null => {
-  const h = header.trim().toLowerCase();
-  if (!h) return null;
-  for (const { field, hints } of HEADER_MAP) {
-    if (hints.some((x) => h === x.toLowerCase() || h.includes(x.toLowerCase()))) return field;
-  }
-  return null;
-};
 
 const FIRST_CLIENT_NUMBER = 26001;
 
