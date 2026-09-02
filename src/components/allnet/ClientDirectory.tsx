@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Building2,
-  FileSpreadsheet,
   Mail,
   MapPin,
   Pencil,
@@ -9,7 +8,6 @@ import {
   Plus,
   Search,
   Trash2,
-  UploadCloud,
   UserRound,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -71,27 +69,6 @@ const DOC_FIELDS: { key: keyof ClientDocRow; label: string }[] = [
   { key: "notes", label: "הערות" },
 ];
 
-/** התאמת כותרות עמודות מאקסל לשדות התיעוד */
-const HEADER_MAP: { field: keyof ClientDocRow; hints: string[] }[] = [
-  { field: "category", hints: ["קטגוריה", "סוג", "מערכת ראשית", "category", "type"] },
-  { field: "item", hints: ["פריט", "מערכת", "רכיב", "תיאור", "שם", "item", "device", "name", "description"] },
-  { field: "model", hints: ["דגם", "יצרן", "model", "vendor", "manufacturer", "brand"] },
-  { field: "ip", hints: ["ip", "כתובת ip", "כתובת", "mac", "address", "host"] },
-  { field: "location", hints: ["מיקום", "אתר", "חדר", "קומה", "location", "site", "room"] },
-  { field: "serial", hints: ["מספר סידורי", "סידורי", "serial", "s/n", "sn"] },
-  { field: "access", hints: ["גישה", "משתמש", "user", "username", "login", "access"] },
-  { field: "password", hints: ["סיסמא", "סיסמה", "password", "pass", "pwd"] },
-  { field: "notes", hints: ["הערות", "הערה", "notes", "comment", "remark"] },
-];
-
-const matchField = (header: string): keyof ClientDocRow | null => {
-  const h = header.trim().toLowerCase();
-  if (!h) return null;
-  for (const { field, hints } of HEADER_MAP) {
-    if (hints.some((x) => h === x.toLowerCase() || h.includes(x.toLowerCase()))) return field;
-  }
-  return null;
-};
 
 const FIRST_CLIENT_NUMBER = 26001;
 
@@ -114,8 +91,6 @@ export function ClientDirectory() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [tab, setTab] = useState("details");
-  const [dragOver, setDragOver] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   // השלמת מספרי לקוח ללקוחות ותיקים (לפי סדר ההקמה)
   useEffect(() => {
@@ -194,71 +169,6 @@ export function ClientDirectory() {
 
   const removeDocRow = (id: string) =>
     setForm((f) => ({ ...f, docRows: f.docRows.filter((r) => r.id !== id) }));
-
-  /** ייבוא תיק תיעוד מקובץ אקסל — כל גיליון, זיהוי כותרות אוטומטי */
-  const importExcel = async (file: File) => {
-    try {
-      const XLSX = await import("xlsx");
-      const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
-      const rows: ClientDocRow[] = [];
-      wb.SheetNames.forEach((sheetName) => {
-        const sheet = wb.Sheets[sheetName];
-        if (!sheet) return;
-        const grid = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
-          header: 1,
-          blankrows: false,
-          defval: "",
-        });
-        if (!grid.length) return;
-        // איתור שורת הכותרות (השורה הראשונה עם 2+ תאים מזוהים)
-        let headerIdx = -1;
-        let mapping: (keyof ClientDocRow | null)[] = [];
-        for (let i = 0; i < Math.min(grid.length, 10); i++) {
-          const cand = (grid[i] ?? []).map((c) => matchField(String(c ?? "")));
-          if (cand.filter(Boolean).length >= 2) {
-            headerIdx = i;
-            mapping = cand;
-            break;
-          }
-        }
-        const headers = headerIdx >= 0 ? (grid[headerIdx] as unknown[]) : [];
-        const start = headerIdx >= 0 ? headerIdx + 1 : 0;
-        for (let i = start; i < grid.length; i++) {
-          const line = grid[i] ?? [];
-          if (!line.some((c) => String(c ?? "").trim())) continue;
-          const fixedCat = DOC_CATEGORIES.find(
-            (c) => c === sheetName.trim() || sheetName.includes(c) || c.includes(sheetName.trim()),
-          );
-          const row: ClientDocRow = { id: newId(), category: fixedCat ?? sheetName };
-          const extras: string[] = [];
-          line.forEach((cell, idx) => {
-            const val = String(cell ?? "").trim();
-            if (!val) return;
-            const field = mapping[idx] ?? null;
-            if (field && field !== "id") {
-              row[field] = row[field] ? `${row[field]} | ${val}` : val;
-            } else {
-              const h = String(headers[idx] ?? "").trim();
-              extras.push(h ? `${h}: ${val}` : val);
-            }
-          });
-          if (extras.length) {
-            row.notes = [row.notes, extras.join(" · ")].filter(Boolean).join(" · ");
-          }
-          if (!row.item && !row.ip && !row.notes && !row.model) continue;
-          rows.push(row);
-        }
-      });
-      if (!rows.length) {
-        toast.error("לא נמצאו שורות מידע בקובץ.");
-        return;
-      }
-      setForm((f) => ({ ...f, docRows: [...f.docRows, ...rows] }));
-      toast.success(`יובאו ${rows.length} שורות תיעוד מהקובץ.`);
-    } catch {
-      toast.error("שגיאה בקריאת קובץ האקסל.");
-    }
-  };
 
   const save = () => {
     const name = form.name.trim();
@@ -646,52 +556,6 @@ export function ClientDirectory() {
             </TabsContent>
 
             <TabsContent value="docs" className="mt-4 space-y-4">
-              <div
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragOver(true);
-                }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setDragOver(false);
-                  const f = e.dataTransfer.files?.[0];
-                  if (f) void importExcel(f);
-                }}
-                className={`rounded-xl border-2 border-dashed p-4 text-center transition-colors ${
-                  dragOver ? "border-primary bg-primary/5" : "border-border bg-muted/30"
-                }`}
-              >
-                <UploadCloud className="mx-auto size-6 text-primary" />
-                <p className="mt-1 text-sm font-medium">
-                  גרור לכאן תיק תיעוד באקסל (xlsx / xls / csv)
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  הנתונים ייפרסו אוטומטית לטבלה — כל גיליון יזוהה כקטגוריה והכותרות
-                  יותאמו לשדות (מערכת, יצרן/דגם, IP, מיקום, גישה, הערות).
-                </p>
-                <Button
-                  variant="soft"
-                  size="sm"
-                  className="mt-2"
-                  onClick={() => fileRef.current?.click()}
-                >
-                  <FileSpreadsheet className="size-4" />
-                  בחר קובץ
-                </Button>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept=".xlsx,.xls,.csv"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) void importExcel(f);
-                    e.target.value = "";
-                  }}
-                />
-              </div>
-
               <div className="flex items-center justify-between">
                 <p className="text-xs text-muted-foreground">
                   {form.docRows.length} שורות תיעוד
