@@ -110,6 +110,9 @@ export function ClientDirectory() {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [tab, setTab] = useState("details");
+  const [dragOver, setDragOver] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   // השלמת מספרי לקוח ללקוחות ותיקים (לפי סדר ההקמה)
   useEffect(() => {
@@ -149,6 +152,7 @@ export function ClientDirectory() {
   const openNew = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setTab("details");
     setOpen(true);
   };
 
@@ -192,7 +196,9 @@ export function ClientDirectory() {
       const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
       const rows: ClientDocRow[] = [];
       wb.SheetNames.forEach((sheetName) => {
-        const grid = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[sheetName], {
+        const sheet = wb.Sheets[sheetName];
+        if (!sheet) return;
+        const grid = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
           header: 1,
           blankrows: false,
           defval: "",
