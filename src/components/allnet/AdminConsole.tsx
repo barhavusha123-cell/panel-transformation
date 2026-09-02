@@ -259,6 +259,9 @@ export function AdminConsole() {
   const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
 
   const openServiceCalls = state.serviceCalls.filter((c) => !isClosedStatus(c.status)).length;
+  const clientServiceCalls = state.serviceCalls.filter(
+    (c) => c.source === "client" && !isClosedStatus(c.status),
+  ).length;
   const unassignedServiceCalls = state.serviceCalls.filter((c) => !c.technician).length;
 
   /** קריאות דחופות פתוחות — מוצגות ברצף מתחלף בדשבורד */
@@ -1916,8 +1919,8 @@ export function AdminConsole() {
         <div className="service-green md:col-span-2 xl:col-span-4">
         <KpiCard title="קריאות שירות" icon={<Headset className="size-4" />} delay={40}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
-            {/* צד ימין — מוני קריאות */}
-            <div className="flex shrink-0 flex-col items-center justify-center sm:w-60">
+            {/* צד ימין — קריאות פתוחות */}
+            <div className="flex shrink-0 flex-col items-center justify-center sm:w-44">
               <div className="text-center">
                 <div
                   className={`text-5xl font-extrabold leading-none ${openServiceCalls ? "text-primary" : "text-muted-foreground"}`}
@@ -1935,6 +1938,28 @@ export function AdminConsole() {
               )}
               <Button
                 variant={openServiceCalls ? "brand" : "soft"}
+                size="sm"
+                className="mt-4 w-full"
+                onClick={() => setView("service")}
+              >
+                נהל קריאות שירות
+              </Button>
+            </div>
+
+            {/* אמצע — קריאות שפותחו על ידי לקוחות */}
+            <div className="flex shrink-0 flex-col items-center justify-center sm:w-44">
+              <div className="text-center">
+                <div
+                  className={`text-5xl font-extrabold leading-none ${clientServiceCalls ? "text-primary" : "text-muted-foreground"}`}
+                >
+                  {clientServiceCalls}
+                </div>
+                <p className="mt-1 text-sm font-medium text-muted-foreground">
+                  קריאות מלקוחות
+                </p>
+              </div>
+              <Button
+                variant={clientServiceCalls ? "brand" : "soft"}
                 size="sm"
                 className="mt-4 w-full"
                 onClick={() => setView("service")}
