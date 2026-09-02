@@ -65,9 +65,7 @@ export function UserDirectory() {
     const q = query.trim().toLowerCase();
     if (!q) return state.users;
     return state.users.filter((u) =>
-      [u.full_name, u.username, u.email ?? "", u.role].some((v) =>
-        v.toLowerCase().includes(q),
-      ),
+      [u.full_name, u.username, u.email ?? "", u.role].some((v) => v.toLowerCase().includes(q)),
     );
   }, [state.users, query]);
 
@@ -130,14 +128,10 @@ export function UserDirectory() {
             </span>
           </button>
         ))}
-        {!users.length && (
-          <p className="text-sm text-muted-foreground">לא נמצאו משתמשים תואמים.</p>
-        )}
+        {!users.length && <p className="text-sm text-muted-foreground">לא נמצאו משתמשים תואמים.</p>}
       </div>
 
-      {selected && (
-        <UserDetailsDialog username={selected} onClose={() => setSelected(null)} />
-      )}
+      {selected && <UserDetailsDialog username={selected} onClose={() => setSelected(null)} />}
 
       <CreateUserDialog
         open={creating}
@@ -241,10 +235,7 @@ function CreateUserDialog({
           {nu.role === "לקוח" && (
             <div className="space-y-2 sm:col-span-2">
               <Label>שיוך ללקוח</Label>
-              <Select
-                value={nu.clientId}
-                onValueChange={(v) => setNu({ ...nu, clientId: v })}
-              >
+              <Select value={nu.clientId} onValueChange={(v) => setNu({ ...nu, clientId: v })}>
                 <SelectTrigger>
                   <SelectValue placeholder="בחר לקוח מרשימת הלקוחות" />
                 </SelectTrigger>
@@ -299,13 +290,7 @@ function CreateUserDialog({
   );
 }
 
-function UserDetailsDialog({
-  username,
-  onClose,
-}: {
-  username: string;
-  onClose: () => void;
-}) {
+function UserDetailsDialog({ username, onClose }: { username: string; onClose: () => void }) {
   const { state, setState } = useAllNet();
   const user = state.users.find((u) => u.username === username);
   const [form, setForm] = useState({
@@ -482,9 +467,7 @@ function UserDetailsDialog({
                     password: form.password.trim(),
                     email: form.email.trim(),
                     role: form.role,
-                    ...(form.role === "לקוח" && form.clientId
-                      ? { clientId: form.clientId }
-                      : {}),
+                    ...(form.role === "לקוח" && form.clientId ? { clientId: form.clientId } : {}),
                   };
                 }),
               }));

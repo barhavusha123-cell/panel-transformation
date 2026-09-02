@@ -67,9 +67,7 @@ export function ClientPortal() {
       .filter((p) => (p.client ?? "").trim() === client.name.trim())
       .map((p) => ({ id: `p-${p.name}`, name: p.name }));
     if (fromProjects.length) return fromProjects;
-    return client.address
-      ? [{ id: "main", name: client.address, address: client.address }]
-      : [];
+    return client.address ? [{ id: "main", name: client.address, address: client.address }] : [];
   }, [client, state.projects]);
 
   const [site, setSite] = useState("");
@@ -86,8 +84,7 @@ export function ClientPortal() {
         .filter(
           (c) =>
             c.source === "client" &&
-            (c.createdBy === user?.username ||
-              (client && c.client.trim() === client.name.trim())),
+            (c.createdBy === user?.username || (client && c.client.trim() === client.name.trim())),
         )
         .slice()
         .sort((a, b) => b.number - a.number),
@@ -266,7 +263,11 @@ export function ClientPortal() {
                     e.target.value = "";
                   }}
                 />
-                <Button type="button" variant="secondary" onClick={() => cameraRef.current?.click()}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => cameraRef.current?.click()}
+                >
                   <Camera className="size-4" />
                   צלם תקלה
                 </Button>
@@ -297,9 +298,7 @@ export function ClientPortal() {
                       <button
                         type="button"
                         aria-label="הסר קובץ"
-                        onClick={() =>
-                          setAttachments((prev) => prev.filter((x) => x.id !== a.id))
-                        }
+                        onClick={() => setAttachments((prev) => prev.filter((x) => x.id !== a.id))}
                         className="absolute -left-2 -top-2 rounded-full bg-destructive p-1 text-destructive-foreground"
                       >
                         <X className="size-3" />

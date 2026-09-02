@@ -24,10 +24,7 @@ import { useAllNet } from "@/lib/allnet/store";
 import { formatDateIL, getAllTimeOptions, nowStamp } from "@/lib/allnet/utils";
 import { parseDalekServicePdf } from "@/lib/allnet/dalekPdf.functions";
 
-import {
-  openServiceCallReport,
-  openServiceCallsBulkReport,
-} from "@/lib/allnet/serviceReport";
+import { openServiceCallReport, openServiceCallsBulkReport } from "@/lib/allnet/serviceReport";
 
 const TIME_OPTIONS = getAllTimeOptions();
 
@@ -79,17 +76,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -204,7 +192,12 @@ function DateFilterButton({
         />
         {value && (
           <div className="border-t border-border p-2">
-            <Button variant="ghost" size="sm" className="w-full" onClick={() => onChange(undefined)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full"
+              onClick={() => onChange(undefined)}
+            >
               נקה תאריך
             </Button>
           </div>
@@ -350,9 +343,16 @@ function CallCard({
         <span className="brand-gradient flex size-9 items-center justify-center rounded-lg text-primary-foreground">
           <Headset className="size-4" />
         </span>
-        <span className="text-sm font-semibold text-foreground">קריאה {formatCallNumber(call.number)}</span>
+        <span className="text-sm font-semibold text-foreground">
+          קריאה {formatCallNumber(call.number)}
+        </span>
         {statusBadge(call.status)}
         {priorityBadge(call.priority, call.status)}
+        {call.source === "client" && (
+          <span className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
+            קריאת שירות מהלקוח{call.site ? ` · ${call.site}` : ""}
+          </span>
+        )}
         <span className="text-sm text-foreground">לקוח: {call.client}</span>
         <span className="text-sm text-foreground">טכנאי: {technicianName}</span>
         <span className="text-sm text-foreground">נפתחה {formatDateIL(call.createdAt)}</span>
@@ -366,113 +366,113 @@ function CallCard({
 
       {expanded && (
         <>
-      <div className="mt-3 grid gap-1 text-sm sm:grid-cols-2">
-        <p>
-          <span className="text-muted-foreground">לקוח: </span>
-          <span className="font-semibold">{call.client}</span>
-        </p>
-        <p>
-          <span className="text-muted-foreground">טכנאי: </span>
-          <span className="font-semibold">{technicianName}</span>
-        </p>
-        {call.project && (
-          <p>
-            <span className="text-foreground">פרויקט: </span>
-            {call.project}
-          </p>
-        )}
-        {call.contact && (
-          <p>
-            <span className="text-foreground">איש קשר: </span>
-            {call.contact}
-          </p>
-        )}
-        {call.address && (
-          <p className="sm:col-span-2">
-            <span className="text-foreground">כתובת: </span>
-            {call.address}
-          </p>
-        )}
-        {(call.workFrom || call.workTo) && (
-          <p>
-            <span className="text-foreground">שעות עבודה באתר: </span>
-            {call.workFrom || "—"} - {call.workTo || "—"}
-          </p>
-        )}
-        {call.additionalTechnician !== undefined && (
-          <p>
-            <span className="text-foreground">טכנאי נוסף באתר: </span>
-            {call.additionalTechnician
-              ? `כן${call.additionalTechnicianName ? ` — ${call.additionalTechnicianName}` : ""}`
-              : "לא"}
-          </p>
-        )}
-        {call.equipmentSupplied && (
-          <p className="sm:col-span-2">
-            <span className="text-foreground">ציוד שסופק: </span>
-            <span className="whitespace-pre-wrap">{call.equipmentSupplied}</span>
-          </p>
-        )}
-        {call.followUp && (
-          <p className="sm:col-span-2">
-            <span className="text-foreground">נושאים להמשך טיפול / הצעת מחיר: </span>
-            <span className="whitespace-pre-wrap">{call.followUp}</span>
-          </p>
-        )}
-      </div>
-
-      <p className="mt-3 font-semibold">{call.subject}</p>
-      {call.description && (
-        <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">
-          {call.description}
-        </p>
-      )}
-
-      <div className="mt-3">
-        <Attachments items={call.attachments} />
-      </div>
-
-      {call.updates.length > 0 && (
-        <div className="mt-4 space-y-2 border-t border-border pt-3">
-          <p className="text-xs font-semibold text-muted-foreground">יומן טיפול</p>
-          {call.updates.map((u) => (
-            <div key={u.id} className="rounded-xl bg-surface-2/60 p-3 text-sm">
-              <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-foreground">
-                <span className="font-semibold text-foreground">{u.by}</span>
-                <span>{formatDateIL(u.at)}</span>
-                {u.status && <span>· עודכן ל{SERVICE_STATUS_LABELS[u.status]}</span>}
-              </div>
-              <p className="whitespace-pre-wrap">{u.text}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {(call.approverName || call.approverSignature) && (
-        <div className="mt-4 space-y-2 border-t border-border pt-3">
-          <p className="text-xs font-semibold text-muted-foreground">אישור לקוח</p>
-          {call.approverName && (
-            <p className="text-sm">
-              <span className="text-foreground">שם הלקוח המאשר: </span>
-              <span className="font-semibold">{call.approverName}</span>
+          <div className="mt-3 grid gap-1 text-sm sm:grid-cols-2">
+            <p>
+              <span className="text-muted-foreground">לקוח: </span>
+              <span className="font-semibold">{call.client}</span>
             </p>
+            <p>
+              <span className="text-muted-foreground">טכנאי: </span>
+              <span className="font-semibold">{technicianName}</span>
+            </p>
+            {call.project && (
+              <p>
+                <span className="text-foreground">פרויקט: </span>
+                {call.project}
+              </p>
+            )}
+            {call.contact && (
+              <p>
+                <span className="text-foreground">איש קשר: </span>
+                {call.contact}
+              </p>
+            )}
+            {call.address && (
+              <p className="sm:col-span-2">
+                <span className="text-foreground">כתובת: </span>
+                {call.address}
+              </p>
+            )}
+            {(call.workFrom || call.workTo) && (
+              <p>
+                <span className="text-foreground">שעות עבודה באתר: </span>
+                {call.workFrom || "—"} - {call.workTo || "—"}
+              </p>
+            )}
+            {call.additionalTechnician !== undefined && (
+              <p>
+                <span className="text-foreground">טכנאי נוסף באתר: </span>
+                {call.additionalTechnician
+                  ? `כן${call.additionalTechnicianName ? ` — ${call.additionalTechnicianName}` : ""}`
+                  : "לא"}
+              </p>
+            )}
+            {call.equipmentSupplied && (
+              <p className="sm:col-span-2">
+                <span className="text-foreground">ציוד שסופק: </span>
+                <span className="whitespace-pre-wrap">{call.equipmentSupplied}</span>
+              </p>
+            )}
+            {call.followUp && (
+              <p className="sm:col-span-2">
+                <span className="text-foreground">נושאים להמשך טיפול / הצעת מחיר: </span>
+                <span className="whitespace-pre-wrap">{call.followUp}</span>
+              </p>
+            )}
+          </div>
+
+          <p className="mt-3 font-semibold">{call.subject}</p>
+          {call.description && (
+            <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">{call.description}</p>
           )}
-          {call.approverSignature && (
-            <div className="max-w-xs rounded-xl border border-border bg-white p-2">
-              <img
-                src={call.approverSignature}
-                alt="חתימת הלקוח המאשר"
-                className="h-24 w-full object-contain"
-              />
+
+          <div className="mt-3">
+            <Attachments items={call.attachments} />
+          </div>
+
+          {call.updates.length > 0 && (
+            <div className="mt-4 space-y-2 border-t border-border pt-3">
+              <p className="text-xs font-semibold text-muted-foreground">יומן טיפול</p>
+              {call.updates.map((u) => (
+                <div key={u.id} className="rounded-xl bg-surface-2/60 p-3 text-sm">
+                  <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-foreground">
+                    <span className="font-semibold text-foreground">{u.by}</span>
+                    <span>{formatDateIL(u.at)}</span>
+                    {u.status && <span>· עודכן ל{SERVICE_STATUS_LABELS[u.status]}</span>}
+                  </div>
+                  <p className="whitespace-pre-wrap">{u.text}</p>
+                </div>
+              ))}
             </div>
           )}
-          {call.approvedAt && (
-            <p className="text-xs text-muted-foreground">נחתם בתאריך {formatDateIL(call.approvedAt)}</p>
-          )}
-        </div>
-      )}
 
-      {children && <div className="mt-4 border-t border-border pt-3">{children}</div>}
+          {(call.approverName || call.approverSignature) && (
+            <div className="mt-4 space-y-2 border-t border-border pt-3">
+              <p className="text-xs font-semibold text-muted-foreground">אישור לקוח</p>
+              {call.approverName && (
+                <p className="text-sm">
+                  <span className="text-foreground">שם הלקוח המאשר: </span>
+                  <span className="font-semibold">{call.approverName}</span>
+                </p>
+              )}
+              {call.approverSignature && (
+                <div className="max-w-xs rounded-xl border border-border bg-white p-2">
+                  <img
+                    src={call.approverSignature}
+                    alt="חתימת הלקוח המאשר"
+                    className="h-24 w-full object-contain"
+                  />
+                </div>
+              )}
+              {call.approvedAt && (
+                <p className="text-xs text-muted-foreground">
+                  נחתם בתאריך {formatDateIL(call.approvedAt)}
+                </p>
+              )}
+            </div>
+          )}
+
+          {children && <div className="mt-4 border-t border-border pt-3">{children}</div>}
         </>
       )}
     </div>
@@ -558,9 +558,9 @@ export function ServiceCallsAdmin() {
   // רק לקוחות שהוקמו בלשונית "ניהול לקוחות"
   const clients = useMemo(
     () =>
-      Array.from(new Set((state.clients ?? []).map((c) => (c.name ?? "").trim()).filter(Boolean))).sort(
-        (a, b) => a.localeCompare(b, "he"),
-      ),
+      Array.from(
+        new Set((state.clients ?? []).map((c) => (c.name ?? "").trim()).filter(Boolean)),
+      ).sort((a, b) => a.localeCompare(b, "he")),
     [state.clients],
   );
 
@@ -568,7 +568,6 @@ export function ServiceCallsAdmin() {
     const matched = state.clients?.find((c) => (c.name ?? "").trim() === (client ?? "").trim());
     return !!matched?.sla;
   }, [state.clients, client]);
-
 
   const projectNames = useMemo(
     () =>
@@ -614,25 +613,42 @@ export function ServiceCallsAdmin() {
         const s = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
         return s !== 0 ? s : b.number - a.number;
       });
-  }, [state.serviceCalls, statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo]);
+  }, [
+    state.serviceCalls,
+    statusFilter,
+    techFilter,
+    clientFilter,
+    siteFilter,
+    numberFilter,
+    dateFrom,
+    dateTo,
+  ]);
 
   // עימוד — עד 10 קריאות בעמוד
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(calls.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const pageCalls = calls.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-  useEffect(() => setPage(1), [statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo]);
+  useEffect(
+    () => setPage(1),
+    [statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo],
+  );
 
   const clientOptions = useMemo(
-    () => Array.from(new Set(state.serviceCalls.map((c) => c.client).filter((v): v is string => !!v))).sort((a, b) => a.localeCompare(b, "he")),
+    () =>
+      Array.from(
+        new Set(state.serviceCalls.map((c) => c.client).filter((v): v is string => !!v)),
+      ).sort((a, b) => a.localeCompare(b, "he")),
     [state.serviceCalls],
   );
 
   const siteOptions = useMemo(
-    () => Array.from(new Set(state.serviceCalls.map((c) => c.project).filter((v): v is string => !!v))).sort((a, b) => a.localeCompare(b, "he")),
+    () =>
+      Array.from(
+        new Set(state.serviceCalls.map((c) => c.project).filter((v): v is string => !!v)),
+      ).sort((a, b) => a.localeCompare(b, "he")),
     [state.serviceCalls],
   );
-
 
   const techName = (username?: string) =>
     technicians.find((u) => u.username === username)?.full_name ?? "לא שויך";
@@ -669,7 +685,6 @@ export function ServiceCallsAdmin() {
   };
 
   const addFiles = async (files: FileList | null) => {
-
     if (!files?.length) return;
     try {
       const loaded = await Promise.all(Array.from(files).map(readFile));
@@ -757,11 +772,7 @@ export function ServiceCallsAdmin() {
         </h3>
         <Badge variant="secondary">פתוחות: {counts.open}</Badge>
         <Badge variant="outline">ללא טכנאי: {counts.unassigned}</Badge>
-        <Button
-          variant="outline"
-          className="ms-auto"
-          onClick={() => setDalekOpen((o) => !o)}
-        >
+        <Button variant="outline" className="ms-auto" onClick={() => setDalekOpen((o) => !o)}>
           <FileText className="size-4" />
           קריאות שירות דלק מוטורס
         </Button>
@@ -775,8 +786,8 @@ export function ServiceCallsAdmin() {
         <div className="animate-rise surface-panel space-y-3 rounded-2xl p-4 sm:p-6">
           <h4 className="text-base font-bold">קריאות שירות דלק מוטורס</h4>
           <p className="text-xs text-muted-foreground">
-            גרור לכאן קובץ PDF של קריאת שירות מהלקוח — הנתונים ייקראו אוטומטית ויוזנו לטופס
-            קריאת השירות שלנו.
+            גרור לכאן קובץ PDF של קריאת שירות מהלקוח — הנתונים ייקראו אוטומטית ויוזנו לטופס קריאת
+            השירות שלנו.
           </p>
           <DropArea onFiles={(f) => void importDalekPdf(f)}>
             <div className="flex flex-wrap items-center gap-2">
@@ -807,8 +818,6 @@ export function ServiceCallsAdmin() {
         </div>
       )}
 
-
-
       {open && (
         <form onSubmit={create} className="animate-rise surface-panel rounded-2xl p-4 sm:p-6">
           <h4 className="mb-4 text-base font-bold">פתיחת קריאת שירות חדשה</h4>
@@ -817,7 +826,6 @@ export function ServiceCallsAdmin() {
               <Label>שם לקוח</Label>
               <ClientPicker value={client} onChange={handleClientChange} clients={clients} />
             </div>
-
 
             <div className="space-y-2">
               <Label>כתובת / אתר (ניתן לשנות / להוסיף ידנית)</Label>
@@ -888,20 +896,26 @@ export function ServiceCallsAdmin() {
                 </SelectContent>
               </Select>
               {selectedClientSla && (
-                <p className="text-xs font-semibold text-[var(--brand-red)]">
-                  לקוח בשירות SLA
-                </p>
+                <p className="text-xs font-semibold text-[var(--brand-red)]">לקוח בשירות SLA</p>
               )}
             </div>
 
             <div className="space-y-2">
               <Label>איש קשר בשטח</Label>
-              <Input value={contact} onChange={(e) => setContact(e.target.value)} placeholder="שם וטלפון" />
+              <Input
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
+                placeholder="שם וטלפון"
+              />
             </div>
 
             <div className="space-y-2">
               <Label>כתובת האתר</Label>
-              <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="כתובת" />
+              <Input
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="כתובת"
+              />
             </div>
 
             <div className="space-y-3 md:col-span-2">
@@ -961,7 +975,10 @@ export function ServiceCallsAdmin() {
       <div className="surface-panel grid grid-cols-7 items-start gap-2 rounded-2xl p-3">
         <div className="min-w-0 space-y-1">
           <Label className="text-[11px]">סטטוס</Label>
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}
+          >
             <SelectTrigger className="h-9 text-xs">
               <SelectValue />
             </SelectTrigger>
@@ -1066,9 +1083,7 @@ export function ServiceCallsAdmin() {
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface/60 px-4 py-2.5">
             <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
               <Checkbox
-                checked={
-                  calls.length > 0 && calls.every((c) => selectedIds.includes(c.id))
-                }
+                checked={calls.length > 0 && calls.every((c) => selectedIds.includes(c.id))}
                 onCheckedChange={(v) =>
                   setSelectedIds(
                     v
@@ -1083,22 +1098,22 @@ export function ServiceCallsAdmin() {
               )}
             </label>
             <div className="flex flex-wrap gap-2">
-            <Button
-              variant="soft"
-              disabled={!selectedIds.length}
-              onClick={() => {
-                const chosen = state.serviceCalls.filter((c) =>
-                  selectedIds.includes(c.id),
-                );
-                const ok = openServiceCallsBulkReport(chosen, techName);
-                if (ok)
-                  toast.success(`הופק דוח מרוכז עבור ${chosen.length} קריאות — ניתן לשמור כ-PDF.`);
-                else toast.error("החלון נחסם על ידי הדפדפן. יש לאשר חלונות קופצים.");
-              }}
-            >
-              <FileText className="size-4" />
-              הפק דוח PDF לקריאות שנבחרו
-            </Button>
+              <Button
+                variant="soft"
+                disabled={!selectedIds.length}
+                onClick={() => {
+                  const chosen = state.serviceCalls.filter((c) => selectedIds.includes(c.id));
+                  const ok = openServiceCallsBulkReport(chosen, techName);
+                  if (ok)
+                    toast.success(
+                      `הופק דוח מרוכז עבור ${chosen.length} קריאות — ניתן לשמור כ-PDF.`,
+                    );
+                  else toast.error("החלון נחסם על ידי הדפדפן. יש לאשר חלונות קופצים.");
+                }}
+              >
+                <FileText className="size-4" />
+                הפק דוח PDF לקריאות שנבחרו
+              </Button>
             </div>
           </div>
           {pageCalls.map((call, idx) => (
@@ -1112,103 +1127,101 @@ export function ServiceCallsAdmin() {
                   <span className="h-px flex-1 bg-border" />
                 </div>
               )}
-            <CallCard call={call} technicianName={techName(call.technician)}>
-              <div className="flex flex-wrap items-end gap-3">
-                <label className="flex cursor-pointer items-center gap-2 pb-2 text-xs font-medium text-muted-foreground">
-                  <Checkbox
-                    checked={selectedIds.includes(call.id)}
-                    onCheckedChange={(v) =>
-                      setSelectedIds((prev) =>
-                        v
-                          ? [...prev, call.id]
-                          : prev.filter((id) => id !== call.id),
-                      )
-                    }
-                  />
-                  בחר לדוח
-                </label>
-                <div className="min-w-44 space-y-1">
-                  <Label className="text-xs">
-                    <UserCog className="me-1 inline size-3" />
-                    שיוך טכנאי
-                  </Label>
-                  <Select
-                    value={call.technician || "none"}
-                    onValueChange={(v) =>
-                      patch(call.id, (c) => ({
-                        ...c,
-                        technician: v === "none" ? undefined : v,
-                        status: v === "none" ? "new" : c.status === "new" ? "assigned" : c.status,
-                      }))
-                    }
+              <CallCard call={call} technicianName={techName(call.technician)}>
+                <div className="flex flex-wrap items-end gap-3">
+                  <label className="flex cursor-pointer items-center gap-2 pb-2 text-xs font-medium text-muted-foreground">
+                    <Checkbox
+                      checked={selectedIds.includes(call.id)}
+                      onCheckedChange={(v) =>
+                        setSelectedIds((prev) =>
+                          v ? [...prev, call.id] : prev.filter((id) => id !== call.id),
+                        )
+                      }
+                    />
+                    בחר לדוח
+                  </label>
+                  <div className="min-w-44 space-y-1">
+                    <Label className="text-xs">
+                      <UserCog className="me-1 inline size-3" />
+                      שיוך טכנאי
+                    </Label>
+                    <Select
+                      value={call.technician || "none"}
+                      onValueChange={(v) =>
+                        patch(call.id, (c) => ({
+                          ...c,
+                          technician: v === "none" ? undefined : v,
+                          status: v === "none" ? "new" : c.status === "new" ? "assigned" : c.status,
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">ללא שיוך</SelectItem>
+                        {technicians.map((u) => (
+                          <SelectItem key={u.username} value={u.username}>
+                            {u.full_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="min-w-40 space-y-1">
+                    <Label className="text-xs">סטטוס</Label>
+                    <Select
+                      value={call.status}
+                      onValueChange={(v) =>
+                        patch(call.id, (c) => ({
+                          ...c,
+                          status: v as ServiceCallStatus,
+                          closedAt: v === "done" ? (c.closedAt ?? nowStamp()) : undefined,
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SERVICE_STATUSES.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {SERVICE_STATUS_LABELS[s]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button variant="soft" onClick={() => setEditing(call)}>
+                    <Pencil className="size-4" />
+                    ערוך קריאה
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const ok = openServiceCallReport(call, techName(call.technician));
+                      if (ok) toast.success("דוח השירות הופק — ניתן לשמור כ-PDF ולשלוח ללקוח.");
+                      else toast.error("החלון נחסם על ידי הדפדפן. יש לאשר חלונות קופצים.");
+                    }}
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">ללא שיוך</SelectItem>
-                      {technicians.map((u) => (
-                        <SelectItem key={u.username} value={u.username}>
-                          {u.full_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="min-w-40 space-y-1">
-                  <Label className="text-xs">סטטוס</Label>
-                  <Select
-                    value={call.status}
-                    onValueChange={(v) =>
-                      patch(call.id, (c) => ({
-                        ...c,
-                        status: v as ServiceCallStatus,
-                        closedAt: v === "done" ? (c.closedAt ?? nowStamp()) : undefined,
-                      }))
-                    }
+                    <FileText className="size-4" />
+                    הפק דוח שירות (PDF)
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="text-destructive hover:bg-destructive/10"
+                    onClick={() => {
+                      if (confirm(`למחוק את קריאת השירות ${formatCallNumber(call.number)}?`)) {
+                        remove(call.id);
+                        toast.success("קריאת השירות נמחקה.");
+                      }
+                    }}
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SERVICE_STATUSES.map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {SERVICE_STATUS_LABELS[s]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <Trash2 className="size-4" />
+                    מחק קריאה
+                  </Button>
                 </div>
-                <Button variant="soft" onClick={() => setEditing(call)}>
-                  <Pencil className="size-4" />
-                  ערוך קריאה
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    const ok = openServiceCallReport(call, techName(call.technician));
-                    if (ok) toast.success("דוח השירות הופק — ניתן לשמור כ-PDF ולשלוח ללקוח.");
-                    else toast.error("החלון נחסם על ידי הדפדפן. יש לאשר חלונות קופצים.");
-                  }}
-                >
-                  <FileText className="size-4" />
-                  הפק דוח שירות (PDF)
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="text-destructive hover:bg-destructive/10"
-                  onClick={() => {
-                    if (confirm(`למחוק את קריאת השירות ${formatCallNumber(call.number)}?`)) {
-                      remove(call.id);
-                      toast.success("קריאת השירות נמחקה.");
-                    }
-                  }}
-                >
-                  <Trash2 className="size-4" />
-                  מחק קריאה
-                </Button>
-              </div>
-            </CallCard>
+              </CallCard>
             </div>
           ))}
           {/* מעבר עמודים */}
@@ -1343,11 +1356,19 @@ export function ServiceCallsAdmin() {
                 <Label>תמונות וקבצים</Label>
                 <DropArea onFiles={(f) => void addEditFiles(f)}>
                   <div className="flex flex-wrap gap-2">
-                    <Button type="button" variant="soft" onClick={() => editCameraRef.current?.click()}>
+                    <Button
+                      type="button"
+                      variant="soft"
+                      onClick={() => editCameraRef.current?.click()}
+                    >
                       <Camera className="size-4" />
                       צילום ממצלמה
                     </Button>
-                    <Button type="button" variant="outline" onClick={() => editFileRef.current?.click()}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => editFileRef.current?.click()}
+                    >
                       <Paperclip className="size-4" />
                       צירוף קבצים
                     </Button>
@@ -1480,12 +1501,7 @@ export function ServiceCallsTechnician() {
     patch(call.id, (c) => ({
       ...c,
       status: status ?? c.status,
-      closedAt:
-        status === "done"
-          ? (c.closedAt ?? nowStamp())
-          : status
-            ? undefined
-            : c.closedAt,
+      closedAt: status === "done" ? (c.closedAt ?? nowStamp()) : status ? undefined : c.closedAt,
       updates: [
         ...c.updates,
         {
@@ -1606,9 +1622,7 @@ export function ServiceCallsTechnician() {
                   rows={2}
                   placeholder="מה נותר לטיפול? האם נדרשת הצעת מחיר? (מלל חופשי)"
                   value={call.followUp ?? ""}
-                  onChange={(e) =>
-                    patch(call.id, (c) => ({ ...c, followUp: e.target.value }))
-                  }
+                  onChange={(e) => patch(call.id, (c) => ({ ...c, followUp: e.target.value }))}
                 />
               </div>
             </div>
@@ -1626,9 +1640,7 @@ export function ServiceCallsTechnician() {
                 <Label className="text-xs">שם הלקוח המאשר</Label>
                 <Input
                   value={call.approverName ?? ""}
-                  onChange={(e) =>
-                    patch(call.id, (c) => ({ ...c, approverName: e.target.value }))
-                  }
+                  onChange={(e) => patch(call.id, (c) => ({ ...c, approverName: e.target.value }))}
                   placeholder="שם מלא של הלקוח המאשר"
                 />
               </div>
@@ -1702,9 +1714,7 @@ export function ServiceCallsTechnician() {
           <DialogHeader>
             <DialogTitle className="text-right">סגירת קריאת שירות</DialogTitle>
           </DialogHeader>
-          <p className="text-right text-sm text-muted-foreground">
-            האם לסגור את קריאת השירות?
-          </p>
+          <p className="text-right text-sm text-muted-foreground">האם לסגור את קריאת השירות?</p>
           <div className="flex flex-row-reverse justify-end gap-2">
             <Button
               variant="brand"
