@@ -646,52 +646,6 @@ export function ClientDirectory() {
             </TabsContent>
 
             <TabsContent value="docs" className="mt-4 space-y-4">
-              <div
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragOver(true);
-                }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setDragOver(false);
-                  const f = e.dataTransfer.files?.[0];
-                  if (f) void importExcel(f);
-                }}
-                className={`rounded-xl border-2 border-dashed p-4 text-center transition-colors ${
-                  dragOver ? "border-primary bg-primary/5" : "border-border bg-muted/30"
-                }`}
-              >
-                <UploadCloud className="mx-auto size-6 text-primary" />
-                <p className="mt-1 text-sm font-medium">
-                  גרור לכאן תיק תיעוד באקסל (xlsx / xls / csv)
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  הנתונים ייפרסו אוטומטית לטבלה — כל גיליון יזוהה כקטגוריה והכותרות
-                  יותאמו לשדות (מערכת, יצרן/דגם, IP, מיקום, גישה, הערות).
-                </p>
-                <Button
-                  variant="soft"
-                  size="sm"
-                  className="mt-2"
-                  onClick={() => fileRef.current?.click()}
-                >
-                  <FileSpreadsheet className="size-4" />
-                  בחר קובץ
-                </Button>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept=".xlsx,.xls,.csv"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) void importExcel(f);
-                    e.target.value = "";
-                  }}
-                />
-              </div>
-
               <div className="flex items-center justify-between">
                 <p className="text-xs text-muted-foreground">
                   {form.docRows.length} שורות תיעוד
