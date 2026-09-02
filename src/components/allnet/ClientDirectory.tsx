@@ -467,6 +467,14 @@ export function ClientDirectory() {
                 placeholder="שם החברה / הלקוח"
               />
             </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>שם תאגיד \ חברה</Label>
+              <Input
+                value={form.corporateName}
+                onChange={(e) => setForm({ ...form, corporateName: e.target.value })}
+                placeholder="שם תאגיד / חברה אם שונה משם הלקוח"
+              />
+            </div>
             <div className="space-y-2">
               <Label>מנהל / בעלים</Label>
               <Input
