@@ -271,7 +271,7 @@ export const SERVICE_STATUS_LABELS: Record<ServiceCallStatus, string> = {
 };
 
 /** סטטוסים שבהם הקריאה נחשבת סגורה/לא פעילה */
-export const isClosedStatus = (s: ServiceCallStatus) => s === "done" || s === "closed";
+export const isClosedStatus = (s: ServiceCallStatus) => s === "closed";
 
 export type ServiceCallPriority = "low" | "normal" | "high";
 
