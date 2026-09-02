@@ -795,6 +795,7 @@ export function ServiceCallsAdmin() {
       open: state.serviceCalls.filter((c) => !isClosedStatus(c.status)).length,
       unassigned: state.serviceCalls.filter((c) => !c.technician && !isClosedStatus(c.status))
         .length,
+      history: state.serviceCalls.filter((c) => isClosedStatus(c.status)).length,
     }),
     [state.serviceCalls],
   );
@@ -808,7 +809,23 @@ export function ServiceCallsAdmin() {
         </h3>
         <Badge variant="secondary">פתוחות: {counts.open}</Badge>
         <Badge variant="outline">ללא טכנאי: {counts.unassigned}</Badge>
-        <Button variant="outline" className="ms-auto" onClick={() => setDalekOpen((o) => !o)}>
+        <div className="ms-auto flex items-center gap-2">
+          <Button
+            variant={view === "active" ? "brand" : "outline"}
+            size="sm"
+            onClick={() => setView("active")}
+          >
+            קריאות פעילות
+          </Button>
+          <Button
+            variant={view === "history" ? "brand" : "outline"}
+            size="sm"
+            onClick={() => setView("history")}
+          >
+            היסטוריית קריאות ({counts.history})
+          </Button>
+        </div>
+        <Button variant="outline" onClick={() => setDalekOpen((o) => !o)}>
           <FileText className="size-4" />
           קריאות שירות דלק מוטורס
         </Button>
