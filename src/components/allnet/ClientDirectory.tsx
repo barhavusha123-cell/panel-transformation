@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
-import type { Client, ClientDocRow } from "@/lib/allnet/types";
+import type { Client, ClientDocRow, ClientSite } from "@/lib/allnet/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
