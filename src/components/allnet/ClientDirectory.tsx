@@ -116,7 +116,7 @@ function parseSignatureText(raw: string) {
 
   if (!result.name) {
     const domain = result.email.split("@")[1];
-    if (domain) result.name = domain.split(".")[0];
+    if (domain) result.name = domain.split(".")[0] ?? "";
   }
 
   return result;
