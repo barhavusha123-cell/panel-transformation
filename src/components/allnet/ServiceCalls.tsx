@@ -547,6 +547,8 @@ export function ServiceCallsAdmin() {
   const dalekRef = useRef<HTMLInputElement>(null);
 
   const [numberFilter, setNumberFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchActive, setSearchActive] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   /** מצב תצוגה: פעילות / היסטוריה (סגורות) */
   const [view, setView] = useState<"active" | "history">("active");
