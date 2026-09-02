@@ -32,6 +32,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 const emptyForm = {
   name: "",
+  corporateName: "",
   contactName: "",
   managementPhone: "",
   accountingContact: "",
@@ -120,7 +121,7 @@ export function ClientDirectory() {
     const list = [...clients].sort((a, b) => a.name.localeCompare(b.name, "he"));
     if (!q) return list;
     return list.filter((c) =>
-      [c.name, c.contactName, c.managementPhone, c.accountingContact, c.accountingPhone, c.office, c.phone, c.email, c.taxId, c.address]
+      [c.name, c.corporateName, c.contactName, c.managementPhone, c.accountingContact, c.accountingPhone, c.office, c.phone, c.email, c.taxId, c.address]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(q)),
     );
@@ -138,6 +139,7 @@ export function ClientDirectory() {
     setEditingId(c.id);
     setForm({
       name: c.name,
+      corporateName: c.corporateName ?? "",
       contactName: c.contactName ?? "",
       managementPhone: c.managementPhone ?? c.phone ?? "",
       accountingContact: c.accountingContact ?? "",
@@ -192,6 +194,7 @@ export function ClientDirectory() {
             ? {
                 ...c,
                 name,
+                corporateName: form.corporateName.trim(),
                 contactName: form.contactName.trim(),
                 managementPhone: form.managementPhone.trim(),
                 accountingContact: form.accountingContact.trim(),
@@ -221,6 +224,7 @@ export function ClientDirectory() {
         id: newId(),
         clientNumber: nextClientNumber(list),
         name,
+        corporateName: form.corporateName.trim(),
         contactName: form.contactName.trim(),
         managementPhone: form.managementPhone.trim(),
         accountingContact: form.accountingContact.trim(),
@@ -461,6 +465,14 @@ export function ClientDirectory() {
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="שם החברה / הלקוח"
+              />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>שם תאגיד \ חברה</Label>
+              <Input
+                value={form.corporateName}
+                onChange={(e) => setForm({ ...form, corporateName: e.target.value })}
+                placeholder="שם תאגיד / חברה אם שונה משם הלקוח"
               />
             </div>
             <div className="space-y-2">
