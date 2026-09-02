@@ -82,13 +82,13 @@ function parseSignatureText(raw: string) {
   if (phoneMatches[1]) result.accountingPhone = phoneMatches[1].replace(/\s+/g, "-");
 
   const taxMatch = text.match(/(?:ח\.?פ\.?|עוסק מורשה|ע\.?מ\.?)\s*[:\-]?\s*(\d{8,9})/);
-  if (taxMatch) result.taxId = taxMatch[1];
+  if (taxMatch?.[1]) result.taxId = taxMatch[1];
 
   const kv = (labels: string[]) => {
     for (const line of lines) {
       for (const lbl of labels) {
         const m = line.match(new RegExp(`^${lbl}\\s*[:\\-]\\s*(.+)$`));
-        if (m) return m[1].trim();
+        if (m?.[1]) return m[1].trim();
       }
     }
     return "";
