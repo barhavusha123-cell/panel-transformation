@@ -284,6 +284,8 @@ export function ClientDirectory() {
                 address: form.address.trim(),
                 notes: form.notes.trim(),
                 sla: form.sla,
+                docNotes: form.docNotes,
+                docRows: form.docRows,
               }
             : c,
         );
@@ -311,6 +313,8 @@ export function ClientDirectory() {
         address: form.address.trim(),
         notes: form.notes.trim(),
         sla: form.sla,
+        docNotes: form.docNotes,
+        docRows: form.docRows,
         createdAt: new Date().toISOString(),
       };
       return { ...prev, clients: [...list, client] };
