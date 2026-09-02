@@ -45,6 +45,7 @@ const emptyForm = {
   sla: false,
   docNotes: "",
   docRows: [] as ClientDocRow[],
+  sites: [] as ClientSite[],
 };
 
 /** קטגוריות תיעוד קבועות — עד 5 שורות לכל קטגוריה */
