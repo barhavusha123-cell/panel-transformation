@@ -547,6 +547,11 @@ export function ServiceCallsAdmin() {
 
   const [numberFilter, setNumberFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  /** טיוטת שינויים לכל קריאה — נשמרת רק בלחיצה על "אישור" */
+  const [drafts, setDrafts] = useState<
+    Record<string, { technician?: string | undefined; status?: ServiceCallStatus }>
+  >({});
+
   const [editing, setEditing] = useState<ServiceCall | null>(null);
   const editFileRef = useRef<HTMLInputElement>(null);
   const editCameraRef = useRef<HTMLInputElement>(null);
@@ -1173,12 +1178,11 @@ export function ServiceCallsAdmin() {
                       שיוך טכנאי
                     </Label>
                     <Select
-                      value={call.technician || "none"}
+                      value={drafts[call.id]?.technician ?? call.technician ?? "none"}
                       onValueChange={(v) =>
-                        patch(call.id, (c) => ({
-                          ...c,
-                          technician: v === "none" ? undefined : v,
-                          status: v === "none" ? "new" : c.status === "new" ? "assigned" : c.status,
+                        setDrafts((prev) => ({
+                          ...prev,
+                          [call.id]: { ...prev[call.id], technician: v },
                         }))
                       }
                     >
@@ -1198,7 +1202,7 @@ export function ServiceCallsAdmin() {
                   <div className="min-w-40 space-y-1">
                     <Label className="text-xs">סטטוס</Label>
                     <Select
-                      value={call.status}
+                      value={drafts[call.id]?.status ?? call.status}
                       onValueChange={(v) => {
                         const next = v as ServiceCallStatus;
                         if (
@@ -1211,11 +1215,9 @@ export function ServiceCallsAdmin() {
                             [call.id]: "התקלה טופלה אנא סגור את הקריאה מצידך באפליקציה",
                           }));
                         }
-                        patch(call.id, (c) => ({
-                          ...c,
-                          status: next,
-                          closedAt:
-                            next === "closed" ? (c.closedAt ?? nowStamp()) : undefined,
+                        setDrafts((prev) => ({
+                          ...prev,
+                          [call.id]: { ...prev[call.id], status: next },
                         }));
                       }}
                     >
@@ -1231,6 +1233,7 @@ export function ServiceCallsAdmin() {
                       </SelectContent>
                     </Select>
                   </div>
+
                   <div className="flex min-w-64 flex-1 items-end gap-2">
                     <div className="flex-1 space-y-1">
                       <Label className="text-xs">מענה ללקוח</Label>
@@ -1251,6 +1254,44 @@ export function ServiceCallsAdmin() {
                       שלח
                     </Button>
                   </div>
+                  <Button
+                    onClick={() => {
+                      const d = drafts[call.id];
+                      if (d) {
+                        patch(call.id, (c) => {
+                          const tech =
+                            d.technician === undefined
+                              ? c.technician
+                              : d.technician === "none"
+                                ? undefined
+                                : d.technician;
+                          let status = d.status ?? c.status;
+                          if (d.status === undefined && d.technician !== undefined) {
+                            status = !tech ? "new" : c.status === "new" ? "assigned" : c.status;
+                          }
+                          return {
+                            ...c,
+                            technician: tech,
+                            status,
+                            closedAt:
+                              status === "closed" ? (c.closedAt ?? nowStamp()) : undefined,
+                          };
+                        });
+                      }
+                      if ((replyTexts[call.id] ?? "").trim()) sendReply(call);
+                      setDrafts((prev) => {
+                        const next = { ...prev };
+                        delete next[call.id];
+                        return next;
+                      });
+                      setStatusFilter("all");
+                      toast.success(`הנתונים נשמרו לקריאה ${formatCallNumber(call.number)}.`);
+                    }}
+                  >
+                    <CheckCircle2 className="size-4" />
+                    אישור
+                  </Button>
+
                   <Button variant="soft" onClick={() => setEditing(call)}>
                     <Pencil className="size-4" />
                     ערוך קריאה
