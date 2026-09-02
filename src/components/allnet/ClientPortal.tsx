@@ -442,12 +442,22 @@ export function ClientPortal() {
               {/* עדכוני סטטוס מהמוקד — מסונכרן תמיד */}
               {c.updates.length > 0 && (
                 <ul className="mt-3 space-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
-                  {c.updates.map((u) => (
-                    <li key={u.id}>
-                      <span className="font-medium text-foreground">{u.at}</span> · {u.by}
-                      {u.status ? ` · ${SERVICE_STATUS_LABELS[u.status]}` : ""} — {u.text}
-                    </li>
-                  ))}
+                  {c.updates.map((u) =>
+                    u.text.startsWith("מענה ללקוח:") ? (
+                      <li
+                        key={u.id}
+                        className="rounded-lg border border-blue-200 bg-blue-50 p-2 text-sm text-foreground"
+                      >
+                        <span className="font-medium">{u.at}</span> · מענה מ-AllNet —{" "}
+                        {u.text.replace("מענה ללקוח:", "").trim()}
+                      </li>
+                    ) : (
+                      <li key={u.id}>
+                        <span className="font-medium text-foreground">{u.at}</span> · {u.by}
+                        {u.status ? ` · ${SERVICE_STATUS_LABELS[u.status]}` : ""} — {u.text}
+                      </li>
+                    ),
+                  )}
                 </ul>
               )}
 

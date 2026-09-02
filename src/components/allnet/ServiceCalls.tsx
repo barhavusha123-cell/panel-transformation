@@ -760,6 +760,24 @@ export function ServiceCallsAdmin() {
       serviceCalls: prev.serviceCalls.map((c) => (c.id === id ? updater(c) : c)),
     }));
 
+  /** טקסטי מענה ללקוח לפי קריאה */
+  const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
+
+  /** שליחת מענה ללקוח — נשמר ביומן הקריאה ומוצג גם בפורטל הלקוח */
+  const sendReply = (call: ServiceCall) => {
+    const text = (replyTexts[call.id] ?? "").trim();
+    if (!text) return;
+    patch(call.id, (c) => ({
+      ...c,
+      updates: [
+        ...c.updates,
+        { id: uid(), at: nowStamp(), by: "מנהל מערכת", text: `מענה ללקוח: ${text}` },
+      ],
+    }));
+    setReplyTexts((prev) => ({ ...prev, [call.id]: "" }));
+    toast.success(`המענה נשלח ויוצג ללקוח בקריאה ${formatCallNumber(call.number)}.`);
+  };
+
   const remove = (id: string) =>
     setState((prev) => ({ ...prev, serviceCalls: prev.serviceCalls.filter((c) => c.id !== id) }));
 
@@ -1201,6 +1219,26 @@ export function ServiceCallsAdmin() {
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+                  <div className="flex min-w-64 flex-1 items-end gap-2">
+                    <div className="flex-1 space-y-1">
+                      <Label className="text-xs">מענה ללקוח</Label>
+                      <Input
+                        value={replyTexts[call.id] ?? ""}
+                        onChange={(e) =>
+                          setReplyTexts((prev) => ({ ...prev, [call.id]: e.target.value }))
+                        }
+                        placeholder="כתוב הודעה שתוצג ללקוח…"
+                      />
+                    </div>
+                    <Button
+                      variant="soft"
+                      onClick={() => sendReply(call)}
+                      disabled={!(replyTexts[call.id] ?? "").trim()}
+                    >
+                      <Send className="size-4" />
+                      שלח
+                    </Button>
                   </div>
                   <Button variant="soft" onClick={() => setEditing(call)}>
                     <Pencil className="size-4" />
