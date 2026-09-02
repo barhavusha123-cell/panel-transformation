@@ -446,6 +446,78 @@ export function ClientDirectory() {
         </div>
       )}
 
+      {/* ייבוא לקוח מטקסט / חתימת מייל */}
+      <Dialog open={importOpen} onOpenChange={setImportOpen}>
+        <DialogContent dir="rtl" className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Wand2 className="size-5 text-primary" />
+              ייבוא לקוח מטקסט / חתימת מייל
+            </DialogTitle>
+            <DialogDescription>
+              גרור לכאן טקסט או חתימת מייל — המערכת תזהה אוטומטית שם חברה, איש
+              קשר, טלפון, דוא״ל, ח.פ וכתובת, ותפתח טופס לקוח ממולא לאישור.
+            </DialogDescription>
+          </DialogHeader>
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOver(false);
+              const t = e.dataTransfer.getData("text/plain");
+              if (t) setImportText(t);
+            }}
+            className={`rounded-xl border-2 border-dashed p-2 transition-colors ${
+              dragOver ? "border-primary bg-primary/5" : "border-border"
+            }`}
+          >
+            <textarea
+              value={importText}
+              onChange={(e) => setImportText(e.target.value)}
+              rows={8}
+              placeholder="גרור לכאן טקסט / חתימת מייל, או הדבק כאן..."
+              className="w-full resize-none rounded-lg bg-transparent p-2 text-sm outline-none placeholder:text-muted-foreground"
+              dir="auto"
+            />
+          </div>
+          <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <ClipboardPaste className="size-3.5" />
+            ניתן גם להדביק עם Ctrl+V או לגרור קובץ טקסט / חתימה ישירות לאזור זה.
+          </p>
+          <DialogFooter>
+            <Button
+              variant="soft"
+              onClick={() => {
+                setImportText("");
+                setImportOpen(false);
+              }}
+            >
+              ביטול
+            </Button>
+            <Button
+              variant="brand"
+              disabled={!importText.trim()}
+              onClick={() => {
+                const parsed = parseSignatureText(importText);
+                setEditingId(null);
+                setForm(parsed);
+                setImportText("");
+                setImportOpen(false);
+                setOpen(true);
+                toast.success("הפרטים זוהו — בדוק ואשר את פרטי הלקוח.");
+              }}
+            >
+              <Wand2 className="size-4" />
+              פענח וצור לקוח
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent dir="rtl" className="max-w-lg">
           <DialogHeader>
