@@ -350,6 +350,8 @@ export interface Client {
   /** מספר לקוח רץ אוטומטי (מתחיל ב-26001) */
   clientNumber?: number;
   name: string;
+  /** שם תאגיד / חברה */
+  corporateName?: string;
   /** איש קשר הנהלה */
   contactName?: string;
   /** טלפון איש קשר הנהלה */
