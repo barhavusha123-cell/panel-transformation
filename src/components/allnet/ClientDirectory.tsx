@@ -226,6 +226,7 @@ export function ClientDirectory() {
                 sla: form.sla,
                 docNotes: form.docNotes,
                 docRows: form.docRows,
+                sites: form.sites,
               }
             : c,
         );
