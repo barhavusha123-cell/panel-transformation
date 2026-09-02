@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MAX_SUB_WORKERS, type ServiceAttachment } from "@/lib/allnet/types";
+import { MAX_SUB_WORKERS, isClosedStatus, type ServiceAttachment } from "@/lib/allnet/types";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -155,7 +155,7 @@ export function EmployeePortal() {
   const myOpenCalls = useMemo(
     () =>
       state.serviceCalls.filter(
-        (c) => c.technician === user?.username && c.status !== "done",
+        (c) => c.technician === user?.username && !isClosedStatus(c.status),
       ).length,
     [state.serviceCalls, user],
   );

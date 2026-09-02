@@ -252,16 +252,26 @@ export interface FileRecord {
 }
 
 /** ===== קריאות שירות ===== */
-export type ServiceCallStatus = "new" | "assigned" | "in_progress" | "done";
+export type ServiceCallStatus = "new" | "assigned" | "in_progress" | "done" | "closed";
 
-export const SERVICE_STATUSES: ServiceCallStatus[] = ["new", "assigned", "in_progress", "done"];
+export const SERVICE_STATUSES: ServiceCallStatus[] = [
+  "new",
+  "assigned",
+  "in_progress",
+  "done",
+  "closed",
+];
 
 export const SERVICE_STATUS_LABELS: Record<ServiceCallStatus, string> = {
   new: "חדשה",
   assigned: "שויכה לטכנאי",
   in_progress: "בטיפול",
   done: "טופלה",
+  closed: "טופלה ונסגרה",
 };
+
+/** סטטוסים שבהם הקריאה נחשבת סגורה/לא פעילה */
+export const isClosedStatus = (s: ServiceCallStatus) => s === "done" || s === "closed";
 
 export type ServiceCallPriority = "low" | "normal" | "high";
 

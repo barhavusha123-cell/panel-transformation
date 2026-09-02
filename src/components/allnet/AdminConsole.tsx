@@ -38,6 +38,7 @@ import {
   MIN_BUDGET,
   PROJECT_CATEGORIES,
   SERVICE_STATUS_LABELS,
+  isClosedStatus,
   formatCallNumber,
   REGIONS,
   ROLES,
@@ -257,14 +258,14 @@ export function AdminConsole() {
   const [tab, setTab] = useState("reports");
   const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
 
-  const openServiceCalls = state.serviceCalls.filter((c) => c.status !== "done").length;
+  const openServiceCalls = state.serviceCalls.filter((c) => !isClosedStatus(c.status)).length;
   const unassignedServiceCalls = state.serviceCalls.filter((c) => !c.technician).length;
 
   /** קריאות דחופות פתוחות — מוצגות ברצף מתחלף בדשבורד */
   const urgentCalls = useMemo(
     () =>
       state.serviceCalls
-        .filter((c) => c.priority === "high" && c.status !== "done")
+        .filter((c) => c.priority === "high" && !isClosedStatus(c.status))
         .slice()
         .sort((a, b) => b.number - a.number),
     [state.serviceCalls],
@@ -1756,7 +1757,7 @@ export function AdminConsole() {
                     <div className="rounded-xl border border-border bg-surface-2/60 p-3 text-center">
                       <p className="text-xs text-muted-foreground">קריאות פתוחות</p>
                       <p className="text-xl font-bold text-orange-600">
-                        {calls.filter((c) => c.status !== "done").length}
+                        {calls.filter((c) => !isClosedStatus(c.status)).length}
                       </p>
                     </div>
                     <div className="rounded-xl border border-border bg-surface-2/60 p-3 text-center">
