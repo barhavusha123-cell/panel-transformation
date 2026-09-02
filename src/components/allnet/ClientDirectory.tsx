@@ -696,6 +696,74 @@ export function ClientDirectory() {
                 />
               </div>
             </TabsContent>
+
+            <TabsContent value="sites" className="mt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">
+                  האתרים / הסניפים יוצגו למשתמש בתפקיד "לקוח" בעת פתיחת קריאת שירות.
+                </p>
+                <Button size="sm" variant="soft" onClick={addSite}>
+                  <Plus className="ms-1 h-4 w-4" />
+                  הוסף אתר
+                </Button>
+              </div>
+
+              {form.sites.length === 0 ? (
+                <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+                  לא הוגדרו אתרים / סניפים ללקוח זה.
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-lg border">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/50 text-xs text-muted-foreground">
+                      <tr>
+                        <th className="p-2 text-start font-medium">מיקום</th>
+                        <th className="p-2 text-start font-medium">כתובת</th>
+                        <th className="p-2 text-start font-medium">הערות</th>
+                        <th className="w-10 p-2" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {form.sites.map((s) => (
+                        <tr key={s.id} className="border-t align-top">
+                          <td className="p-2">
+                            <Input
+                              value={s.name}
+                              onChange={(e) => updateSite(s.id, "name", e.target.value)}
+                              placeholder="סניף מרכז"
+                            />
+                          </td>
+                          <td className="p-2">
+                            <Input
+                              value={s.address ?? ""}
+                              onChange={(e) => updateSite(s.id, "address", e.target.value)}
+                              placeholder="רחוב, עיר"
+                            />
+                          </td>
+                          <td className="p-2">
+                            <Input
+                              value={s.notes ?? ""}
+                              onChange={(e) => updateSite(s.id, "notes", e.target.value)}
+                              placeholder="הערות"
+                            />
+                          </td>
+                          <td className="p-2">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => removeSite(s.id)}
+                              aria-label="מחק אתר"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </TabsContent>
           </Tabs>
           <DialogFooter>
             <Button variant="soft" onClick={() => setOpen(false)}>
