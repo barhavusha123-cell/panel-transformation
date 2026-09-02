@@ -112,8 +112,6 @@ export function ClientDirectory() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [tab, setTab] = useState("details");
-  const [dragOver, setDragOver] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   // השלמת מספרי לקוח ללקוחות ותיקים (לפי סדר ההקמה)
   useEffect(() => {
