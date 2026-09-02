@@ -604,7 +604,9 @@ export function ServiceCallsAdmin() {
 
   const calls = useMemo(() => {
     return state.serviceCalls
-      .filter((c) => (view === "active" ? !isClosedStatus(c.status) : isClosedStatus(c.status)))
+      .filter((c) =>
+        searchActive ? true : view === "active" ? !isClosedStatus(c.status) : isClosedStatus(c.status),
+      )
       .filter((c) => (statusFilter === "all" ? true : c.status === statusFilter))
       .filter((c) => (techFilter === "all" ? true : c.technician === techFilter))
       .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
@@ -627,6 +629,28 @@ export function ServiceCallsAdmin() {
         if (dateTo && key > dayKey(dateTo)) return false;
         return true;
       })
+      .filter((c) => {
+        if (!searchActive || !searchQuery.trim()) return true;
+        const q = searchQuery.trim().toLowerCase();
+        const technicianName = techName(c.technician).toLowerCase();
+        const haystack = [
+          c.client,
+          c.project,
+          c.subject,
+          c.description,
+          c.contact,
+          c.address,
+          c.equipmentSupplied,
+          c.followUp,
+          technicianName,
+          formatCallNumber(c.number),
+          c.approverName,
+          ...c.updates.map((u) => u.text),
+        ]
+          .filter((v): v is string => !!v)
+          .join(" ");
+        return haystack.toLowerCase().includes(q);
+      })
       .slice()
       .sort((a, b) => {
         const s = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
@@ -642,6 +666,9 @@ export function ServiceCallsAdmin() {
     numberFilter,
     dateFrom,
     dateTo,
+    searchActive,
+    searchQuery,
+    techName,
   ]);
 
   // עימוד — עד 10 קריאות בעמוד
