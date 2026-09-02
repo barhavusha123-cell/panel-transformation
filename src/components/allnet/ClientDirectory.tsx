@@ -457,6 +457,14 @@ export function ClientDirectory() {
                   </span>
                 )}
               </TabsTrigger>
+              <TabsTrigger value="sites">
+                רשימת אתרים / סניפים
+                {form.sites.length > 0 && (
+                  <span className="ms-2 rounded-full bg-primary/10 px-1.5 text-[10px] text-primary">
+                    {form.sites.length}
+                  </span>
+                )}
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="details" className="mt-4">
           <div className="grid gap-4 sm:grid-cols-2">
