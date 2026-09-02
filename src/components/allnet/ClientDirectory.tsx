@@ -153,6 +153,7 @@ export function ClientDirectory() {
       sla: c.sla ?? false,
       docNotes: c.docNotes ?? "",
       docRows: c.docRows ?? [],
+      sites: c.sites ?? [],
     });
     setTab("details");
     setOpen(true);
