@@ -145,13 +145,18 @@ function statusBadge(status: ServiceCallStatus) {
   );
 }
 
-function priorityBadge(p: ServiceCallPriority) {
-  if (p === "high")
+function priorityBadge(p: ServiceCallPriority, status?: ServiceCallStatus) {
+  if (p === "high") {
+    const isDone = status === "done";
     return (
-      <Badge variant="destructive" className="text-xs">
+      <Badge
+        variant={isDone ? "default" : "destructive"}
+        className={`text-xs ${isDone ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 hover:bg-emerald-500/20" : ""}`}
+      >
         דחופה
       </Badge>
     );
+  }
   return (
     <Badge variant={p === "normal" ? "secondary" : "outline"} className="text-xs">
       {SERVICE_PRIORITY_LABELS[p]}
@@ -347,7 +352,7 @@ function CallCard({
         </span>
         <span className="text-sm font-semibold text-foreground">קריאה {formatCallNumber(call.number)}</span>
         {statusBadge(call.status)}
-        {priorityBadge(call.priority)}
+        {priorityBadge(call.priority, call.status)}
         <span className="text-sm text-foreground">לקוח: {call.client}</span>
         <span className="text-sm text-foreground">טכנאי: {technicianName}</span>
         <span className="text-sm text-foreground">נפתחה {formatDateIL(call.createdAt)}</span>
