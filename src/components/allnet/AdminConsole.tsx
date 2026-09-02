@@ -97,7 +97,6 @@ import {
 } from "@/components/ui/dialog";
 
 import { ProjectHoursDetail } from "./ProjectHoursDetail";
-import { ProjectSimulation } from "./ProjectSimulation";
 
 
 const CHART_COLORS = [
@@ -250,8 +249,6 @@ export function AdminConsole() {
   const [closeDeliveryDate, setCloseDeliveryDate] = useState("");
 
   const [detailProject, setDetailProject] = useState<string | null>(null);
-  const [simProject, setSimProject] = useState<Project | null>(null);
-  const [simOpen, setSimOpen] = useState(false);
   /** פרויקט בשנת שירות שעבורו מוצגות קריאות השירות */
   const [callsProject, setCallsProject] = useState<string | null>(null);
   const [tab, setTab] = useState("reports");
