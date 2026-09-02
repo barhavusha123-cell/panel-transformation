@@ -100,6 +100,7 @@ const STATUS_ORDER: Record<ServiceCallStatus, number> = {
   in_progress: 1,
   assigned: 2,
   done: 3,
+  closed: 4,
 };
 
 /** מספר קריאות מרבי בעמוד */
@@ -125,6 +126,7 @@ function statusBadge(status: ServiceCallStatus) {
     assigned: "bg-orange-500/10 text-orange-600 border-orange-500/30",
     in_progress: "bg-yellow-400/10 text-yellow-600 border-yellow-400/30",
     done: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30",
+    closed: "bg-slate-500/10 text-slate-600 border-slate-500/30",
   };
   return (
     <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${map[status]}`}>
@@ -135,7 +137,7 @@ function statusBadge(status: ServiceCallStatus) {
 
 function priorityBadge(p: ServiceCallPriority, status?: ServiceCallStatus) {
   if (p === "high") {
-    const isDone = status === "done";
+    const isDone = status === "done" || status === "closed";
     return (
       <Badge
         variant={isDone ? "default" : "destructive"}
@@ -762,8 +764,9 @@ export function ServiceCallsAdmin() {
 
   const counts = useMemo(
     () => ({
-      open: state.serviceCalls.filter((c) => c.status !== "done").length,
-      unassigned: state.serviceCalls.filter((c) => !c.technician).length,
+      open: state.serviceCalls.filter((c) => !isClosedStatus(c.status)).length,
+      unassigned: state.serviceCalls.filter((c) => !c.technician && !isClosedStatus(c.status))
+        .length,
     }),
     [state.serviceCalls],
   );
@@ -1181,7 +1184,8 @@ export function ServiceCallsAdmin() {
                         patch(call.id, (c) => ({
                           ...c,
                           status: v as ServiceCallStatus,
-                          closedAt: v === "done" ? (c.closedAt ?? nowStamp()) : undefined,
+                          closedAt:
+                            v === "done" || v === "closed" ? (c.closedAt ?? nowStamp()) : undefined,
                         }))
                       }
                     >
@@ -1485,7 +1489,7 @@ export function ServiceCallsTechnician() {
   const myCalls = useMemo(
     () =>
       state.serviceCalls
-        .filter((c) => c.technician === user?.username && c.status !== "done")
+        .filter((c) => c.technician === user?.username && !isClosedStatus(c.status))
         .slice()
         .sort((a, b) => b.number - a.number),
     [state.serviceCalls, user],
@@ -1506,7 +1510,11 @@ export function ServiceCallsTechnician() {
     patch(call.id, (c) => ({
       ...c,
       status: status ?? c.status,
-      closedAt: status === "done" ? (c.closedAt ?? nowStamp()) : status ? undefined : c.closedAt,
+      closedAt: isClosedStatus(status ?? c.status)
+        ? (c.closedAt ?? nowStamp())
+        : status
+          ? undefined
+          : c.closedAt,
       updates: [
         ...c.updates,
         {
