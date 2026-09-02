@@ -28,6 +28,12 @@ const uid = () =>
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
+interface SiteOption {
+  id: string;
+  name: string;
+  address?: string;
+}
+
 const statusTone: Record<ServiceCallStatus, string> = {
   new: "bg-red-100 text-red-700 border-red-200",
   assigned: "bg-orange-100 text-orange-700 border-orange-200",
@@ -48,16 +54,16 @@ export function ClientPortal() {
     );
   }, [state.clients, user]);
 
-  const sites = useMemo(() => {
-    if (!client) return [] as { id: string; name: string; address?: string }[];
-    const list = (client.sites ?? []).map((s) => ({
+  const sites = useMemo<SiteOption[]>(() => {
+    if (!client) return [];
+    const list: SiteOption[] = (client.sites ?? []).map((s) => ({
       id: s.id,
       name: s.name,
       ...(s.address ? { address: s.address } : {}),
     }));
     if (list.length) return list;
     // fallback — פרויקטים של הלקוח או כתובת ראשית עד שיוקמו אתרים
-    const fromProjects = state.projects
+    const fromProjects: SiteOption[] = state.projects
       .filter((p) => (p.client ?? "").trim() === client.name.trim())
       .map((p) => ({ id: `p-${p.name}`, name: p.name }));
     if (fromProjects.length) return fromProjects;
