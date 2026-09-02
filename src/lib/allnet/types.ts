@@ -1,10 +1,11 @@
-export type Role = "מנהל פרויקט בכיר" | "קבלן משנה" | "מנהל פרויקט" | "מנהל מערכת";
+export type Role = "מנהל פרויקט בכיר" | "קבלן משנה" | "מנהל פרויקט" | "מנהל מערכת" | "לקוח";
 
 export const ROLES: Role[] = [
   "מנהל פרויקט בכיר",
   "קבלן משנה",
   "מנהל פרויקט",
   "מנהל מערכת",
+  "לקוח",
 ];
 
 export interface User {
@@ -13,6 +14,8 @@ export interface User {
   full_name: string;
   role: Role;
   email?: string;
+  /** שיוך ללקוח — רלוונטי למשתמש בתפקיד "לקוח" */
+  clientId?: string;
 }
 
 export type Region = "צפון" | "דרום" | "מרכז";
@@ -325,6 +328,19 @@ export interface ServiceCall {
   additionalTechnician?: boolean | undefined;
   /** שם הטכנאי הנוסף */
   additionalTechnicianName?: string | undefined;
+  /** מקור הקריאה — "client" = נפתחה על ידי הלקוח בפורטל הלקוחות */
+  source?: "client" | "internal" | undefined;
+  /** שם האתר שנבחר על ידי הלקוח */
+  site?: string | undefined;
+}
+
+/** אתר של לקוח — קריאות שירות נפתחות עבור אתר מסוים */
+export interface ClientSite {
+  id: string;
+  name: string;
+  address?: string;
+  contact?: string;
+  phone?: string;
 }
 
 /** לקוח במערכת */
@@ -354,6 +370,8 @@ export interface Client {
   sla?: boolean;
   /** תיעוד טכני — שורות מידע (מערכות מחשוב, מתח נמוך, תקשורת, כתובות IP וכו') */
   docRows?: ClientDocRow[];
+  /** אתרים של הלקוח — לבחירה בעת פתיחת קריאת שירות */
+  sites?: ClientSite[];
   /** הערות תיעוד חופשיות */
   docNotes?: string;
   createdAt: string;
