@@ -14,6 +14,7 @@ import {
   Paperclip,
   Pencil,
   Plus,
+  Search,
   Send,
   Trash2,
   UserCog,
