@@ -601,6 +601,7 @@ export function ServiceCallsAdmin() {
 
   const calls = useMemo(() => {
     return state.serviceCalls
+      .filter((c) => (view === "active" ? !isClosedStatus(c.status) : isClosedStatus(c.status)))
       .filter((c) => (statusFilter === "all" ? true : c.status === statusFilter))
       .filter((c) => (techFilter === "all" ? true : c.technician === techFilter))
       .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
@@ -630,6 +631,7 @@ export function ServiceCallsAdmin() {
       });
   }, [
     state.serviceCalls,
+    view,
     statusFilter,
     techFilter,
     clientFilter,
