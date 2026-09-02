@@ -155,7 +155,7 @@ export function EmployeePortal() {
   const myOpenCalls = useMemo(
     () =>
       state.serviceCalls.filter(
-        (c) => c.technician === user?.username && c.status !== "done",
+        (c) => c.technician === user?.username && !isClosedStatus(c.status),
       ).length,
     [state.serviceCalls, user],
   );

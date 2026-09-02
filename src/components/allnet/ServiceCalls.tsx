@@ -85,6 +85,7 @@ import {
   SERVICE_PRIORITY_LABELS,
   SERVICE_STATUSES,
   SERVICE_STATUS_LABELS,
+  isClosedStatus,
   formatCallNumber,
   type ServiceAttachment,
   type ServiceCall,
