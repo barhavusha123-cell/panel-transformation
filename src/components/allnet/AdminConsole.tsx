@@ -38,6 +38,7 @@ import {
   MIN_BUDGET,
   PROJECT_CATEGORIES,
   SERVICE_STATUS_LABELS,
+  isClosedStatus,
   formatCallNumber,
   REGIONS,
   ROLES,
