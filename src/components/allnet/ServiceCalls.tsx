@@ -648,7 +648,7 @@ export function ServiceCallsAdmin() {
   const pageCalls = calls.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
   useEffect(
     () => setPage(1),
-    [statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo],
+    [view, statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo],
   );
 
   const clientOptions = useMemo(
