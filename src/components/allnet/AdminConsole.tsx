@@ -259,6 +259,9 @@ export function AdminConsole() {
   const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
 
   const openServiceCalls = state.serviceCalls.filter((c) => !isClosedStatus(c.status)).length;
+  const clientServiceCalls = state.serviceCalls.filter(
+    (c) => c.source === "client" && !isClosedStatus(c.status),
+  ).length;
   const unassignedServiceCalls = state.serviceCalls.filter((c) => !c.technician).length;
 
   /** קריאות דחופות פתוחות — מוצגות ברצף מתחלף בדשבורד */
