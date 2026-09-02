@@ -547,6 +547,11 @@ export function ServiceCallsAdmin() {
 
   const [numberFilter, setNumberFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  /** טיוטת שינויים לכל קריאה — נשמרת רק בלחיצה על "אישור" */
+  const [drafts, setDrafts] = useState<
+    Record<string, { technician?: string | undefined; status?: ServiceCallStatus }>
+  >({});
+
   const [editing, setEditing] = useState<ServiceCall | null>(null);
   const editFileRef = useRef<HTMLInputElement>(null);
   const editCameraRef = useRef<HTMLInputElement>(null);
