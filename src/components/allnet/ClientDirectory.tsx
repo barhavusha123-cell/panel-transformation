@@ -134,6 +134,9 @@ export function ClientDirectory() {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importText, setImportText] = useState("");
+  const [dragOver, setDragOver] = useState(false);
 
   // השלמת מספרי לקוח ללקוחות ותיקים (לפי סדר ההקמה)
   useEffect(() => {
@@ -293,10 +296,21 @@ export function ClientDirectory() {
               </p>
             </div>
           </div>
-          <Button variant="brand" onClick={openNew}>
-            <Plus className="size-4" />
-            לקוח חדש
-          </Button>
+          <div className="flex items-center gap-2">
+            <div className="flex flex-col items-end gap-0.5">
+              <Button variant="outline" onClick={() => setImportOpen(true)}>
+                <Wand2 className="size-4" />
+                ייבוא מחתימת מייל
+              </Button>
+              <span className="text-[11px] text-muted-foreground">
+                גרור לכאן טקסט או חתימת מייל
+              </span>
+            </div>
+            <Button variant="brand" onClick={openNew}>
+              <Plus className="size-4" />
+              לקוח חדש
+            </Button>
+          </div>
         </div>
         <Separator className="my-4" />
         <div className="relative max-w-sm">
