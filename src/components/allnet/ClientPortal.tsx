@@ -234,6 +234,8 @@ export function ClientPortal() {
         c.id === call.id
           ? {
               ...c,
+              status: "closed" as ServiceCallStatus,
+              closedAt: c.closedAt ?? at,
               clientClosedAt: at,
               clientClosedBy: by,
               updates: [
@@ -242,15 +244,15 @@ export function ClientPortal() {
                   id: uid(),
                   at,
                   by,
-                  text: "הלקוח אישר שהתקלה נסגרה וניתן לסגור את הקריאה.",
-                  status: "done" as ServiceCallStatus,
+                  text: "הלקוח אישר שהתקלה נסגרה — הקריאה טופלה ונסגרה.",
+                  status: "closed" as ServiceCallStatus,
                 },
               ],
             }
           : c,
       ),
     }));
-    toast.success("תודה! אישור סגירת הקריאה נשלח למוקד.");
+    toast.success("תודה! הקריאה טופלה ונסגרה בהצלחה.");
   };
 
   if (!user) return null;
@@ -425,6 +427,8 @@ export function ClientPortal() {
                   <p className="text-xs text-muted-foreground">
                     {c.site ? `${c.site} · ` : ""}
                     {c.createdAt}
+                    {c.technician &&
+                      ` · טכנאי מטפל: ${state.users.find((u) => u.username === c.technician)?.full_name ?? c.technician}`}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
