@@ -174,6 +174,22 @@ export function ClientDirectory() {
   const removeDocRow = (id: string) =>
     setForm((f) => ({ ...f, docRows: f.docRows.filter((r) => r.id !== id) }));
 
+  const addSite = () =>
+    setForm((f) => ({
+      ...f,
+      sites: [...f.sites, { id: newId(), name: "", address: "", notes: "" }],
+    }));
+
+  const updateSite = (id: string, key: keyof ClientSite, value: string) =>
+    setForm((f) => ({
+      ...f,
+      sites: f.sites.map((s) => (s.id === id ? { ...s, [key]: value } : s)),
+    }));
+
+  const removeSite = (id: string) =>
+    setForm((f) => ({ ...f, sites: f.sites.filter((s) => s.id !== id) }));
+
+
   const save = () => {
     const name = form.name.trim();
     if (!name) {
