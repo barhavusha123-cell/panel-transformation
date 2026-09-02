@@ -547,6 +547,8 @@ export function ServiceCallsAdmin() {
 
   const [numberFilter, setNumberFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  /** מצב תצוגה: פעילות / היסטוריה (סגורות) */
+  const [view, setView] = useState<"active" | "history">("active");
   /** טיוטת שינויים לכל קריאה — נשמרת רק בלחיצה על "אישור" */
   const [drafts, setDrafts] = useState<
     Record<string, { technician?: string | undefined; status?: ServiceCallStatus }>
@@ -599,6 +601,7 @@ export function ServiceCallsAdmin() {
 
   const calls = useMemo(() => {
     return state.serviceCalls
+      .filter((c) => (view === "active" ? !isClosedStatus(c.status) : isClosedStatus(c.status)))
       .filter((c) => (statusFilter === "all" ? true : c.status === statusFilter))
       .filter((c) => (techFilter === "all" ? true : c.technician === techFilter))
       .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
@@ -628,6 +631,7 @@ export function ServiceCallsAdmin() {
       });
   }, [
     state.serviceCalls,
+    view,
     statusFilter,
     techFilter,
     clientFilter,
@@ -644,7 +648,7 @@ export function ServiceCallsAdmin() {
   const pageCalls = calls.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
   useEffect(
     () => setPage(1),
-    [statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo],
+    [view, statusFilter, techFilter, clientFilter, siteFilter, numberFilter, dateFrom, dateTo],
   );
 
   const clientOptions = useMemo(
@@ -791,6 +795,7 @@ export function ServiceCallsAdmin() {
       open: state.serviceCalls.filter((c) => !isClosedStatus(c.status)).length,
       unassigned: state.serviceCalls.filter((c) => !c.technician && !isClosedStatus(c.status))
         .length,
+      history: state.serviceCalls.filter((c) => isClosedStatus(c.status)).length,
     }),
     [state.serviceCalls],
   );
@@ -804,7 +809,23 @@ export function ServiceCallsAdmin() {
         </h3>
         <Badge variant="secondary">פתוחות: {counts.open}</Badge>
         <Badge variant="outline">ללא טכנאי: {counts.unassigned}</Badge>
-        <Button variant="outline" className="ms-auto" onClick={() => setDalekOpen((o) => !o)}>
+        <div className="ms-auto flex items-center gap-2">
+          <Button
+            variant={view === "active" ? "brand" : "outline"}
+            size="sm"
+            onClick={() => setView("active")}
+          >
+            קריאות פעילות
+          </Button>
+          <Button
+            variant={view === "history" ? "brand" : "outline"}
+            size="sm"
+            onClick={() => setView("history")}
+          >
+            היסטוריית קריאות ({counts.history})
+          </Button>
+        </div>
+        <Button variant="outline" onClick={() => setDalekOpen((o) => !o)}>
           <FileText className="size-4" />
           קריאות שירות דלק מוטורס
         </Button>
@@ -1112,6 +1133,12 @@ export function ServiceCallsAdmin() {
 
       {calls.length ? (
         <div className="space-y-4">
+          <div className="flex items-center justify-between rounded-xl border border-border bg-surface/60 px-4 py-2.5">
+            <h4 className="text-sm font-semibold">
+              {view === "active" ? "קריאות פעילות" : "היסטוריית קריאות — סגורות"}
+            </h4>
+            <span className="text-xs text-muted-foreground">{calls.length} קריאות</span>
+          </div>
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface/60 px-4 py-2.5">
             <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
               <Checkbox
@@ -1351,7 +1378,9 @@ export function ServiceCallsAdmin() {
         </div>
       ) : (
         <p className="rounded-xl border border-dashed border-border bg-surface/60 p-6 text-center text-sm text-muted-foreground">
-          אין קריאות שירות להצגה.
+          {view === "active"
+            ? "אין קריאות שירות פעילות להצגה."
+            : "אין קריאות שירות סגורות בהיסטוריה."}
         </p>
       )}
 
