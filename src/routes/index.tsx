@@ -4,6 +4,7 @@ import { LoginScreen } from "@/components/allnet/LoginScreen";
 import { TopBar } from "@/components/allnet/TopBar";
 import { EmployeePortal } from "@/components/allnet/EmployeePortal";
 import { AdminConsole } from "@/components/allnet/AdminConsole";
+import { ClientPortal } from "@/components/allnet/ClientPortal";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -41,7 +42,13 @@ function Shell() {
     <div className="min-h-screen">
       <TopBar />
       <div className="animate-fade mx-auto w-full max-w-7xl px-4 pb-16 pt-6">
-        {session.kind === "admin" ? <AdminConsole /> : <EmployeePortal />}
+        {session.kind === "admin" ? (
+          <AdminConsole />
+        ) : session.user?.role === "לקוח" ? (
+          <ClientPortal />
+        ) : (
+          <EmployeePortal />
+        )}
       </div>
     </div>
   );

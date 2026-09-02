@@ -169,6 +169,7 @@ function CreateUserDialog({
     full_name: string;
     email: string;
     role: Role;
+    clientId?: string;
   }) => boolean;
 }) {
   const empty = {
@@ -177,8 +178,10 @@ function CreateUserDialog({
     full_name: "",
     email: "",
     role: ROLES[0]!,
+    clientId: "",
   };
   const [nu, setNu] = useState(empty);
+  const { state } = useAllNet();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -235,6 +238,29 @@ function CreateUserDialog({
               </SelectContent>
             </Select>
           </div>
+          {nu.role === "לקוח" && (
+            <div className="space-y-2 sm:col-span-2">
+              <Label>שיוך ללקוח</Label>
+              <Select
+                value={nu.clientId}
+                onValueChange={(v) => setNu({ ...nu, clientId: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר לקוח מרשימת הלקוחות" />
+                </SelectTrigger>
+                <SelectContent>
+                  {state.clients.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                משתמש בתפקיד "לקוח" יוכל לפתוח קריאות שירות בלבד עבור האתרים של הלקוח.
+              </p>
+            </div>
+          )}
         </div>
         <DialogFooter className="flex-row-reverse justify-start gap-2">
           <Button
@@ -244,12 +270,17 @@ function CreateUserDialog({
                 toast.error("יש למלא שם מלא, שם משתמש וסיסמה.");
                 return;
               }
+              if (nu.role === "לקוח" && !nu.clientId) {
+                toast.error("יש לשייך את המשתמש ללקוח.");
+                return;
+              }
               const ok = onCreate({
                 username: nu.username.trim(),
                 password: nu.password.trim(),
                 full_name: nu.full_name.trim(),
                 email: nu.email.trim(),
                 role: nu.role,
+                ...(nu.clientId ? { clientId: nu.clientId } : {}),
               });
               if (ok) {
                 setNu(empty);
@@ -282,6 +313,7 @@ function UserDetailsDialog({
     password: user?.password ?? "",
     email: user?.email ?? "",
     role: (user?.role ?? ROLES[0]!) as Role,
+    clientId: user?.clientId ?? "",
   });
   if (!user) return null;
 
@@ -382,6 +414,26 @@ function UserDetailsDialog({
                 </SelectContent>
               </Select>
             </div>
+            {form.role === "לקוח" && (
+              <div className="space-y-2">
+                <Label>שיוך ללקוח</Label>
+                <Select
+                  value={form.clientId}
+                  onValueChange={(v) => setForm({ ...form, clientId: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="בחר לקוח" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {state.clients.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <KeyRound className="size-4 text-muted-foreground" />
@@ -429,6 +481,9 @@ function UserDetailsDialog({
                         password: form.password.trim(),
                         email: form.email.trim(),
                         role: form.role,
+                        ...(form.role === "לקוח"
+                          ? { clientId: form.clientId }
+                          : { clientId: undefined }),
                       }
                     : u,
                 ),
