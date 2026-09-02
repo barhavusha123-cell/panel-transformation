@@ -226,7 +226,10 @@ export function ClientDirectory() {
         for (let i = start; i < grid.length; i++) {
           const line = grid[i] ?? [];
           if (!line.some((c) => String(c ?? "").trim())) continue;
-          const row: ClientDocRow = { id: newId(), category: sheetName };
+          const fixedCat = DOC_CATEGORIES.find(
+            (c) => c === sheetName.trim() || sheetName.includes(c) || c.includes(sheetName.trim()),
+          );
+          const row: ClientDocRow = { id: newId(), category: fixedCat ?? sheetName };
           const extras: string[] = [];
           line.forEach((cell, idx) => {
             const val = String(cell ?? "").trim();
