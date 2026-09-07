@@ -624,6 +624,13 @@ export function ServiceCallsAdmin({
       .filter((c) => (techFilter === "all" ? true : c.technician === techFilter))
       .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
       .filter((c) => (siteFilter === "all" ? true : c.project === siteFilter))
+      .filter((c) =>
+        sourceFilter === "all"
+          ? true
+          : sourceFilter === "client"
+            ? c.source === "client"
+            : c.source !== "client",
+      )
       .filter((c) => {
         const q = numberFilter.trim().toLowerCase();
         if (!q || q === "all") return true;
