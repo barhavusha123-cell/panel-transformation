@@ -23,10 +23,21 @@ export function DocumentList({
 }) {
   const { state, setState } = useAllNet();
   const [preview, setPreview] = useState<FileRecord | null>(null);
+  const [search, setSearch] = useState("");
 
-  const files = state.files.filter((f) =>
-    projectFilter ? f.project === projectFilter : true,
-  );
+  const query = search.trim().toLowerCase();
+  const files = useMemo(() => {
+    return state.files.filter((f) => {
+      const matchesProject = projectFilter ? f.project === projectFilter : true;
+      if (!query) return matchesProject;
+      const project = state.projects.find((p) => p.name === f.project);
+      const client = project?.client?.toLowerCase() ?? "";
+      const projectName = f.project?.toLowerCase() ?? "";
+      const fileName = f.name?.toLowerCase() ?? "";
+      const haystack = [fileName, projectName, client].join(" ");
+      return matchesProject && haystack.includes(query);
+    });
+  }, [state.files, state.projects, projectFilter, query]);
 
   if (!state.files.length)
     return (
