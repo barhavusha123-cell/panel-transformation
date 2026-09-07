@@ -29,6 +29,7 @@ import { FixedCostsEditor } from "./FixedCostsEditor";
 import { UserDirectory } from "./UserDirectory";
 import { ClientDirectory } from "./ClientDirectory";
 import { ClientPicker } from "./ClientPicker";
+import { DocumentList } from "./DocumentList";
 import { ServiceCallsAdmin } from "./ServiceCalls";
 import { toast } from "sonner";
 import { openServiceCallsBulkReport } from "@/lib/allnet/serviceReport";
