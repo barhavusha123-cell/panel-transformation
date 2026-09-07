@@ -179,7 +179,7 @@ export function UserDirectory() {
                   <span className="w-36 shrink-0 truncate text-muted-foreground lg:w-auto">
                     {u.role === "לקוח" && clientName ? (
                       <span className="flex items-center gap-1.5">
-                        <Phone className="size-3.5 shrink-0" />
+                        <Building2 className="size-3.5 shrink-0" />
                         {clientName}
                       </span>
                     ) : (
