@@ -2455,8 +2455,7 @@ export function AdminConsole() {
             </div>
           ) : (
             <p className="surface-panel rounded-2xl p-6 text-sm text-muted-foreground">
-              אין פרויקטים מוגדרים במערכת. ניתן להגדיר פרויקטים תחת לשונית 'ניהול פרויקטים
-              וקבצים'.
+              אין פרויקטים מוגדרים במערכת. ניתן להגדיר פרויקטים תחת לשונית 'ניהול פרויקטים'.
             </p>
           )}
         </div>
@@ -3025,6 +3024,14 @@ export function AdminConsole() {
                   </Select>
                 </div>
               </div>
+            </div>
+
+            <div className="surface-panel space-y-4 rounded-2xl p-6">
+              <h3 className="flex items-center gap-2 text-lg font-semibold">
+                <FileText className="size-5 text-primary" />
+                מסמכים ותוכניות שהועלו
+              </h3>
+              <DocumentList isAdmin />
             </div>
           </TabsContent>
         </Tabs>
