@@ -2095,7 +2095,10 @@ export function AdminConsole() {
                 variant={openServiceCalls ? "brand" : "soft"}
                 size="sm"
                 className="mt-4 w-full"
-                onClick={() => setView("service")}
+                onClick={() => {
+                  setServiceSourceFilter("system");
+                  setView("service");
+                }}
               >
                 נהל קריאות שירות
               </Button>
@@ -2117,7 +2120,10 @@ export function AdminConsole() {
                 variant={clientServiceCalls ? "brand" : "soft"}
                 size="sm"
                 className="mt-4 w-full"
-                onClick={() => setView("service")}
+                onClick={() => {
+                  setServiceSourceFilter("client");
+                  setView("service");
+                }}
               >
                 נהל קריאות שירות
               </Button>
