@@ -559,6 +559,8 @@ export function ServiceCallsAdmin({
   const [numberFilter, setNumberFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchActive, setSearchActive] = useState(false);
+  /** חיפוש חופשי לפי לקוח / פרויקט — חל גם על ההיסטוריה */
+  const [clientProjectSearch, setClientProjectSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   /** מצב תצוגה: פעילות / היסטוריה (סגורות) */
   const [view, setView] = useState<"active" | "history">("active");
@@ -632,6 +634,14 @@ export function ServiceCallsAdmin({
             : c.source !== "client",
       )
       .filter((c) => {
+        const q = clientProjectSearch.trim().toLowerCase();
+        if (!q) return true;
+        return (
+          (c.client ?? "").toLowerCase().includes(q) ||
+          (c.project ?? "").toLowerCase().includes(q)
+        );
+      })
+      .filter((c) => {
         const q = numberFilter.trim().toLowerCase();
         if (!q || q === "all") return true;
         const digits = q.replace(/[^0-9]/g, "");
@@ -689,6 +699,7 @@ export function ServiceCallsAdmin({
     dateTo,
     searchActive,
     searchQuery,
+    clientProjectSearch,
     techName,
   ]);
 
@@ -711,6 +722,7 @@ export function ServiceCallsAdmin({
       dateTo,
       searchQuery,
       searchActive,
+      clientProjectSearch,
     ],
   );
 
@@ -885,7 +897,11 @@ export function ServiceCallsAdmin({
           <Button
             variant={view === "history" ? "brand" : "outline"}
             size="sm"
-            onClick={() => setView("history")}
+            onClick={() => {
+              // ההיסטוריה מאגדת קריאות לקוחות ואולנט יחד במקום אחד
+              setSourceFilter("all");
+              setView("history");
+            }}
           >
             היסטוריית קריאות ({counts.history})
           </Button>
@@ -1218,6 +1234,18 @@ export function ServiceCallsAdmin({
               <SelectItem value="system">אולנט</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+        <div className="min-w-0 space-y-1">
+          <Label className="text-[11px]">חיפוש לקוח / פרויקט</Label>
+          <div className="relative">
+            <Search className="absolute start-2 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="h-9 ps-7 text-xs"
+              value={clientProjectSearch}
+              onChange={(e) => setClientProjectSearch(e.target.value)}
+              placeholder="שם לקוח או פרויקט…"
+            />
+          </div>
         </div>
         <div className="min-w-0 space-y-1">
           <Label className="text-[11px]">מספר קריאה</Label>
