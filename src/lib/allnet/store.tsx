@@ -49,6 +49,7 @@ export function AllNetProvider({ children }: { children: ReactNode }) {
           ...(p.boqFileName ? { boqFileName: p.boqFileName } : {}),
           ...(p.boqUpdatedAt ? { boqUpdatedAt: p.boqUpdatedAt } : {}),
           ...(p.simulation ? { simulation: p.simulation } : {}),
+          ...(p.serviceAgreement ? { serviceAgreement: p.serviceAgreement } : {}),
 
 
 

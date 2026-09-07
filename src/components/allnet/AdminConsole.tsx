@@ -224,6 +224,8 @@ export function AdminConsole() {
     "console",
   );
   const [categoryView, setCategoryView] = useState<ProjectCategory>("warranty");
+  /** פרויקט שעבורו פתוח חלון הסכם השירות */
+  const [agreementProject, setAgreementProject] = useState<string | null>(null);
   /** פרויקט שנמצא בתהליך סגירה (טופס שאלות סגירה) */
   type ClosureKey =
     | "deliveredToClient"
@@ -1484,9 +1486,14 @@ export function AdminConsole() {
                   <TableHead className="text-right">מנהל פרויקט</TableHead>
                   {isArchive && (
                     <>
-                      <TableHead className="text-right">תאריך מסירה</TableHead>
+                      <TableHead className="text-right">
+                        {categoryView === "service" ? "תאריך תחילת שירות" : "תאריך מסירה"}
+                      </TableHead>
                       <TableHead className="text-right">סיום שירות</TableHead>
                       <TableHead className="text-right">ימים לסיום שירות</TableHead>
+                      {categoryView === "service" && (
+                        <TableHead className="text-right">הסכם שירות</TableHead>
+                      )}
                     </>
                   )}
                   <TableHead className="text-right">פעולות</TableHead>
@@ -1570,9 +1577,28 @@ export function AdminConsole() {
                                 </div>
                               );
                             })()}
-                          </TableCell>
-                        </>
-                      )}
+                           </TableCell>
+                          {categoryView === "service" && (
+                            <TableCell className="text-sm">
+                              <div className="flex flex-col items-start gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="soft"
+                                  onClick={() => setAgreementProject(p.name)}
+                                >
+                                  <Paperclip className="size-4" />
+                                  {p.serviceAgreement ? "צפה / החלף" : "צרף הסכם"}
+                                </Button>
+                                {p.serviceAgreement && (
+                                  <span className="max-w-40 truncate text-xs text-muted-foreground">
+                                    {p.serviceAgreement.name}
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                          )}
+                         </>
+                       )}
                          <TableCell>
                           <div className="flex flex-wrap gap-2">
                             {categoryView === "warranty" && (
@@ -1692,6 +1718,119 @@ export function AdminConsole() {
           )}
         </div>
         <ProjectSimulation open={simOpen} onOpenChange={setSimOpen} project={simProject} />
+        <Dialog open={!!agreementProject} onOpenChange={(o) => !o && setAgreementProject(null)}>
+          <DialogContent dir="rtl" className="max-w-3xl text-right">
+            <DialogHeader className="text-right">
+              <DialogTitle className="flex items-center gap-2">
+                <Paperclip className="size-5 text-primary" />
+                הסכם שירות — {agreementProject}
+              </DialogTitle>
+              <DialogDescription>ניתן לצרף קובץ PDF או תמונה של הסכם השירות של הלקוח.</DialogDescription>
+            </DialogHeader>
+            {(() => {
+              const proj = state.projects.find((x) => x.name === agreementProject);
+              const file = proj?.serviceAgreement;
+              const saveFile = (f: File) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                  const dataUrl = String(reader.result ?? "");
+                  setState((prev) => ({
+                    ...prev,
+                    projects: prev.projects.map((x) =>
+                      x.name === agreementProject
+                        ? {
+                            ...x,
+                            serviceAgreement: {
+                              name: f.name,
+                              dataUrl,
+                              uploadedAt: new Date().toISOString(),
+                            },
+                          }
+                        : x,
+                    ),
+                  }));
+                  toast.success("הסכם השירות נשמר בהצלחה.");
+                };
+                reader.readAsDataURL(f);
+              };
+              return (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>צירוף קובץ (PDF / תמונה)</Label>
+                    <Input
+                      type="file"
+                      accept="application/pdf,image/*"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) saveFile(f);
+                        e.target.value = "";
+                      }}
+                    />
+                  </div>
+                  {file ? (
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface-2/60 p-3">
+                        <FileText className="size-4 text-primary" />
+                        <span className="text-sm font-medium">{file.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          הועלה: {formatDateIL(file.uploadedAt)}
+                        </span>
+                        <div className="ms-auto flex gap-2">
+                          <Button asChild size="sm" variant="secondary">
+                            <a href={file.dataUrl} download={file.name}>
+                              הורד
+                            </a>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:bg-destructive/10"
+                            onClick={() => {
+                              setState((prev) => ({
+                                ...prev,
+                                projects: prev.projects.map((x) => {
+                                  if (x.name !== agreementProject) return x;
+                                  const { serviceAgreement: _omit, ...rest } = x;
+                                  return rest;
+                                }),
+                              }));
+                              toast.success("הסכם השירות הוסר.");
+                            }}
+                          >
+                            <Trash2 className="size-4" />
+                            הסר
+                          </Button>
+                        </div>
+                      </div>
+                      {file.dataUrl.startsWith("data:image") ? (
+                        <img
+                          src={file.dataUrl}
+                          alt={file.name}
+                          className="max-h-[60vh] w-full rounded-lg object-contain"
+                        />
+                      ) : (
+                        <iframe
+                          src={file.dataUrl}
+                          title={file.name}
+                          className="h-[60vh] w-full rounded-lg border border-border bg-surface"
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <p className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                      לא צורף הסכם שירות לפרויקט זה.
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
+            <DialogFooter>
+              <Button variant="soft" onClick={() => setAgreementProject(null)}>
+                סגור
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <Dialog open={!!callsProject} onOpenChange={(o) => !o && setCallsProject(null)}>
           <DialogContent dir="rtl" className="max-h-[85vh] overflow-y-auto text-right sm:max-w-2xl">
             <DialogHeader className="text-right">
