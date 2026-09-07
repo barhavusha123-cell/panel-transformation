@@ -224,6 +224,8 @@ export function AdminConsole() {
     "console",
   );
   const [categoryView, setCategoryView] = useState<ProjectCategory>("warranty");
+  /** פרויקט שעבורו פתוח חלון הסכם השירות */
+  const [agreementProject, setAgreementProject] = useState<string | null>(null);
   /** פרויקט שנמצא בתהליך סגירה (טופס שאלות סגירה) */
   type ClosureKey =
     | "deliveredToClient"
