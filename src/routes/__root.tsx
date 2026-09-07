@@ -122,6 +122,13 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    // Force Hebrew RTL layout on every client navigation/hydration so mobile
+    // login never flips back to LTR.
+    document.documentElement.lang = "he";
+    document.documentElement.dir = "rtl";
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
