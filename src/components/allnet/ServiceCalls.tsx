@@ -699,6 +699,7 @@ export function ServiceCallsAdmin({
     dateTo,
     searchActive,
     searchQuery,
+    clientProjectSearch,
     techName,
   ]);
 
@@ -721,6 +722,7 @@ export function ServiceCallsAdmin({
       dateTo,
       searchQuery,
       searchActive,
+      clientProjectSearch,
     ],
   );
 
@@ -895,7 +897,11 @@ export function ServiceCallsAdmin({
           <Button
             variant={view === "history" ? "brand" : "outline"}
             size="sm"
-            onClick={() => setView("history")}
+            onClick={() => {
+              // ההיסטוריה מאגדת קריאות לקוחות ואולנט יחד במקום אחד
+              setSourceFilter("all");
+              setView("history");
+            }}
           >
             היסטוריית קריאות ({counts.history})
           </Button>
