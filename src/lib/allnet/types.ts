@@ -107,6 +107,16 @@ export interface Project {
   boqDiscount?: BoqDiscount;
   /** סימולציית רווחיות שמורה */
   simulation?: ProjectSimulationState;
+  /** הסכם שירות מצורף (PDF / תמונה) */
+  serviceAgreement?: ServiceAgreementFile;
+}
+
+/** קובץ הסכם שירות מצורף לפרויקט */
+export interface ServiceAgreementFile {
+  name: string;
+  dataUrl: string;
+  uploadedAt: string;
+  uploadedBy?: string;
 }
 
 /** פרמטרים שמורים של סימולציית רווחיות */
