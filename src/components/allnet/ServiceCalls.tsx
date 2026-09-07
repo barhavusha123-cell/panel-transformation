@@ -559,6 +559,8 @@ export function ServiceCallsAdmin({
   const [numberFilter, setNumberFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchActive, setSearchActive] = useState(false);
+  /** חיפוש חופשי לפי לקוח / פרויקט — חל גם על ההיסטוריה */
+  const [clientProjectSearch, setClientProjectSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   /** מצב תצוגה: פעילות / היסטוריה (סגורות) */
   const [view, setView] = useState<"active" | "history">("active");
@@ -631,6 +633,14 @@ export function ServiceCallsAdmin({
             ? c.source === "client"
             : c.source !== "client",
       )
+      .filter((c) => {
+        const q = clientProjectSearch.trim().toLowerCase();
+        if (!q) return true;
+        return (
+          (c.client ?? "").toLowerCase().includes(q) ||
+          (c.project ?? "").toLowerCase().includes(q)
+        );
+      })
       .filter((c) => {
         const q = numberFilter.trim().toLowerCase();
         if (!q || q === "all") return true;
