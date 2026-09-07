@@ -29,6 +29,7 @@ import { FixedCostsEditor } from "./FixedCostsEditor";
 import { UserDirectory } from "./UserDirectory";
 import { ClientDirectory } from "./ClientDirectory";
 import { ClientPicker } from "./ClientPicker";
+import { DocumentList } from "./DocumentList";
 import { ServiceCallsAdmin } from "./ServiceCalls";
 import { toast } from "sonner";
 import { openServiceCallsBulkReport } from "@/lib/allnet/serviceReport";
@@ -2455,8 +2456,7 @@ export function AdminConsole() {
             </div>
           ) : (
             <p className="surface-panel rounded-2xl p-6 text-sm text-muted-foreground">
-              אין פרויקטים מוגדרים במערכת. ניתן להגדיר פרויקטים תחת לשונית 'ניהול פרויקטים
-              וקבצים'.
+              אין פרויקטים מוגדרים במערכת. ניתן להגדיר פרויקטים תחת לשונית 'ניהול פרויקטים'.
             </p>
           )}
         </div>
@@ -2485,7 +2485,13 @@ export function AdminConsole() {
               value="projects"
               className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
             >
-              ניהול פרויקטים וקבצים
+              ניהול פרויקטים
+            </TabsTrigger>
+            <TabsTrigger
+              value="docs"
+              className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
+            >
+              מסמכים ותוכניות
             </TabsTrigger>
           </TabsList>
 
@@ -2984,7 +2990,10 @@ export function AdminConsole() {
                 <p className="text-sm text-muted-foreground">אין פרויקטים רשומים במערכת עדיין.</p>
               )}
             </div>
+          </TabsContent>
 
+          {/* Documents & plans */}
+          <TabsContent value="docs" className="mt-6 space-y-6">
             <div className="surface-panel space-y-4 rounded-2xl p-6">
               <h3 className="flex items-center gap-2 text-lg font-semibold">
                 <Upload className="size-5 text-primary" />
@@ -3016,6 +3025,14 @@ export function AdminConsole() {
                   </Select>
                 </div>
               </div>
+            </div>
+
+            <div className="surface-panel space-y-4 rounded-2xl p-6">
+              <h3 className="flex items-center gap-2 text-lg font-semibold">
+                <FileText className="size-5 text-primary" />
+                מסמכים ותוכניות שהועלו
+              </h3>
+              <DocumentList isAdmin />
             </div>
           </TabsContent>
         </Tabs>
