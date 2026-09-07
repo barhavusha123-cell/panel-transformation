@@ -2485,7 +2485,13 @@ export function AdminConsole() {
               value="projects"
               className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
             >
-              ניהול פרויקטים וקבצים
+              ניהול פרויקטים
+            </TabsTrigger>
+            <TabsTrigger
+              value="docs"
+              className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
+            >
+              מסמכים ותוכניות
             </TabsTrigger>
           </TabsList>
 
