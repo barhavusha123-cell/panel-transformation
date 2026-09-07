@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { Download, Eye, FileText, Trash2 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Download, Eye, FileText, Search, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAllNet } from "@/lib/allnet/store";
 import { formatDateIL } from "@/lib/allnet/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -22,10 +23,21 @@ export function DocumentList({
 }) {
   const { state, setState } = useAllNet();
   const [preview, setPreview] = useState<FileRecord | null>(null);
+  const [search, setSearch] = useState("");
 
-  const files = state.files.filter((f) =>
-    projectFilter ? f.project === projectFilter : true,
-  );
+  const query = search.trim().toLowerCase();
+  const files = useMemo(() => {
+    return state.files.filter((f) => {
+      const matchesProject = projectFilter ? f.project === projectFilter : true;
+      if (!query) return matchesProject;
+      const project = state.projects.find((p) => p.name === f.project);
+      const client = project?.client?.toLowerCase() ?? "";
+      const projectName = f.project?.toLowerCase() ?? "";
+      const fileName = f.name?.toLowerCase() ?? "";
+      const haystack = [fileName, projectName, client].join(" ");
+      return matchesProject && haystack.includes(query);
+    });
+  }, [state.files, state.projects, projectFilter, query]);
 
   if (!state.files.length)
     return (
@@ -47,7 +59,33 @@ export function DocumentList({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      <div className="surface-panel flex items-center gap-2 rounded-2xl p-3">
+        <div className="relative flex-1">
+          <Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="חפש לפי שם פרויקט, לקוח או שם קובץ…"
+            className="h-10 pe-9 ps-10 text-sm"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="size-4" />
+            </button>
+          )}
+        </div>
+        {search && (
+          <Badge variant="secondary" className="h-10 whitespace-nowrap px-3">
+            {files.length} תוצאות
+          </Badge>
+        )}
+      </div>
+
       {files.map((file, i) => (
         <div
           key={file.id}
