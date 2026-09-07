@@ -1484,9 +1484,14 @@ export function AdminConsole() {
                   <TableHead className="text-right">מנהל פרויקט</TableHead>
                   {isArchive && (
                     <>
-                      <TableHead className="text-right">תאריך מסירה</TableHead>
+                      <TableHead className="text-right">
+                        {categoryView === "service" ? "תאריך תחילת שירות" : "תאריך מסירה"}
+                      </TableHead>
                       <TableHead className="text-right">סיום שירות</TableHead>
                       <TableHead className="text-right">ימים לסיום שירות</TableHead>
+                      {categoryView === "service" && (
+                        <TableHead className="text-right">הסכם שירות</TableHead>
+                      )}
                     </>
                   )}
                   <TableHead className="text-right">פעולות</TableHead>
