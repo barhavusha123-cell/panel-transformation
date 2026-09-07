@@ -1485,7 +1485,9 @@ export function AdminConsole() {
                   {categoryView !== "service" && (
                     <TableHead className="text-right">שווי פרויקט</TableHead>
                   )}
-                  <TableHead className="text-right">מנהל פרויקט</TableHead>
+                  {categoryView !== "service" && (
+                    <TableHead className="text-right">מנהל פרויקט</TableHead>
+                  )}
                   {isArchive && (
                     <>
                       <TableHead className="text-right">
@@ -1533,7 +1535,7 @@ export function AdminConsole() {
                           </div>
                         </TableCell>
                       )}
-                      <TableCell>{p.manager}</TableCell>
+                      {categoryView !== "service" && <TableCell>{p.manager}</TableCell>}
                       {isArchive && (
                         <>
                           <TableCell className="text-sm">
@@ -1605,7 +1607,7 @@ export function AdminConsole() {
                        )}
                          <TableCell>
                           <div className="flex flex-wrap gap-2">
-                            {categoryView === "warranty" && (
+                            {(categoryView === "warranty" || categoryView === "service") && (
                               <>
                               <Button
                                 size="sm"
