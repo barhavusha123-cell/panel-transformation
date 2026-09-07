@@ -1133,7 +1133,7 @@ export function ServiceCallsAdmin({
         )}
       </div>
 
-      <div className="surface-panel grid grid-cols-7 items-start gap-2 rounded-2xl p-3">
+      <div className="surface-panel grid grid-cols-8 items-start gap-2 rounded-2xl p-3">
         <div className="min-w-0 space-y-1">
           <Label className="text-[11px]">סטטוס</Label>
           <Select
@@ -1198,6 +1198,19 @@ export function ServiceCallsAdmin({
                   {s}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="min-w-0 space-y-1">
+          <Label className="text-[11px]">מקור קריאה</Label>
+          <Select value={sourceFilter} onValueChange={(v) => setSourceFilter(v as typeof sourceFilter)}>
+            <SelectTrigger className="h-9 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">הכל</SelectItem>
+              <SelectItem value="client">מתאגידי מים</SelectItem>
+              <SelectItem value="system">אולנט</SelectItem>
             </SelectContent>
           </Select>
         </div>
