@@ -309,8 +309,7 @@ function CreateUserDialog({
               onChange={(e) => setNu({ ...nu, password: e.target.value })}
             />
             <p className="text-[11px] leading-4 text-muted-foreground">
-              דרישת סיסמה מוקשחת: מינימום 6 תווים באנגלית בלבד, שילוב של אותיות
-              ומספרים, ולפחות אות גדולה אחת.
+              דרישת סיסמה: מינימום 6 תווים, לפחות אות אחת באנגלית, ולפחות אות אחת גדולה.
             </p>
           </div>
           <div className="space-y-2 sm:col-span-2">
@@ -362,8 +361,8 @@ function CreateUserDialog({
                 return;
               }
               const pw = nu.password.trim();
-              if (pw.length < 6 || !/^[A-Za-z0-9]+$/.test(pw) || !/[A-Z]/.test(pw) || !/[a-z]/.test(pw) || !/[0-9]/.test(pw)) {
-                toast.error("הסיסמה חייבת להכיל מינימום 6 תווים באנגלית בלבד, שילוב של אותיות ומספרים, ולפחות אות גדולה אחת.");
+              if (pw.length < 6 || !/[A-Za-z]/.test(pw) || !/[A-Z]/.test(pw)) {
+                toast.error("הסיסמה חייבת להכיל מינימום 6 תווים, לפחות אות אחת באנגלית, ולפחות אות אחת גדולה.");
                 return;
               }
               if (nu.role === "לקוח" && !nu.clientId) {
@@ -535,8 +534,7 @@ function UserDetailsDialog({ username, onClose }: { username: string; onClose: (
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
               />
               <p className="text-[11px] leading-4 text-muted-foreground">
-                דרישת סיסמה מוקשחת: מינימום 6 תווים באנגלית בלבד, שילוב של אותיות
-                ומספרים, ולפחות אות גדולה אחת.
+                דרישת סיסמה: מינימום 6 תווים, לפחות אות אחת באנגלית, ולפחות אות אחת גדולה.
               </p>
             </div>
           </TabsContent>
@@ -574,8 +572,8 @@ function UserDetailsDialog({ username, onClose }: { username: string; onClose: (
                 return;
               }
               const pw = form.password.trim();
-              if (pw.length < 6 || !/^[A-Za-z0-9]+$/.test(pw) || !/[A-Z]/.test(pw) || !/[a-z]/.test(pw) || !/[0-9]/.test(pw)) {
-                toast.error("הסיסמה חייבת להכיל מינימום 6 תווים באנגלית בלבד, שילוב של אותיות ומספרים, ולפחות אות גדולה אחת.");
+              if (pw.length < 6 || !/[A-Za-z]/.test(pw) || !/[A-Z]/.test(pw)) {
+                toast.error("הסיסמה חייבת להכיל מינימום 6 תווים, לפחות אות אחת באנגלית, ולפחות אות אחת גדולה.");
                 return;
               }
               setState((prev) => ({
