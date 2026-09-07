@@ -224,6 +224,9 @@ export function AdminConsole() {
   const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive" | "service">(
     "console",
   );
+  const [serviceSourceFilter, setServiceSourceFilter] = useState<"client" | "system" | null>(
+    null,
+  );
   const [categoryView, setCategoryView] = useState<ProjectCategory>("warranty");
   /** פרויקט שעבורו פתוח חלון הסכם השירות */
   const [agreementProject, setAgreementProject] = useState<string | null>(null);
