@@ -1435,7 +1435,7 @@ export function AdminConsole() {
             חזרה למרכז הבקרה הראשי
           </Button>
         </div>
-        <ServiceCallsAdmin />
+        <ServiceCallsAdmin sourceFilter={serviceSourceFilter ?? undefined} />
       </div>
     );
   }
