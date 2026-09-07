@@ -869,6 +869,11 @@ export function ServiceCallsAdmin({
         </h3>
         <Badge variant="secondary">פתוחות: {counts.open}</Badge>
         <Badge variant="outline">ללא טכנאי: {counts.unassigned}</Badge>
+        {sourceFilter !== "all" && (
+          <Badge variant={sourceFilter === "client" ? "destructive" : "default"}>
+            {sourceFilter === "client" ? "מתאגידי מים" : "אולנט"}
+          </Badge>
+        )}
         <div className="ms-auto flex items-center gap-2">
           <Button
             variant={view === "active" ? "brand" : "outline"}
