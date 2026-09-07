@@ -288,7 +288,7 @@ function CreateUserDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label>שם משתמש</Label>
+            <Label>שם משתמש \ USER</Label>
             <Input
               value={nu.username}
               onChange={(e) => setNu({ ...nu, username: e.target.value })}
