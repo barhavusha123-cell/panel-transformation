@@ -1482,7 +1482,9 @@ export function AdminConsole() {
                 <TableRow>
                   <TableHead className="text-right">שם לקוח</TableHead>
                   <TableHead className="text-right">שם פרויקט</TableHead>
-                  <TableHead className="text-right">שווי פרויקט</TableHead>
+                  {categoryView !== "service" && (
+                    <TableHead className="text-right">שווי פרויקט</TableHead>
+                  )}
                   <TableHead className="text-right">מנהל פרויקט</TableHead>
                   {isArchive && (
                     <>
