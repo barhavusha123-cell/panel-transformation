@@ -497,7 +497,11 @@ function useTechnicians() {
 }
 
 /** ניהול קריאות שירות — צד מנהל */
-export function ServiceCallsAdmin() {
+export function ServiceCallsAdmin({
+  sourceFilter: initialSourceFilter,
+}: {
+  sourceFilter?: "client" | "system";
+}) {
   const navigate = useNavigate();
   const { state, setState } = useAllNet();
   const technicians = useTechnicians();
