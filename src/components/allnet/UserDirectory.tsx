@@ -135,7 +135,8 @@ export function UserDirectory() {
         </p>
       ) : (
         <div className="surface-panel overflow-hidden rounded-2xl">
-          <div className="hidden items-center gap-3 border-b border-border/60 bg-muted/40 px-4 py-2 text-[11px] font-medium text-muted-foreground lg:grid lg:grid-cols-[minmax(0,2fr)_10rem_8rem_9rem_6rem_5rem]">
+          <div className="hidden items-center gap-3 border-b border-border/60 bg-muted/40 px-4 py-2 text-[11px] font-medium text-muted-foreground lg:grid lg:grid-cols-[8rem_minmax(0,2fr)_10rem_8rem_9rem_6rem_5rem]">
+            <span>USER</span>
             <span>שם משתמש / שם מלא</span>
             <span>דוא״ל</span>
             <span>תפקיד</span>
@@ -150,15 +151,15 @@ export function UserDirectory() {
               return (
                 <li
                   key={u.username}
-                  className="group flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 text-sm transition-colors hover:bg-muted/40 lg:grid lg:grid-cols-[minmax(0,2fr)_10rem_8rem_9rem_6rem_5rem] lg:gap-3"
+                  className="group flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 text-sm transition-colors hover:bg-muted/40 lg:grid lg:grid-cols-[8rem_minmax(0,2fr)_10rem_8rem_9rem_6rem_5rem] lg:gap-3"
                 >
+                  <span className="w-28 shrink-0 truncate font-mono text-xs text-muted-foreground lg:w-auto" dir="ltr">
+                    {u.username}
+                  </span>
                   <div className="flex min-w-0 flex-1 items-center gap-2 lg:w-auto lg:min-w-0">
                     <Avatar name={u.full_name} />
                     <span className="min-w-0">
                       <span className="block truncate font-medium">{u.full_name}</span>
-                      <span className="block truncate text-[11px] text-muted-foreground">
-                        {u.username}
-                      </span>
                     </span>
                   </div>
                   <span className="w-40 shrink-0 truncate text-muted-foreground lg:w-auto">
