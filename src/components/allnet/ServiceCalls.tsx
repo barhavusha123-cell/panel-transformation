@@ -490,7 +490,10 @@ function CallCard({
 
 function useTechnicians() {
   const { state } = useAllNet();
-  return useMemo(() => state.users, [state.users]);
+  return useMemo(
+    () => state.users.filter((u) => u.role !== "לקוח"),
+    [state.users],
+  );
 }
 
 /** ניהול קריאות שירות — צד מנהל */
