@@ -224,6 +224,9 @@ export function AdminConsole() {
   const [view, setView] = useState<"console" | "dashboard" | "projects" | "archive" | "service">(
     "console",
   );
+  const [serviceSourceFilter, setServiceSourceFilter] = useState<"client" | "system" | null>(
+    null,
+  );
   const [categoryView, setCategoryView] = useState<ProjectCategory>("warranty");
   /** פרויקט שעבורו פתוח חלון הסכם השירות */
   const [agreementProject, setAgreementProject] = useState<string | null>(null);
@@ -261,11 +264,15 @@ export function AdminConsole() {
   const [tab, setTab] = useState("reports");
   const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
 
-  const openServiceCalls = state.serviceCalls.filter((c) => !isClosedStatus(c.status)).length;
+  const openServiceCalls = state.serviceCalls.filter(
+    (c) => c.source !== "client" && !isClosedStatus(c.status),
+  ).length;
   const clientServiceCalls = state.serviceCalls.filter(
     (c) => c.source === "client" && !isClosedStatus(c.status),
   ).length;
-  const unassignedServiceCalls = state.serviceCalls.filter((c) => !c.technician).length;
+  const unassignedServiceCalls = state.serviceCalls.filter(
+    (c) => !c.technician && !isClosedStatus(c.status),
+  ).length;
 
   /** קריאות דחופות פתוחות — מוצגות ברצף מתחלף בדשבורד */
   const urgentCalls = useMemo(
@@ -1428,7 +1435,7 @@ export function AdminConsole() {
             חזרה למרכז הבקרה הראשי
           </Button>
         </div>
-        <ServiceCallsAdmin />
+        <ServiceCallsAdmin sourceFilter={serviceSourceFilter ?? undefined} />
       </div>
     );
   }
@@ -2088,7 +2095,10 @@ export function AdminConsole() {
                 variant={openServiceCalls ? "brand" : "soft"}
                 size="sm"
                 className="mt-4 w-full"
-                onClick={() => setView("service")}
+                onClick={() => {
+                  setServiceSourceFilter("system");
+                  setView("service");
+                }}
               >
                 נהל קריאות שירות
               </Button>
@@ -2110,7 +2120,10 @@ export function AdminConsole() {
                 variant={clientServiceCalls ? "brand" : "soft"}
                 size="sm"
                 className="mt-4 w-full"
-                onClick={() => setView("service")}
+                onClick={() => {
+                  setServiceSourceFilter("client");
+                  setView("service");
+                }}
               >
                 נהל קריאות שירות
               </Button>

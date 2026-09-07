@@ -497,7 +497,11 @@ function useTechnicians() {
 }
 
 /** ניהול קריאות שירות — צד מנהל */
-export function ServiceCallsAdmin() {
+export function ServiceCallsAdmin({
+  sourceFilter: initialSourceFilter,
+}: {
+  sourceFilter?: "client" | "system" | undefined;
+}) {
   const navigate = useNavigate();
   const { state, setState } = useAllNet();
   const technicians = useTechnicians();
@@ -543,6 +547,9 @@ export function ServiceCallsAdmin() {
   const [techFilter, setTechFilter] = useState("all");
   const [clientFilter, setClientFilter] = useState("all");
   const [siteFilter, setSiteFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState<"all" | "client" | "system">(
+    initialSourceFilter ?? "all",
+  );
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [dalekOpen, setDalekOpen] = useState(false);
@@ -617,6 +624,13 @@ export function ServiceCallsAdmin() {
       .filter((c) => (techFilter === "all" ? true : c.technician === techFilter))
       .filter((c) => (clientFilter === "all" ? true : c.client === clientFilter))
       .filter((c) => (siteFilter === "all" ? true : c.project === siteFilter))
+      .filter((c) =>
+        sourceFilter === "all"
+          ? true
+          : sourceFilter === "client"
+            ? c.source === "client"
+            : c.source !== "client",
+      )
       .filter((c) => {
         const q = numberFilter.trim().toLowerCase();
         if (!q || q === "all") return true;
@@ -669,6 +683,7 @@ export function ServiceCallsAdmin() {
     techFilter,
     clientFilter,
     siteFilter,
+    sourceFilter,
     numberFilter,
     dateFrom,
     dateTo,
@@ -690,6 +705,7 @@ export function ServiceCallsAdmin() {
       techFilter,
       clientFilter,
       siteFilter,
+      sourceFilter,
       numberFilter,
       dateFrom,
       dateTo,
@@ -853,6 +869,11 @@ export function ServiceCallsAdmin() {
         </h3>
         <Badge variant="secondary">פתוחות: {counts.open}</Badge>
         <Badge variant="outline">ללא טכנאי: {counts.unassigned}</Badge>
+        {sourceFilter !== "all" && (
+          <Badge variant={sourceFilter === "client" ? "destructive" : "default"}>
+            {sourceFilter === "client" ? "מתאגידי מים" : "אולנט"}
+          </Badge>
+        )}
         <div className="ms-auto flex items-center gap-2">
           <Button
             variant={view === "active" ? "brand" : "outline"}
@@ -1117,7 +1138,7 @@ export function ServiceCallsAdmin() {
         )}
       </div>
 
-      <div className="surface-panel grid grid-cols-7 items-start gap-2 rounded-2xl p-3">
+      <div className="surface-panel grid grid-cols-8 items-start gap-2 rounded-2xl p-3">
         <div className="min-w-0 space-y-1">
           <Label className="text-[11px]">סטטוס</Label>
           <Select
@@ -1182,6 +1203,19 @@ export function ServiceCallsAdmin() {
                   {s}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="min-w-0 space-y-1">
+          <Label className="text-[11px]">מקור קריאה</Label>
+          <Select value={sourceFilter} onValueChange={(v) => setSourceFilter(v as typeof sourceFilter)}>
+            <SelectTrigger className="h-9 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">הכל</SelectItem>
+              <SelectItem value="client">מתאגידי מים</SelectItem>
+              <SelectItem value="system">אולנט</SelectItem>
             </SelectContent>
           </Select>
         </div>
