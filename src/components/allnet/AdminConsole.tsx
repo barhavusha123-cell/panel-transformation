@@ -1518,19 +1518,21 @@ export function AdminConsole() {
                           {p.name}
                         </button>
                       </TableCell>
-                      <TableCell>
-                        <div className="space-y-0.5">
-                          <p className="text-xs text-muted-foreground">
-                            שווי ראשוני: {Math.round(r.saleBase).toLocaleString("he-IL")} ₪
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            תוספות מאושרות: {Math.round(r.additions).toLocaleString("he-IL")} ₪
-                          </p>
-                          <p className="font-semibold">
-                            סה"כ: {Math.round(r.sale).toLocaleString("he-IL")} ₪
-                          </p>
-                        </div>
-                      </TableCell>
+                      {categoryView !== "service" && (
+                        <TableCell>
+                          <div className="space-y-0.5">
+                            <p className="text-xs text-muted-foreground">
+                              שווי ראשוני: {Math.round(r.saleBase).toLocaleString("he-IL")} ₪
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              תוספות מאושרות: {Math.round(r.additions).toLocaleString("he-IL")} ₪
+                            </p>
+                            <p className="font-semibold">
+                              סה"כ: {Math.round(r.sale).toLocaleString("he-IL")} ₪
+                            </p>
+                          </div>
+                        </TableCell>
+                      )}
                       <TableCell>{p.manager}</TableCell>
                       {isArchive && (
                         <>
