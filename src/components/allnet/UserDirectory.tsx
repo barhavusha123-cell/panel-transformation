@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import {
   Briefcase,
+  Building2,
   KeyRound,
   Mail,
   Pencil,
-  Phone,
   Plus,
   Search,
   ShieldCheck,
