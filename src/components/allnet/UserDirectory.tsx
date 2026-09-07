@@ -3,6 +3,8 @@ import {
   Briefcase,
   KeyRound,
   Mail,
+  Pencil,
+  Phone,
   Plus,
   Search,
   ShieldCheck,
@@ -45,10 +47,10 @@ const initials = (name: string) =>
     .join("");
 
 function Avatar({ name, size = "md" }: { name: string; size?: "md" | "lg" }) {
-  const dim = size === "lg" ? "size-16 text-xl" : "size-11 text-sm";
+  const dim = size === "lg" ? "size-16 text-xl" : "size-9 text-xs";
   return (
     <span
-      className={`relative flex ${dim} shrink-0 items-center justify-center rounded-full bg-surface-2 font-semibold text-blue-dark ring-1 ring-border`}
+      className={`relative flex ${dim} shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-blue-dark`}
     >
       {name.trim() ? initials(name) : <UserRound className="size-1/2" />}
     </span>
@@ -63,9 +65,14 @@ export function UserDirectory() {
 
   const users = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return state.users;
-    return state.users.filter((u) =>
-      [u.full_name, u.username, u.email ?? "", u.role].some((v) => v.toLowerCase().includes(q)),
+    const list = [...state.users].sort((a, b) =>
+      a.full_name.localeCompare(b.full_name, "he"),
+    );
+    if (!q) return list;
+    return list.filter((u) =>
+      [u.full_name, u.username, u.email ?? "", u.role].some((v) =>
+        v.toLowerCase().includes(q),
+      ),
     );
   }, [state.users, query]);
 
@@ -74,62 +81,146 @@ export function UserDirectory() {
       (p) => !p.archived && (p.team?.includes(fullName) || p.manager === fullName),
     );
 
+  const clientNameOf = (clientId?: string) =>
+    state.clients.find((c) => c.id === clientId)?.name ?? "";
+
+  const remove = (username: string, fullName: string) => {
+    if (!window.confirm(`למחוק את המשתמש "${fullName}"?`)) return;
+    setState((prev) => ({
+      ...prev,
+      users: prev.users.filter((u) => u.username !== username),
+    }));
+    toast.success("המשתמש הוסר בהצלחה.");
+  };
+
   return (
-    <div className="surface-panel rounded-2xl p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="flex items-center gap-2 text-lg font-semibold">
-          <Users className="size-5 text-primary" />
-          משתמשים פעילים
-          <Badge variant="secondary" className="text-xs">
-            {state.users.length}
-          </Badge>
-        </h3>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative">
-            <Search className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="חיפוש לפי שם, תפקיד או דוא״ל"
-              className="w-64 pr-9"
-            />
+    <div className="space-y-5">
+      <div className="surface-panel rounded-2xl p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+              <Users className="size-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold">ניהול משתמשים</h3>
+              <p className="text-xs text-muted-foreground">
+                {state.users.length} משתמשים פעילים · לחץ על שורה לעריכת פרופיל והרשאות
+              </p>
+            </div>
           </div>
-          <Button variant="brand" onClick={() => setCreating(true)}>
-            <Plus className="size-4" />
-            משתמש חדש
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="brand" onClick={() => setCreating(true)}>
+              <Plus className="size-4" />
+              משתמש חדש
+            </Button>
+          </div>
+        </div>
+        <Separator className="my-4" />
+        <div className="relative max-w-sm">
+          <Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="חיפוש לפי שם, תפקיד או דוא״ל"
+            className="ps-9"
+          />
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {users.map((u) => (
-          <button
-            key={u.username}
-            type="button"
-            onClick={() => setSelected(u.username)}
-            className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-right transition-colors hover:border-primary/50 hover:bg-surface-2/60 hover:-translate-y-0.5"
-          >
-            <Avatar name={u.full_name} />
-            <span className="min-w-0 flex-1">
-              <span className="block truncate font-semibold">{u.full_name}</span>
-              <span className="block truncate text-xs text-muted-foreground">
-                {u.email || u.username}
-              </span>
-              <span className="mt-1 flex flex-wrap gap-1">
-                <Badge variant="outline" className="text-[11px]">
-                  {u.role}
-                </Badge>
-                {projectsOf(u.full_name).length > 0 && (
-                  <Badge variant="secondary" className="text-[11px]">
-                    {projectsOf(u.full_name).length} פרויקטים
-                  </Badge>
-                )}
-              </span>
-            </span>
-          </button>
-        ))}
-        {!users.length && <p className="text-sm text-muted-foreground">לא נמצאו משתמשים תואמים.</p>}
-      </div>
+      {users.length === 0 ? (
+        <p className="surface-panel rounded-2xl p-6 text-sm text-muted-foreground">
+          {state.users.length === 0
+            ? "עוד לא נרשמו משתמשים. לחץ על \"משתמש חדש\" כדי להתחיל."
+            : "לא נמצאו משתמשים התואמים לחיפוש."}
+        </p>
+      ) : (
+        <div className="surface-panel overflow-hidden rounded-2xl">
+          <div className="hidden items-center gap-3 border-b border-border/60 bg-muted/40 px-4 py-2 text-[11px] font-medium text-muted-foreground lg:grid lg:grid-cols-[minmax(0,2fr)_10rem_8rem_9rem_6rem_5rem]">
+            <span>שם משתמש / שם מלא</span>
+            <span>דוא״ל</span>
+            <span>תפקיד</span>
+            <span>לקוח משויך</span>
+            <span>פרויקטים</span>
+            <span className="text-center">פעולות</span>
+          </div>
+          <ul className="divide-y divide-border/50">
+            {users.map((u) => {
+              const projectsCount = projectsOf(u.full_name).length;
+              const clientName = clientNameOf(u.clientId);
+              return (
+                <li
+                  key={u.username}
+                  className="group flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 text-sm transition-colors hover:bg-muted/40 lg:grid lg:grid-cols-[minmax(0,2fr)_10rem_8rem_9rem_6rem_5rem] lg:gap-3"
+                >
+                  <div className="flex min-w-0 flex-1 items-center gap-2 lg:w-auto lg:min-w-0">
+                    <Avatar name={u.full_name} />
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium">{u.full_name}</span>
+                      <span className="block truncate text-[11px] text-muted-foreground">
+                        {u.username}
+                      </span>
+                    </span>
+                  </div>
+                  <span className="w-40 shrink-0 truncate text-muted-foreground lg:w-auto">
+                    {u.email ? (
+                      <span className="flex items-center gap-1.5">
+                        <Mail className="size-3.5 shrink-0" />
+                        <span className="truncate" dir="ltr">{u.email}</span>
+                      </span>
+                    ) : (
+                      ""
+                    )}
+                  </span>
+                  <span className="w-32 shrink-0 truncate lg:w-auto">
+                    <Badge variant="outline" className="text-[11px]">
+                      {u.role}
+                    </Badge>
+                  </span>
+                  <span className="w-36 shrink-0 truncate text-muted-foreground lg:w-auto">
+                    {u.role === "לקוח" && clientName ? (
+                      <span className="flex items-center gap-1.5">
+                        <Phone className="size-3.5 shrink-0" />
+                        {clientName}
+                      </span>
+                    ) : (
+                      ""
+                    )}
+                  </span>
+                  <span className="w-20 shrink-0 lg:w-auto">
+                    {projectsCount > 0 ? (
+                      <Badge variant="secondary" className="text-[11px]">
+                        {projectsCount} פרויקטים
+                      </Badge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </span>
+                  <span className="flex w-20 shrink-0 justify-end gap-1 lg:w-auto">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="size-8"
+                      title="ערוך"
+                      onClick={() => setSelected(u.username)}
+                    >
+                      <Pencil className="size-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="size-8 text-destructive hover:bg-destructive/10"
+                      title="מחק"
+                      onClick={() => remove(u.username, u.full_name)}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
 
       {selected && <UserDetailsDialog username={selected} onClose={() => setSelected(null)} />}
 
