@@ -2990,7 +2990,10 @@ export function AdminConsole() {
                 <p className="text-sm text-muted-foreground">אין פרויקטים רשומים במערכת עדיין.</p>
               )}
             </div>
+          </TabsContent>
 
+          {/* Documents & plans */}
+          <TabsContent value="docs" className="mt-6 space-y-6">
             <div className="surface-panel space-y-4 rounded-2xl p-6">
               <h3 className="flex items-center gap-2 text-lg font-semibold">
                 <Upload className="size-5 text-primary" />
