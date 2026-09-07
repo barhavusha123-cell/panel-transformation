@@ -59,7 +59,33 @@ export function DocumentList({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      <div className="surface-panel flex items-center gap-2 rounded-2xl p-3">
+        <div className="relative flex-1">
+          <Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="חפש לפי שם פרויקט, לקוח או שם קובץ…"
+            className="h-10 pe-9 ps-10 text-sm"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="size-4" />
+            </button>
+          )}
+        </div>
+        {search && (
+          <Badge variant="secondary" className="h-10 whitespace-nowrap px-3">
+            {files.length} תוצאות
+          </Badge>
+        )}
+      </div>
+
       {files.map((file, i) => (
         <div
           key={file.id}
