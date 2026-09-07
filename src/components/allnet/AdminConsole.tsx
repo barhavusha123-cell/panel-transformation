@@ -2064,9 +2064,9 @@ export function AdminConsole() {
         </KpiCard>
 
         <div className="service-green md:col-span-2 xl:col-span-4">
-        <KpiCard title="קריאות שירות" icon={<Headset className="size-4" />} delay={40}>
+        <KpiCard title="קריאות שירות פתוחות" icon={<Headset className="size-4" />} delay={40}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
-            {/* צד ימין — קריאות פתוחות */}
+            {/* צד ימין — קריאות שירות אולנט */}
             <div className="flex shrink-0 flex-col items-center justify-center sm:w-44">
               <div className="text-center">
                 <div
@@ -2075,7 +2075,7 @@ export function AdminConsole() {
                   {openServiceCalls}
                 </div>
                 <p className="mt-1 text-sm font-medium text-muted-foreground">
-                  קריאות פתוחות
+                  קריאות שירות אולנט
                 </p>
               </div>
               {unassignedServiceCalls > 0 && (
@@ -2093,7 +2093,7 @@ export function AdminConsole() {
               </Button>
             </div>
 
-            {/* אמצע — קריאות שפותחו על ידי לקוחות */}
+            {/* אמצע — קריאות מתאגידי מים */}
             <div className="flex shrink-0 flex-col items-center justify-center sm:w-44">
               <div className="text-center">
                 <div
@@ -2102,7 +2102,7 @@ export function AdminConsole() {
                   {clientServiceCalls}
                 </div>
                 <p className="mt-1 text-sm font-medium text-muted-foreground">
-                  קריאות מלקוחות
+                  קריאות מתאגידי מים
                 </p>
               </div>
               <Button
