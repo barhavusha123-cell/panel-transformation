@@ -1236,6 +1236,18 @@ export function ServiceCallsAdmin({
           </Select>
         </div>
         <div className="min-w-0 space-y-1">
+          <Label className="text-[11px]">חיפוש לקוח / פרויקט</Label>
+          <div className="relative">
+            <Search className="absolute start-2 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="h-9 ps-7 text-xs"
+              value={clientProjectSearch}
+              onChange={(e) => setClientProjectSearch(e.target.value)}
+              placeholder="שם לקוח או פרויקט…"
+            />
+          </div>
+        </div>
+        <div className="min-w-0 space-y-1">
           <Label className="text-[11px]">מספר קריאה</Label>
           <Input
             className="h-9 text-xs"
