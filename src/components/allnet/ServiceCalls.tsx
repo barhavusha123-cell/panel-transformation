@@ -547,6 +547,9 @@ export function ServiceCallsAdmin({
   const [techFilter, setTechFilter] = useState("all");
   const [clientFilter, setClientFilter] = useState("all");
   const [siteFilter, setSiteFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState<"all" | "client" | "system">(
+    initialSourceFilter ?? "all",
+  );
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [dalekOpen, setDalekOpen] = useState(false);
