@@ -500,7 +500,7 @@ function useTechnicians() {
 export function ServiceCallsAdmin({
   sourceFilter: initialSourceFilter,
 }: {
-  sourceFilter?: "client" | "system";
+  sourceFilter?: "client" | "system" | undefined;
 }) {
   const navigate = useNavigate();
   const { state, setState } = useAllNet();
