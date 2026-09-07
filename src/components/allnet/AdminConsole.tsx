@@ -1575,9 +1575,28 @@ export function AdminConsole() {
                                 </div>
                               );
                             })()}
-                          </TableCell>
-                        </>
-                      )}
+                           </TableCell>
+                          {categoryView === "service" && (
+                            <TableCell className="text-sm">
+                              <div className="flex flex-col items-start gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="soft"
+                                  onClick={() => setAgreementProject(p.name)}
+                                >
+                                  <Paperclip className="size-4" />
+                                  {p.serviceAgreement ? "צפה / החלף" : "צרף הסכם"}
+                                </Button>
+                                {p.serviceAgreement && (
+                                  <span className="max-w-40 truncate text-xs text-muted-foreground">
+                                    {p.serviceAgreement.name}
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                          )}
+                         </>
+                       )}
                          <TableCell>
                           <div className="flex flex-wrap gap-2">
                             {categoryView === "warranty" && (
