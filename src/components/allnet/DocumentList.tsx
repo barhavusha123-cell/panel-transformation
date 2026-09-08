@@ -17,11 +17,13 @@ import type { FileRecord } from "@/lib/allnet/types";
 export function DocumentList({
   projectFilter,
   clientFilter,
+  clientOnly = false,
   hideSearch = false,
   isAdmin = false,
 }: {
   projectFilter?: string | null;
   clientFilter?: string | null;
+  clientOnly?: boolean;
   hideSearch?: boolean;
   isAdmin?: boolean;
 }) {
@@ -32,6 +34,7 @@ export function DocumentList({
   const query = search.trim().toLowerCase();
   const files = useMemo(() => {
     return state.files.filter((f) => {
+      if (clientOnly && !f.client) return false;
       const matchesProject = projectFilter ? f.project === projectFilter : true;
       const projectClient = state.projects.find((p) => p.name === f.project)?.client;
       const matchesClient = clientFilter
