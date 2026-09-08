@@ -259,6 +259,8 @@ export interface FileRecord {
   uploadedAt: string;
   size: string;
   project: string;
+  /** שיוך ללקוח (אופציונלי) */
+  client?: string;
 }
 
 /** ===== קריאות שירות ===== */

@@ -16,9 +16,13 @@ import type { FileRecord } from "@/lib/allnet/types";
 
 export function DocumentList({
   projectFilter,
+  clientFilter,
+  hideSearch = false,
   isAdmin = false,
 }: {
   projectFilter?: string | null;
+  clientFilter?: string | null;
+  hideSearch?: boolean;
   isAdmin?: boolean;
 }) {
   const { state, setState } = useAllNet();
@@ -29,15 +33,20 @@ export function DocumentList({
   const files = useMemo(() => {
     return state.files.filter((f) => {
       const matchesProject = projectFilter ? f.project === projectFilter : true;
+      const projectClient = state.projects.find((p) => p.name === f.project)?.client;
+      const matchesClient = clientFilter
+        ? f.client === clientFilter || projectClient === clientFilter
+        : true;
+      if (!matchesClient) return false;
       if (!query) return matchesProject;
       const project = state.projects.find((p) => p.name === f.project);
-      const client = project?.client?.toLowerCase() ?? "";
+      const client = `${project?.client ?? ""} ${f.client ?? ""}`.toLowerCase();
       const projectName = f.project?.toLowerCase() ?? "";
       const fileName = f.name?.toLowerCase() ?? "";
       const haystack = [fileName, projectName, client].join(" ");
       return matchesProject && haystack.includes(query);
     });
-  }, [state.files, state.projects, projectFilter, query]);
+  }, [state.files, state.projects, projectFilter, clientFilter, query]);
 
   if (!state.files.length)
     return (
@@ -49,7 +58,7 @@ export function DocumentList({
   if (!files.length)
     return (
       <p className="rounded-xl border border-dashed border-border bg-surface/60 p-6 text-center text-sm text-muted-foreground">
-        אין קבצים זמינים עבור מסנן פרויקט זה.
+        אין קבצים זמינים עבור סינון זה.
       </p>
     );
 
@@ -60,6 +69,7 @@ export function DocumentList({
 
   return (
     <div className="space-y-3">
+      {!hideSearch && (
       <div className="surface-panel flex items-center gap-2 rounded-2xl p-3">
         <div className="relative flex-1">
           <Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -85,6 +95,7 @@ export function DocumentList({
           </Badge>
         )}
       </div>
+      )}
 
       {files.map((file, i) => (
         <div
@@ -102,9 +113,9 @@ export function DocumentList({
                 const project = state.projects.find((p) => p.name === file.project);
                 return (
                   <>
-                    {project?.client && (
+                    {(file.client ?? project?.client) && (
                       <Badge variant="outline" className="text-xs">
-                        {project.client}
+                        {file.client ?? project?.client}
                       </Badge>
                     )}
                     <Badge variant="secondary" className="text-xs">
