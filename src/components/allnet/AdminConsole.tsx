@@ -1011,8 +1011,41 @@ export function AdminConsole() {
   };
 
   // file upload
+  const [docsTab, setDocsTab] = useState<"project" | "client">("project");
   const [fileProject, setFileProject] = useState("כללי");
   const [fileClient, setFileClient] = useState("none");
+  const handleClientUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (fileClient === "none") {
+      toast.error("יש לבחור לקוח לשיוך המסמך.");
+      e.target.value = "";
+      return;
+    }
+    const dataUrl = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.readAsDataURL(file);
+    });
+    setState((prev) => ({
+      ...prev,
+      files: [
+        ...prev.files,
+        {
+          id: crypto.randomUUID(),
+          name: file.name,
+          dataUrl,
+          uploadedBy: "מנהל מערכת",
+          uploadedAt: nowStamp(),
+          size: `${Math.round((file.size / (1024 * 1024)) * 100) / 100} MB`,
+          project: "כללי",
+          client: fileClient,
+        },
+      ],
+    }));
+    toast.success(`הקובץ '${file.name}' שויך ללקוח '${fileClient}' בהצלחה.`);
+    e.target.value = "";
+  };
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
