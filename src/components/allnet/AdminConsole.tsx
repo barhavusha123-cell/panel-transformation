@@ -1011,7 +1011,6 @@ export function AdminConsole() {
   };
 
   // file upload
-  const [docsTab, setDocsTab] = useState<"project" | "client">("project");
   const [fileProject, setFileProject] = useState("כללי");
   const [fileClient, setFileClient] = useState("none");
   const handleClientUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -2541,6 +2540,12 @@ export function AdminConsole() {
             >
               מסמכים ותוכניות
             </TabsTrigger>
+            <TabsTrigger
+              value="client-docs"
+              className="data-[state=active]:brand-gradient rounded-lg data-[state=active]:text-primary-foreground"
+            >
+              שיוך ללקוח
+            </TabsTrigger>
           </TabsList>
 
           {/* Reports */}
@@ -3041,28 +3046,7 @@ export function AdminConsole() {
           </TabsContent>
 
           {/* Documents & plans */}
-          <TabsContent value="docs" className="mt-6">
-            <Tabs
-              value={docsTab}
-              onValueChange={(v) => setDocsTab(v as "project" | "client")}
-              dir="rtl"
-            >
-              <TabsList className="grid h-auto w-full grid-cols-2 gap-1 bg-surface-2/70 p-1.5 sm:max-w-xl">
-                <TabsTrigger
-                  value="project"
-                  className="min-h-11 cursor-pointer rounded-md border border-transparent px-4 py-2 font-semibold data-[state=active]:border-border data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm"
-                >
-                  שיוך לפרויקט
-                </TabsTrigger>
-                <TabsTrigger
-                  value="client"
-                  className="min-h-11 cursor-pointer rounded-md border border-transparent px-4 py-2 font-semibold data-[state=active]:border-border data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm"
-                >
-                  שיוך ללקוח
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="project" className="mt-6 space-y-6">
+          <TabsContent value="docs" className="mt-6 space-y-6">
                 <div className="surface-panel space-y-4 rounded-2xl p-6">
                   <h3 className="flex items-center gap-2 text-lg font-semibold">
                     <Upload className="size-5 text-primary" />
@@ -3103,9 +3087,9 @@ export function AdminConsole() {
                   </h3>
                   <DocumentList isAdmin />
                 </div>
-              </TabsContent>
+          </TabsContent>
 
-              <TabsContent value="client" className="mt-6 space-y-6">
+          <TabsContent value="client-docs" className="mt-6 space-y-6">
                 <div className="surface-panel space-y-4 rounded-2xl p-6">
                   <h3 className="flex items-center gap-2 text-lg font-semibold">
                     <Upload className="size-5 text-primary" />
@@ -3149,8 +3133,6 @@ export function AdminConsole() {
                   </h3>
                   <DocumentList isAdmin clientOnly />
                 </div>
-              </TabsContent>
-            </Tabs>
           </TabsContent>
         </Tabs>
       )}
