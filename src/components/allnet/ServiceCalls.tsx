@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { ClientPicker } from "./ClientPicker";
+import { DocumentList } from "./DocumentList";
 import { useNavigate } from "@tanstack/react-router";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -1833,6 +1834,16 @@ export function ServiceCallsTechnician() {
       {myCalls.map((call) => (
         <CallCard key={call.id} call={call} technicianName={user?.full_name ?? ""}>
           <div className="space-y-3">
+            {call.client && (
+              <details className="rounded-xl border border-border bg-surface-2/50 p-3">
+                <summary className="cursor-pointer text-xs font-semibold text-muted-foreground">
+                  מסמכי הלקוח — {call.client}
+                </summary>
+                <div className="mt-3">
+                  <DocumentList clientFilter={call.client} hideSearch />
+                </div>
+              </details>
+            )}
             <div className="space-y-3 rounded-xl border border-border bg-surface-2/50 p-3">
               <p className="text-xs font-semibold text-muted-foreground">שעות עבודה באתר</p>
               <div className="grid grid-cols-2 gap-2">

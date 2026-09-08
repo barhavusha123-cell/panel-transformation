@@ -1012,6 +1012,7 @@ export function AdminConsole() {
 
   // file upload
   const [fileProject, setFileProject] = useState("כללי");
+  const [fileClient, setFileClient] = useState("none");
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -1032,6 +1033,7 @@ export function AdminConsole() {
           uploadedAt: nowStamp(),
           size: `${Math.round((file.size / (1024 * 1024)) * 100) / 100} MB`,
           project: fileProject,
+          ...(fileClient !== "none" ? { client: fileClient } : {}),
         },
       ],
     }));
@@ -3036,6 +3038,25 @@ export function AdminConsole() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>שייך ללקוח</Label>
+                  <Select value={fileClient} onValueChange={setFileClient}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">ללא שיוך ללקוח</SelectItem>
+                      {state.clients.map((c) => (
+                        <SelectItem key={c.id} value={c.name}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    מסמך המשויך ללקוח יוצג לטכנאי בקריאת שירות של אותו לקוח.
+                  </p>
                 </div>
               </div>
             </div>
