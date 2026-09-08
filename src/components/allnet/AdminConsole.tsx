@@ -3041,66 +3041,110 @@ export function AdminConsole() {
           </TabsContent>
 
           {/* Documents & plans */}
-          <TabsContent value="docs" className="mt-6 space-y-6">
-            <div className="surface-panel space-y-4 rounded-2xl p-6">
-              <h3 className="flex items-center gap-2 text-lg font-semibold">
-                <Upload className="size-5 text-primary" />
-                העלאת מסמכים ותוכניות
-              </h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>בחר קובץ</Label>
-                  <Input
-                    type="file"
-                    accept=".pdf,.png,.jpg,.jpeg,.dwg,.xlsx,.docx"
-                    onChange={handleUpload}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>שייך לפרויקט</Label>
-                  <Select value={fileProject} onValueChange={setFileProject}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="כללי">כללי</SelectItem>
-                      {state.projects.map((p) => (
-                        <SelectItem key={p.name} value={p.name}>
-                          {p.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>שייך ללקוח</Label>
-                  <Select value={fileClient} onValueChange={setFileClient}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">ללא שיוך ללקוח</SelectItem>
-                      {state.clients.map((c) => (
-                        <SelectItem key={c.id} value={c.name}>
-                          {c.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    מסמך המשויך ללקוח יוצג לטכנאי בקריאת שירות של אותו לקוח.
-                  </p>
-                </div>
-              </div>
-            </div>
+          <TabsContent value="docs" className="mt-6">
+            <Tabs
+              value={docsTab}
+              onValueChange={(v) => setDocsTab(v as "project" | "client")}
+              dir="rtl"
+            >
+              <TabsList className="bg-surface-2/70 p-1">
+                <TabsTrigger value="project" className="cursor-pointer">
+                  שיוך לפרויקט
+                </TabsTrigger>
+                <TabsTrigger value="client" className="cursor-pointer">
+                  שיוך ללקוח
+                </TabsTrigger>
+              </TabsList>
 
-            <div className="surface-panel space-y-4 rounded-2xl p-6">
-              <h3 className="flex items-center gap-2 text-lg font-semibold">
-                <FileText className="size-5 text-primary" />
-                מסמכים ותוכניות שהועלו
-              </h3>
-              <DocumentList isAdmin />
-            </div>
+              <TabsContent value="project" className="mt-6 space-y-6">
+                <div className="surface-panel space-y-4 rounded-2xl p-6">
+                  <h3 className="flex items-center gap-2 text-lg font-semibold">
+                    <Upload className="size-5 text-primary" />
+                    העלאת מסמכים ותוכניות
+                  </h3>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>בחר קובץ</Label>
+                      <Input
+                        type="file"
+                        accept=".pdf,.png,.jpg,.jpeg,.dwg,.xlsx,.docx"
+                        onChange={handleUpload}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>שייך לפרויקט</Label>
+                      <Select value={fileProject} onValueChange={setFileProject}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="כללי">כללי</SelectItem>
+                          {state.projects.map((p) => (
+                            <SelectItem key={p.name} value={p.name}>
+                              {p.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="surface-panel space-y-4 rounded-2xl p-6">
+                  <h3 className="flex items-center gap-2 text-lg font-semibold">
+                    <FileText className="size-5 text-primary" />
+                    מסמכים ותוכניות שהועלו
+                  </h3>
+                  <DocumentList isAdmin />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="client" className="mt-6 space-y-6">
+                <div className="surface-panel space-y-4 rounded-2xl p-6">
+                  <h3 className="flex items-center gap-2 text-lg font-semibold">
+                    <Upload className="size-5 text-primary" />
+                    העלאת מסמך ושיוך ללקוח
+                  </h3>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>בחר קובץ תיעוד</Label>
+                      <Input
+                        type="file"
+                        accept=".pdf,.png,.jpg,.jpeg,.dwg,.xlsx,.docx"
+                        onChange={handleClientUpload}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>שייך ללקוח</Label>
+                      <Select value={fileClient} onValueChange={setFileClient}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">בחר לקוח…</SelectItem>
+                          {state.clients.map((c) => (
+                            <SelectItem key={c.id} value={c.name}>
+                              {c.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">
+                        מסמך המשויך ללקוח יוצג לטכנאי בקריאת שירות של אותו לקוח.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="surface-panel space-y-4 rounded-2xl p-6">
+                  <h3 className="flex items-center gap-2 text-lg font-semibold">
+                    <FileText className="size-5 text-primary" />
+                    מסמכים משויכים ללקוחות
+                  </h3>
+                  <DocumentList isAdmin clientOnly />
+                </div>
+              </TabsContent>
+            </Tabs>
           </TabsContent>
         </Tabs>
       )}
