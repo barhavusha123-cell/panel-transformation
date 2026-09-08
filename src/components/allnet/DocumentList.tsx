@@ -49,7 +49,7 @@ export function DocumentList({
       const haystack = [fileName, projectName, client].join(" ");
       return matchesProject && haystack.includes(query);
     });
-  }, [state.files, state.projects, projectFilter, clientFilter, query]);
+  }, [state.files, state.projects, projectFilter, clientFilter, clientOnly, query]);
 
   if (!state.files.length)
     return (
