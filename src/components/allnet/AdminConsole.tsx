@@ -3047,11 +3047,17 @@ export function AdminConsole() {
               onValueChange={(v) => setDocsTab(v as "project" | "client")}
               dir="rtl"
             >
-              <TabsList className="bg-surface-2/70 p-1">
-                <TabsTrigger value="project" className="cursor-pointer">
+              <TabsList className="grid h-auto w-full grid-cols-2 gap-1 bg-surface-2/70 p-1.5 sm:max-w-xl">
+                <TabsTrigger
+                  value="project"
+                  className="min-h-11 cursor-pointer rounded-md border border-transparent px-4 py-2 font-semibold data-[state=active]:border-border data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm"
+                >
                   שיוך לפרויקט
                 </TabsTrigger>
-                <TabsTrigger value="client" className="cursor-pointer">
+                <TabsTrigger
+                  value="client"
+                  className="min-h-11 cursor-pointer rounded-md border border-transparent px-4 py-2 font-semibold data-[state=active]:border-border data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm"
+                >
                   שיוך ללקוח
                 </TabsTrigger>
               </TabsList>
